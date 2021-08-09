@@ -6,8 +6,11 @@
 <div class="components-preview wide-md mx-auto">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
-            <div class="nk-block-head-sub"><a class="back-to" href="/supplier"><em class="icon ni ni-arrow-left"></em><span>Master Data Supplier</span></a></div>
-            <h2 class="nk-block-title fw-normal">Tambah Data Supplier</h2>
+            <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div>
+            <h2 class="nk-block-title fw-normal">Subkategori Barang</h2>
+            <div class="nk-block-des">
+                <p class="lead">Ubah Subkategori Barang</p>
+            </div>
         </div>
     </div><!-- .nk-block -->
     <div class="nk-block nk-block-lg">
@@ -28,48 +31,15 @@
                     <div class="row g-4">
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label class="form-label" for="full-name-1">Kode</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="code" class="form-control" readonly>
-                                </div>
-                            </div>
-                            <div class="form-group">
                                 <label class="form-label" for="full-name-1">Nama</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="name" class="form-control" placeholder="Masukan Nama">
+                                    <input type="text" v-model="name" class="form-control">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="full-name-1">Alamat</label>
+                                <label class="form-label" for="full-name-1">Kode</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="address" class="form-control" placeholder="Masukan Alamat">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">No. Tlp</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="telephone" class="form-control" placeholder="Masukan Nomor Telepon">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">No. HP/WA</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="handphone" class="form-control" placeholder="Masukan Nomor HP/WA">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Email</label>
-                                <div class="form-control-wrap">
-                                    <input type="email" v-model="email" class="form-control" placeholder="Masukan Email">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Status</label>
-                                <div class="form-control-wrap">
-                                    <select v-model="status" class="form-control">
-                                        <option value="1">Active</option>
-                                        <option value="0">Inactive</option>
-                                    </select>
+                                    <input type="text" v-model="code" class="form-control">
                                 </div>
                             </div>
                         </div>
@@ -102,13 +72,8 @@
     let app = new Vue({
         el: '#app',
         data: {
-            name: '',
-            code: '{{ $code }}',
-            address: '',
-            telephone: '',
-            handphone: '',
-            email: '',
-            status: '1',
+            name: '{{$product_subcategories->name}}',
+            code: '{{$product_subcategories->code}}',
             loading: false,
         },
         methods: {
@@ -119,14 +84,9 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/supplier', {
+                axios.patch('/product-subcategory/{{$product_subcategories->id}}', {
                         name: this.name,
                         code: this.code,
-                        address: this.address,
-                        telephone: this.telephone,
-                        handphone: this.handphone,
-                        email: this.email,
-                        status: this.status,
                     })
                     .then(function(response) {
                         vm.loading = false;
@@ -137,7 +97,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/supplier';
+                                window.location.href = '/product/create';
                             }
                         })
                         // console.log(response);

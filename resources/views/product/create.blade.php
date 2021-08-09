@@ -27,16 +27,19 @@
                 <form @submit.prevent="submitForm">
                     <div class="row g-4">
                         <div class="col-lg-6">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">Kode</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" :value="number" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <p></p>
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">Nama</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="name" class="form-control">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Kode</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" :value="number" class="form-control" readonly>
+                                    <input type="text" v-model="name" class="form-control" placeholder="Masukan nama produk">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -69,61 +72,66 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Berat (gr)</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" @keypress="isNumber($event)" v-model="weight" class="form-control" placeholder="Gram (gr)">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label class="form-label" for="full-name-1">Berat (gr)</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" @keypress="isNumber($event)" v-model="weight" class="form-control" placeholder="Gram (gr)">
+                                    </div>
                                 </div>
                             </div>
+                            <p></p>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Stok Pusat</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="central_stock" class="form-control">
+                                        <input type="text" @keypress="isNumber($event)" v-model="central_stock" class="form-control" placeholder="Stok Pusat">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Stok Retail</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="retail_stock" class="form-control">
+                                        <input type="text" @keypress="isNumber($event)" v-model="retail_stock" class="form-control" placeholder="Stok Retail">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Stok Studio</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="studio_stock" class="form-control">
+                                        <input type="text" @keypress="isNumber($event)" v-model="studio_stock" class="form-control" placeholder="Stok Studio">
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Bad Stok</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" @keypress="isNumber($event)" v-model="bad_stock" class="form-control">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label class="form-label" for="full-name-1">Bad Stok</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" @keypress="isNumber($event)" v-model="bad_stock" class="form-control" placeholder="Bad Stok">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Harga Beli</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" @keypress="isNumber($event)" v-model="purchase_price" class="form-control">
+                                <div class="form-group col-md-8">
+                                    <label class="form-label" for="full-name-1">Harga Beli</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" @keypress="isNumber($event)" v-model="purchase_price" class="form-control" placeholder="Harga Beli">
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Agen</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="agent_price" class="form-control">
+                                        <input type="text" @keypress="isNumber($event)" v-model="agent_price" class="form-control" placeholder="Harga Jual Agen">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual WS</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="ws_price" class="form-control">
+                                        <input type="text" @keypress="isNumber($event)" v-model="ws_price" class="form-control" placeholder="Harga Jual WS">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Retail</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="retail_price" class="form-control">
+                                        <input type="text" @keypress="isNumber($event)" v-model="retail_price" class="form-control" placeholder="Harga Jual Retail">
                                     </div>
                                 </div>
                             </div>
@@ -170,60 +178,97 @@
         </div>
     </div><!-- .nk-block -->
     <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
-        <form @submit.prevent="addProductCategory">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="categoryModalLabel">Tambah Kategori</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalLabel">Tambah Kategori</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form @submit.prevent="is_edit_category ? editProductCategory(category_edit_id,category_edit_index) : addProductCategory()">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="" class="form-label">Nama</label>
-                            <div class="form-control-wrap">
-                                <input type="text" class="form-control" v-model="category.name">
+                            <label for="" class="form-label col-md-8">Nama</label>
+                            <div class="form-control-wrap col-md-8">
+                                <input type="text" class="form-control" v-model="category.name" placeholder="Nama Kategori">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="" class="form-label">Kode</label>
-                            <div class="form-control-wrap">
-                                <input type="text" class="form-control" v-model="category.code">
+                            <label for="" class="form-label col-md-8">Kode</label>
+                            <div class="form-control-wrap col-md-4">
+                                <input type="text" class="form-control" v-model="category.code" placeholder="Kode Kategori">
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <button v-if="is_edit_category == true" v-on:click="onCloseEdit" type="button" class="btn btn-primary">
+                            &times;
+                        </button>
                         <button class="btn btn-primary" type="submit" :disabled="category.loading">
                             <span v-if="category.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <span>Simpan</span>
+                            <span>@{{is_edit_category ? "Edit" : "Simpan" }}</span>
                         </button>
                     </div>
+                </form>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalLabel">Manage Kategori</h5>
+                </div>
+                <div class="modal-body">
+                    <table class="datatable-init table table-striped">
+                        <thead>
+                            <tr class="text-center">
+                                <th>Kode</th>
+                                <th>Nama</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(category, index) in product_categories" :value="category.id" class="text-center">
+                                <td>@{{category.code}}</td>
+                                <td>@{{category.name}}</td>
+                                <td>
+                                    <div class="btn-group" aria-label="Basic example">
+                                        <a href="#" @click.prevent="onEditCategory(index)" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
+                                        <a href="#" @click.prevent="deleteRow(category.id)" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
     <div class="modal fade" id="subcategoryModal" tabindex="-1" aria-labelledby="subcategoryModalLabel" aria-hidden="true">
-        <form @submit.prevent="addProductSubcategory">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="subcategoryModalLabel">Tambah Subkategori</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="subcategoryModalLabel">Tambah Subkategori</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form @submit.prevent="addProductSubcategory">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="" class="form-label">Nama</label>
-                            <div class="form-control-wrap">
-                                <input type="text" class="form-control" v-model="subcategory.name">
+                            <label for="" class="form-label col-md-8">Pilih Kategori</label>
+                            <div class="form-control-wrap col-md-8">
+                                <select class="form-control" v-model="subcategory.product_category_id">
+                                    <option v-for="category in product_categories" :value="category.id">@{{category.name}}</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="" class="form-label">Kode</label>
-                            <div class="form-control-wrap">
-                                <input type="text" class="form-control" v-model="subcategory.code">
+                            <label for="" class="form-label col-md-8">Nama</label>
+                            <div class="form-control-wrap col-md-8">
+                                <input type="text" class="form-control" v-model="subcategory.name" placeholder="Nama Subkategori">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="form-label col-md-8">Kode</label>
+                            <div class="form-control-wrap col-md-4">
+                                <input type="text" class="form-control" v-model="subcategory.code" placeholder="Kode Subkategori">
                             </div>
                         </div>
                     </div>
@@ -233,9 +278,35 @@
                             <span>Simpan</span>
                         </button>
                     </div>
+                </form>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalLabel">Manage Subkategori</h5>
+                </div>
+                <div class="modal-body">
+                    <table class="datatable-init table table-striped">
+                        <thead>
+                            <tr class="text-center">
+                                <th>Kode</th>
+                                <th>Nama</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(subcategory, index) in product_subcategories" :value="subcategory.id" class="text-center">
+                                <td>@{{subcategory.code}}</td>
+                                <td>@{{subcategory.name}}</td>
+                                <td>
+                                    <div class="btn-group" aria-label="Basic example">
+                                        <a href="#" @click.prevent="onEditSubcategory(index)" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
+                                        <a href="#" @click.prevent="deleteRowSub(subcategory.id)" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 @endsection
@@ -248,15 +319,15 @@
             code: '{{$code}}',
             product_category_id: '',
             product_subcategory_id: '',
-            weight: '0',
-            central_stock: '0',
-            retail_stock: '0',
-            studio_stock: '0',
-            bad_stock: '0',
-            purchase_price: '0',
-            agent_price: '0',
-            ws_price: '0',
-            retail_price: '0',
+            weight: '',
+            central_stock: '',
+            retail_stock: '',
+            studio_stock: '',
+            bad_stock: '',
+            purchase_price: '',
+            agent_price: '',
+            ws_price: '',
+            retail_price: '',
             status: '1',
             is_changeable: '1',
             category: {
@@ -264,6 +335,9 @@
                 code: '',
                 loading: false,
             },
+            category_edit_id: null,
+            category_edit_index: null,
+            is_edit_category: false,
             subcategory: {
                 name: '',
                 code: '',
@@ -363,6 +437,7 @@
                 let vm = this;
                 vm.subcategory.loading = true;
                 axios.post('/product-subcategory', {
+                        subcategory: this.subcategory.product_category_id,
                         name: this.subcategory.name,
                         code: this.subcategory.code,
                     })
@@ -384,6 +459,37 @@
                         )
                     });
             },
+            editProductCategory: function(id, index) {
+                // console.log('submitted');
+                let vm = this;
+                vm.category.loading = true;
+                axios.patch('/product-category/' + id, {
+                        name: this.category.name,
+                        code: this.category.code,
+                    })
+                    .then(function(response) {
+                        vm.category.loading = false;
+                        console.log(response);
+                        const {
+                            data
+                        } = response.data
+                        vm.product_categories[index].name = data.name;
+                        vm.product_categories[index].code = data.code;
+                        // vm.product_categories.push(response.data.data);
+                        // vm.product_category_id = response.data.data.id
+                        // vm.onChangeCategory();
+                        // $('#categoryModal').modal('hide')
+                    })
+                    .catch(function(error) {
+                        vm.category.loading = false;
+                        console.log(error);
+                        Swal.fire(
+                            'Oops!',
+                            'Something wrong',
+                            'error'
+                        )
+                    });
+            },
             onChangeCategory: function() {
                 const category = this.product_categories.filter(cat => cat.id == this.product_category_id)[0];
                 if (category == null || typeof category == "undefined") {
@@ -399,7 +505,110 @@
                 } else {
                     this.infix = subcategory.code + '-';
                 }
-            }
+            },
+            deleteRow: function(id) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "The data will be deleted",
+                    icon: 'warning',
+                    reverseButtons: true,
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return axios.delete('/product-category/' + id)
+                            .then(function(response) {
+                                console.log(response.data);
+                            })
+                            .catch(function(error) {
+                                console.log(error.data);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops',
+                                    text: 'Something wrong',
+                                })
+                            });
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Data has been deleted',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                                // invoicesTable.ajax.reload();
+                            }
+                        })
+                    }
+                });
+            },
+            deleteRowSub: function(id) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "The data will be deleted",
+                    icon: 'warning',
+                    reverseButtons: true,
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return axios.delete('/product-subcategory/' + id)
+                            .then(function(response) {
+                                console.log(response.data);
+                            })
+                            .catch(function(error) {
+                                console.log(error.data);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops',
+                                    text: 'Something wrong',
+                                })
+                            });
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Data has been deleted',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                                // invoicesTable.ajax.reload();
+                            }
+                        })
+                    }
+                });
+            },
+            onEditCategory: function(index) {
+                const category = this.product_categories[index];
+                this.category.name = category.name;
+                this.category.code = category.code;
+                this.category_edit_id = category.id;
+                this.category_edit_index = index;
+                this.is_edit_category = true;
+            },
+            onEditSubcategory: function(index) {
+                const subcategory = this.product_subcategories[index];
+                this.subcategory.product_category_id = subcategory.product_category_id;
+                this.subcategory.name = subcategory.name;
+                this.subcategory.code = subcategory.code;
+            },
+            onCloseEdit: function() {
+                this.is_edit_category = false;
+                this.category.name = "";
+                this.category.code = "";
+            },
         },
         computed: {
             number: function() {

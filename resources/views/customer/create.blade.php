@@ -6,8 +6,8 @@
 <div class="components-preview wide-md mx-auto">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
-            <div class="nk-block-head-sub"><a class="back-to" href="/customer"><em class="icon ni ni-arrow-left"></em><span>Master Data Customer</span></a></div>
-            <h2 class="nk-block-title fw-normal">Tambah Data Customer</h2>
+            <div class="nk-block-head-sub"><a class="back-to" href="/customer"><em class="icon ni ni-arrow-left"></em><span>Master Data customer</span></a></div>
+            <h2 class="nk-block-title fw-normal">Tambah Data customer</h2>
         </div>
     </div><!-- .nk-block -->
     <div class="nk-block nk-block-lg">
@@ -36,31 +36,31 @@
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">Nama</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="name" class="form-control">
+                                    <input type="text" v-model="name" class="form-control" placeholder="Masukan Nama">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">Alamat</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="address" class="form-control">
+                                    <input type="text" v-model="address" class="form-control" placeholder="Masukan Alamat Customer">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">No. Tlp</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="telephone" class="form-control">
+                                    <input type="text" v-model="telephone" class="form-control" placeholder="Masukan Nomor Telepon">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">No. HP/WA</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="handphone" class="form-control" placeholder="Masukan hanya angka saja">
+                                    <input type="text" v-model="handphone" class="form-control" placeholder="Masukan Nomor HP/WA">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">Email</label>
                                 <div class="form-control-wrap">
-                                    <input type="email" v-model="email" class="form-control">
+                                    <input type="email" v-model="email" class="form-control" placeholder="Masukan Email">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -102,7 +102,6 @@
     let app = new Vue({
         el: '#app',
         data: {
-            errors: [],
             name: '',
             code: '{{ $code }}',
             address: '',
@@ -113,6 +112,9 @@
             loading: false,
         },
         methods: {
+            submitForm: function() {
+                this.sendData();
+            },
             sendData: function() {
                 // console.log('submitted');
                 let vm = this;
@@ -149,7 +151,7 @@
                             'error'
                         )
                     });
-            },
+            }
         }
     })
 </script>

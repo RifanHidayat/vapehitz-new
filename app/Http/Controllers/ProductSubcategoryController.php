@@ -39,6 +39,7 @@ class ProductSubcategoryController extends Controller
         $productSubcategory = new ProductSubcategory;
         $productSubcategory->name = $request->name;
         $productSubcategory->code = $request->code;
+        $productSubcategory->product_category_id = $request->subcategory;
         try {
             $productSubcategory->save();
             return response()->json([
@@ -76,7 +77,10 @@ class ProductSubcategoryController extends Controller
      */
     public function edit($id)
     {
-        //
+        $productSubcategory = productSubcategory::findOrFail($id);
+        return view('product-subcategory.edit', [
+            'product_subcategories' => $productSubcategory,
+        ]);
     }
 
     /**
@@ -88,7 +92,30 @@ class ProductSubcategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate(([
+            'name' => 'required',
+        ]));
+
+        $productSubcategory = productSubcategory::find($id);
+        $productSubcategory->name = $request->name;
+        $productSubcategory->code = $request->code;
+
+        try {
+            $productSubcategory->save();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $productSubcategory,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -99,6 +126,22 @@ class ProductSubcategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $productSubcategory = ProductSubcategory::findOrFail($id);
+        try {
+            $productSubcategory->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $productSubcategory,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 }

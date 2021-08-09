@@ -81,7 +81,10 @@ class ProductCategoryController extends Controller
      */
     public function edit($id)
     {
-        //
+        $productCategory = ProductCategory::findOrFail($id);
+        return view('product-category.edit', [
+            'product_categories' => $productCategory,
+        ]);
     }
 
     /**
@@ -93,7 +96,30 @@ class ProductCategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate(([
+            'name' => 'required',
+        ]));
+
+        $productCategory = ProductCategory::find($id);
+        $productCategory->name = $request->name;
+        $productCategory->code = $request->code;
+
+        try {
+            $productCategory->save();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $productCategory,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -104,6 +130,22 @@ class ProductCategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $productCategory = ProductCategory::findOrFail($id);
+        try {
+            $productCategory->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $productCategory,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 }

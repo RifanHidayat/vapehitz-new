@@ -27,16 +27,19 @@
                 <form @submit.prevent="submitForm">
                     <div class="row g-4">
                         <div class="col-lg-6">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label">Kode</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" :value="number" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <p></p>
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">Nama</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="name" class="form-control">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Kode</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" :value="number" class="form-control" readonly>
+                                    <input type="text" v-model="name" class="form-control" placeholder="Masukan nama produk">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -48,7 +51,7 @@
                                         </select>
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#categoryModal">
-                                                <em class="fas fa-plus"></em>
+                                                <em class="ni ni-plus"></em>
                                             </button>
                                         </div>
                                     </div>
@@ -63,71 +66,75 @@
                                         </select>
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#subcategoryModal">
-                                                <em class="fas fa-plus"></em>
+                                                <em class="ni ni-plus"></em>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Berat</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="weight" class="form-control" placeholder="Gram (gr)">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label class="form-label" for="full-name-1">Berat (gr)</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" @keypress="isNumber($event)" v-model="weight" class="form-control" placeholder="Gram (gr)">
+                                    </div>
                                 </div>
                             </div>
+                            <p></p>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Stok Pusat</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" v-model="central_stock" class="form-control" placeholder="Hanya angka">
+                                        <input type="text" @keypress="isNumber($event)" v-model="central_stock" class="form-control" placeholder="Stok Pusat">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Stok Retail</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" v-model="retail_stock" class="form-control" placeholder="Hanya angka">
+                                        <input type="text" @keypress="isNumber($event)" v-model="retail_stock" class="form-control" placeholder="Stok Retail">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Stok Studio</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" v-model="studio_stock" class="form-control" placeholder="Hanya angka">
+                                        <input type="text" @keypress="isNumber($event)" v-model="studio_stock" class="form-control" placeholder="Stok Studio">
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Bad Stok</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="bad_stock" class="form-control" placeholder="Hanya angka">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label class="form-label" for="full-name-1">Bad Stok</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" @keypress="isNumber($event)" v-model="bad_stock" class="form-control" placeholder="Bad Stok">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Harga Beli</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="purchase_price" class="form-control" placeholder="Hanya Angka">
+                                <div class="form-group col-md-8">
+                                    <label class="form-label" for="full-name-1">Harga Beli</label>
+                                    <div class="form-control-wrap">
+                                        <input type="text" @keypress="isNumber($event)" v-model="purchase_price" class="form-control" placeholder="Harga Beli">
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Agen</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" v-model="agent_price" class="form-control" placeholder="Hanya Angka">
+                                        <input type="text" @keypress="isNumber($event)" v-model="agent_price" class="form-control" placeholder="Harga Jual Agen">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual WS</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" v-model="ws_price" class="form-control" placeholder="Hanya Angka">
+                                        <input type="text" @keypress="isNumber($event)" v-model="ws_price" class="form-control" placeholder="Harga Jual WS">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Retail</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" v-model="retail_price" class="form-control" placeholder="Hanya Angka">
+                                        <input type="text" @keypress="isNumber($event)" v-model="retail_price" class="form-control" placeholder="Harga Jual Retail">
                                     </div>
                                 </div>
                             </div>
-
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">Status</label>
                                 <div class="form-control-wrap">
@@ -168,75 +175,75 @@
                 </form>
             </div>
         </div>
-        <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
-            <form @submit.prevent="addProductCategory">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="categoryModalLabel">Tambah Kategori</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="" class="form-label">Nama</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" class="form-control" v-model="category.name">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="" class="form-label">Kode</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" class="form-control" v-model="category.code">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary" type="submit" :disabled="category.loading">
-                                <span v-if="category.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span>Simpan</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal fade" id="subcategoryModal" tabindex="-1" aria-labelledby="subcategoryModalLabel" aria-hidden="true">
-            <form @submit.prevent="addProductSubcategory">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="subcategoryModalLabel">Tambah Subkategori</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="" class="form-label">Nama</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" class="form-control" v-model="subcategory.name">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="" class="form-label">Kode</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" class="form-control" v-model="subcategory.code">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary" type="submit" :disabled="subcategory.loading">
-                                <span v-if="subcategory.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span>Simpan</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
     </div><!-- .nk-block -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <form @submit.prevent="addProductCategory">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="categoryModalLabel">Tambah Kategori</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="" class="form-label">Nama</label>
+                            <div class="form-control-wrap">
+                                <input type="text" class="form-control" v-model="category.name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="form-label">Kode</label>
+                            <div class="form-control-wrap">
+                                <input type="text" class="form-control" v-model="category.code">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit" :disabled="category.loading">
+                            <span v-if="category.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span>Simpan</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal fade" id="subcategoryModal" tabindex="-1" aria-labelledby="subcategoryModalLabel" aria-hidden="true">
+        <form @submit.prevent="addProductSubcategory">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="subcategoryModalLabel">Tambah Subkategori</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="" class="form-label">Nama</label>
+                            <div class="form-control-wrap">
+                                <input type="text" class="form-control" v-model="subcategory.name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="" class="form-label">Kode</label>
+                            <div class="form-control-wrap">
+                                <input type="text" class="form-control" v-model="subcategory.code">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit" :disabled="subcategory.loading">
+                            <span v-if="subcategory.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span>Simpan</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 @endsection
 @section('pagescript')
@@ -244,26 +251,49 @@
     let app = new Vue({
         el: '#app',
         data: {
-            name: '{{ $product->name }}',
-            code: '{{ $product->code }}',
-            product_category_id: '{{ $product->product_category_id }}',
-            product_subcategory_id: '{{ $product->product_subcategory_id }}',
-            weight: '{{ $product->weight }}',
-            central_stock: '{{ $product->central_stock }}',
-            retail_stock: '{{ $product->retail_stock }}',
-            studio_stock: '{{ $product->studio_stock }}',
-            bad_stock: '{{ $product->bad_stock }}',
-            purchase_price: '{{ $product->purchase_price }}',
-            agent_price: '{{ $product->agent_price }}',
-            ws_price: '{{ $product->ws_price }}',
-            retail_price: '{{ $product->retail_price }}',
-            status: '{{ $product->status }}',
-            is_changeable: '{{ $product->is_changeable }}',
+            name: '{{$product->name}}',
+            code: ('{{$product->code}}').split("-")[2],
+            product_category_id: '{{$product->product_category_id}}',
+            product_subcategory_id: '{{$product->product_subcategory_id}}',
+            weight: '{{$product->weight}}',
+            central_stock: '{{$product->central_stock}}',
+            retail_stock: '{{$product->retail_stock}}',
+            studio_stock: '{{$product->studio_stock}}',
+            bad_stock: '{{$product->bad_stock}}',
+            purchase_price: '{{$product->purchase_price}}',
+            agent_price: '{{$product->agent_price}}',
+            ws_price: '{{$product->ws_price}}',
+            retail_price: '{{$product->retail_price}}',
+            status: '{{$product->status}}',
+            is_changeable: '{{$product->is_changeable}}',
+            category: {
+                name: '',
+                code: '',
+                loading: false,
+            },
+            subcategory: {
+                name: '',
+                code: '',
+                loading: false,
+            },
             loading: false,
+            product_categories: JSON.parse('{!! $product_categories !!}'),
+            product_subcategories: JSON.parse('{!! $product_subcategories !!}'),
+            prefix: ('{{$product->code}}').split("-")[0],
+            infix: ('{{$product->code}}').split("-")[1],
         },
         methods: {
             submitForm: function() {
                 this.sendData();
+            },
+            isNumber: function(evt) {
+                evt = (evt) ? evt : window.event;
+                var charCode = (evt.which) ? evt.which : evt.keyCode;
+                if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
+                    evt.preventDefault();;
+                } else {
+                    return true;
+                }
             },
             sendData: function() {
                 // console.log('submitted');
@@ -271,7 +301,7 @@
                 vm.loading = true;
                 axios.patch('/product/{{$product->id}}', {
                         name: this.name,
-                        code: this.code,
+                        code: this.number,
                         product_category_id: this.product_category_id,
                         product_subcategory_id: this.product_subcategory_id,
                         weight: this.weight,
@@ -366,7 +396,7 @@
                 if (category == null || typeof category == "undefined") {
                     this.prefix = '';
                 } else {
-                    this.prefix = category.code + '-';
+                    this.prefix = category.code;
                 }
             },
             onChangeSubcategory: function() {
@@ -374,13 +404,13 @@
                 if (subcategory == null || typeof subcategory == "undefined") {
                     this.infix = '';
                 } else {
-                    this.infix = subcategory.code + '-';
+                    this.infix = subcategory.code;
                 }
             }
         },
         computed: {
             number: function() {
-                return this.prefix + this.infix + this.code
+                return this.prefix + "-" + this.infix + "-" + this.code
             }
         }
     })

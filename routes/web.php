@@ -40,6 +40,7 @@ Route::prefix('/product-category')->group(function () {
     Route::get('/edit/{id}', [ProductCategoryController::class, 'edit']);
     Route::post('/', [ProductCategoryController::class, 'store']);
     Route::patch('/{id}', [ProductCategoryController::class, 'update']);
+    Route::delete('/{id}', [ProductCategoryController::class, 'destroy']);
 });
 
 //RouteProductSubcategory
@@ -49,6 +50,7 @@ Route::prefix('/product-subcategory')->group(function () {
     Route::get('/edit/{id}', [ProductSubcategoryController::class, 'edit']);
     Route::post('/', [ProductSubcategoryController::class, 'store']);
     Route::patch('/{id}', [ProductSubcategoryController::class, 'update']);
+    Route::delete('/{id}', [ProductSubcategoryController::class, 'destroy']);
 });
 
 //RouteCustomers

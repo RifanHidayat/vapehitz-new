@@ -29,7 +29,7 @@
                 <!-- <div class="card-head">
                     <h5 class="card-title">Form</h5>
                 </div> -->
-                <table class="table table-striped">
+                <table class="datatable-init table table-striped">
                     <thead>
                         <tr class="text-center">
                             <th>Kode</th>

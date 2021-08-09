@@ -30,7 +30,7 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table class="table table-striped" id="table-supplier">
+                    <table class="datatable-init table table-striped">
                         <thead>
                             <tr class="text-center">
                                 <th>Code</th>
