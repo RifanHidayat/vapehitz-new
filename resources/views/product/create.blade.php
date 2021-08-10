@@ -249,7 +249,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form @submit.prevent="addProductSubcategory">
+                <form @submit.prevent="is_edit_subcategory ? editProductSubcategory(subcategory_edit_id,subcategory_edit_index) : addProductSubcategory()">
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="" class="form-label col-md-8">Pilih Kategori</label>
@@ -273,9 +273,12 @@
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <button v-if="is_edit_subcategory == true" v-on:click="onCloseEditSub" type="button" class="btn btn-primary">
+                            &times;
+                        </button>
                         <button class="btn btn-primary" type="submit" :disabled="subcategory.loading">
                             <span v-if="subcategory.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <span>Simpan</span>
+                            <span>@{{is_edit_subcategory ? "Edit" : "Simpan" }}</span>
                         </button>
                     </div>
                 </form>
@@ -336,9 +339,13 @@
                 loading: false,
             },
             category_edit_id: null,
+            subcategory_edit_id: null,
             category_edit_index: null,
+            subcategory_edit_index: null,
             is_edit_category: false,
+            is_edit_subcategory: false,
             subcategory: {
+                product_category_id: '',
                 name: '',
                 code: '',
                 loading: false,
@@ -490,6 +497,38 @@
                         )
                     });
             },
+            editProductSubcategory: function(id, index) {
+                let vm = this;
+                vm.category.loading = true;
+                axios.patch('/product-subcategory/' + id, {
+                        subcategory: this.subcategory.product_category_id,
+                        name: this.subcategory.name,
+                        code: this.subcategory.code,
+                    })
+                    .then(function(response) {
+                        vm.subcategory.loading = false;
+                        console.log(response);
+                        const {
+                            data
+                        } = response.data
+                        vm.product_subcategories[index].product_category_id = data.product_category_id;
+                        vm.product_subcategories[index].name = data.name;
+                        vm.product_subcategories[index].code = data.code;
+                        // vm.product_categories.push(response.data.data);
+                        // vm.product_category_id = response.data.data.id
+                        // vm.onChangeCategory();
+                        // $('#categoryModal').modal('hide')
+                    })
+                    .catch(function(error) {
+                        vm.category.loading = false;
+                        console.log(error);
+                        Swal.fire(
+                            'Oops!',
+                            'Something wrong',
+                            'error'
+                        )
+                    });
+            },
             onChangeCategory: function() {
                 const category = this.product_categories.filter(cat => cat.id == this.product_category_id)[0];
                 if (category == null || typeof category == "undefined") {
@@ -507,6 +546,7 @@
                 }
             },
             deleteRow: function(id) {
+                let vm = this;
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "The data will be deleted",
@@ -534,6 +574,7 @@
                     },
                     allowOutsideClick: () => !Swal.isLoading()
                 }).then((result) => {
+                    vm.product_categories = vm.product_categories.filter(category => category.id !== id)
                     if (result.isConfirmed) {
                         Swal.fire({
                             icon: 'success',
@@ -541,7 +582,7 @@
                             text: 'Data has been deleted',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.reload();
+                                // window.location.reload();
                                 // invoicesTable.ajax.reload();
                             }
                         })
@@ -549,6 +590,7 @@
                 });
             },
             deleteRowSub: function(id) {
+                let vm = this;
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "The data will be deleted",
@@ -576,6 +618,7 @@
                     },
                     allowOutsideClick: () => !Swal.isLoading()
                 }).then((result) => {
+                    vm.product_subcategories = vm.product_subcategories.filter(subcategory => subcategory.id !== id)
                     if (result.isConfirmed) {
                         Swal.fire({
                             icon: 'success',
@@ -583,7 +626,7 @@
                             text: 'Data has been deleted',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.reload();
+                                // window.location.reload();
                                 // invoicesTable.ajax.reload();
                             }
                         })
@@ -603,11 +646,20 @@
                 this.subcategory.product_category_id = subcategory.product_category_id;
                 this.subcategory.name = subcategory.name;
                 this.subcategory.code = subcategory.code;
+                this.subcategory_edit_id = subcategory.id;
+                this.subcategory_edit_index = index;
+                this.is_edit_subcategory = true;
             },
             onCloseEdit: function() {
                 this.is_edit_category = false;
                 this.category.name = "";
                 this.category.code = "";
+            },
+            onCloseEditSub: function() {
+                this.is_edit_subcategory = false;
+                this.subcategory.product_category_id = "";
+                this.subcategory.name = "";
+                this.subcategory.code = "";
             },
         },
         computed: {

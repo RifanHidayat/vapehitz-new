@@ -6,8 +6,8 @@
 <div class="components-preview wide-md mx-auto">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
-            <div class="nk-block-head-sub"><a class="back-to" href="/customer"><em class="icon ni ni-arrow-left"></em><span>Master Data Customer</span></a></div>
-            <h2 class="nk-block-title fw-normal">Tambah Data Customer</h2>
+            <div class="nk-block-head-sub"><a class="back-to" href="/central-purchase"><em class="icon ni ni-arrow-left"></em><span>Pembelian Barang</span></a></div>
+            <h2 class="nk-block-title fw-normal">Tambah Data Pembelian Barang</h2>
         </div>
     </div><!-- .nk-block -->
     <div class="nk-block nk-block-lg">
@@ -27,49 +27,26 @@
                 <form @submit.prevent="submitForm">
                     <div class="row g-4">
                         <div class="col-lg-6">
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Kode</label>
+                            <div class="form-group col-md-6">
+                                <label class="form-label" for="full-name-1">Nomor Order</label>
                                 <div class="form-control-wrap">
                                     <input type="text" v-model="code" class="form-control" readonly>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Nama</label>
+                            <div class="form-group col-md-6">
+                                <label class="form-label" for="full-name-1">Tanggal Order</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="name" class="form-control" placeholder="Masukan Nama">
+                                    <input type="date" v-model="date" class="form-control">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Alamat</label>
+                            <div class="form-group col-lg-10">
+                                <label class="form-label" for="full-name-1">Nama Supplier</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="address" class="form-control" placeholder="Masukan Alamat Customer">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">No. Tlp</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="telephone" class="form-control" placeholder="Masukan Nomor Telepon">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">No. HP/WA</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="handphone" class="form-control" placeholder="Masukan Nomor HP/WA">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Email</label>
-                                <div class="form-control-wrap">
-                                    <input type="email" v-model="email" class="form-control" placeholder="Masukan Email">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Status</label>
-                                <div class="form-control-wrap">
-                                    <select v-model="status" class="form-control">
-                                        <option value="1">Active</option>
-                                        <option value="0">Inactive</option>
-                                    </select>
+                                    <div class="form-control-wrap">
+                                        <select v-model="suppliersId" class="form-control">
+                                            <option v-for="supplier in suppliers" :value="supplier.id">@{{supplier.name}}</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -102,13 +79,10 @@
     let app = new Vue({
         el: '#app',
         data: {
-            name: '',
             code: '{{ $code }}',
-            address: '',
-            telephone: '',
-            handphone: '',
-            email: '',
-            status: '1',
+            date: '',
+            suppliersId: '',
+            suppliers: JSON.parse('{!! $suppliers !!}'),
             loading: false,
         },
         methods: {
@@ -119,14 +93,9 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/customer', {
-                        name: this.name,
+                axios.post('/central-purchase', {
                         code: this.code,
-                        address: this.address,
-                        telephone: this.telephone,
-                        handphone: this.handphone,
-                        email: this.email,
-                        status: this.status,
+                        date: this.date,
                     })
                     .then(function(response) {
                         vm.loading = false;
@@ -137,7 +106,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/customer';
+                                window.location.href = '/central-purchase';
                             }
                         })
                         // console.log(response);

@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductSubcategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\CentralPurchaseController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -71,4 +72,14 @@ Route::prefix('/supplier')->group(function () {
     Route::get('/edit/{id}', [SupplierController::class, 'edit']);
     Route::patch('/{id}', [SupplierController::class, 'update']);
     Route::delete('/{id}', [SupplierController::class, 'destroy']);
+});
+
+//RouteCentralPurchase
+Route::prefix('/central-purchase')->group(function () {
+    Route::get('/', [CentralPurchaseController::class, 'index']);
+    Route::get('/create', [CentralPurchaseController::class, 'create']);
+    Route::post('/', [CentralPurchaseController::class, 'store']);
+    Route::get('/edit/{id}', [CentralPurchaseController::class, 'edit']);
+    Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
+    Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
 });

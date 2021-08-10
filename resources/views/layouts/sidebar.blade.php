@@ -47,7 +47,7 @@
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             <li class="nk-menu-item">
-                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembelian Barang</span></a>
+                                <a href="/central-purchase" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembelian Barang</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>

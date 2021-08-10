@@ -97,6 +97,7 @@ class ProductSubcategoryController extends Controller
         ]));
 
         $productSubcategory = productSubcategory::find($id);
+        $productSubcategory->product_category_id = $request->subcategory;
         $productSubcategory->name = $request->name;
         $productSubcategory->code = $request->code;
 

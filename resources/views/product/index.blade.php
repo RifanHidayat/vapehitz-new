@@ -53,8 +53,8 @@
                         @foreach($products as $product)
                         <tr class="text-center">
                             <td>{{ $product->code }}</td>
-                            <td>{{ $product->productCategory->name}}</td>
-                            <td>{{$product->productSubcategory->name}}</td>
+                            <td>{{ $product->productCategory->name }}</td>
+                            <td>{{ $product->productSubcategory->name }}</td>
                             <td>{{ $product->name }}</td>
                             <!-- <td>{{ $product->central_stock }}</td>
                             <td>{{ $product->retail_stock }}</td>
