@@ -83,3 +83,10 @@ Route::prefix('/central-purchase')->group(function () {
     Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
     Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
 });
+
+// Datatables
+Route::prefix('/datatables')->group(function () {
+    Route::prefix('/central-purchases')->group(function () {
+        Route::get('/products', [CentralPurchaseController::class, 'datatableProducts']);
+    });
+});
