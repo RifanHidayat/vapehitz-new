@@ -54,7 +54,7 @@
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">No. HP/WA</label>
                                 <div class="form-control-wrap">
-                                    <input type="text" v-model="handphone" class="form-control" placeholder="Masukan Nomor HP/WA">
+                                    <input type="number" v-model="handphone" class="form-control" placeholder="Masukan Nomor HP/WA">
                                 </div>
                             </div>
                             <div class="form-group">

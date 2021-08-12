@@ -111,7 +111,7 @@
                                 <div class="form-group col-md-8">
                                     <label class="form-label" for="full-name-1">Harga Beli</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="purchase_price" class="form-control" placeholder="Harga Beli">
+                                        <input type="text" @keypress="isNumber($event)" v-model="purchase_price" v-cleave="cleaveCurrency" class="form-control text-right" placeholder="Harga Beli">
                                     </div>
                                 </div>
                             </div>
@@ -119,19 +119,19 @@
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Agen</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="agent_price" class="form-control" placeholder="Harga Jual Agen">
+                                        <input type="text" @keypress="isNumber($event)" v-model="agent_price" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="Harga Jual Agen">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual WS</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="ws_price" class="form-control" placeholder="Harga Jual WS">
+                                        <input type="text" @keypress="isNumber($event)" v-model="ws_price" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="Harga Jual WS">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Retail</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="retail_price" class="form-control" placeholder="Harga Jual Retail">
+                                        <input type="text" @keypress="isNumber($event)" v-model="retail_price" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="Harga Jual Retail">
                                     </div>
                                 </div>
                             </div>
@@ -203,7 +203,7 @@
                     </div>
                     <div class="modal-footer">
                         <button v-if="is_edit_category == true" v-on:click="onCloseEdit" type="button" class="btn btn-primary">
-                            &times;
+                            &times
                         </button>
                         <button class="btn btn-primary" type="submit" :disabled="category.loading">
                             <span v-if="category.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -313,8 +313,25 @@
     </div>
 </div>
 @endsection
+@section('script')
+<script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+@endsection
 @section('pagescript')
 <script>
+    Vue.directive('cleave', {
+        inserted: (el, binding) => {
+            el.cleave = new Cleave(el, binding.value || {})
+        },
+        update: (el) => {
+            const event = new Event('input', {
+                bubbles: true
+            });
+            setTimeout(function() {
+                el.value = el.cleave.properties.result
+                el.dispatchEvent(event)
+            }, 100);
+        }
+    });
     let app = new Vue({
         el: '#app',
         data: {
@@ -355,6 +372,12 @@
             product_subcategories: JSON.parse('{!! $product_subcategories !!}'),
             prefix: '',
             infix: '',
+            cleaveCurrency: {
+                delimiter: '.',
+                numeralDecimalMark: ',',
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand'
+            },
         },
         methods: {
             submitForm: function() {

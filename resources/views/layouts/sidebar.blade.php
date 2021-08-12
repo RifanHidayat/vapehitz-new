@@ -17,7 +17,7 @@
             <div class="nk-sidebar-menu" data-simplebar>
                 <ul class="nk-menu">
                     <li class="nk-menu-item">
-                        <a href="html/index.html" class="nk-menu-link">
+                        <a href="/dashboard" class="nk-menu-link">
                             <span class="nk-menu-icon"><em class="icon ni ni-dashlite"></em></span>
                             <span class="nk-menu-text">Dashboard</span>
                         </a>
@@ -59,6 +59,20 @@
                                 <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
                             </li>
 
+                        </ul><!-- .nk-menu-sub -->
+                    </li>
+                    <li class="nk-menu-item has-sub">
+                        <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
+                            <span class="nk-menu-icon"><em class="icon ni ni-coins"></em></span>
+                            <span class="nk-menu-text">Keuangan</span>
+                        </a>
+                        <ul class="nk-menu-sub" style="display: none;">
+                            <li class="nk-menu-item">
+                                <a href="/account" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Akun</span></a>
+                            </li>
+                            <li class="nk-menu-item">
+                                <a href="/account-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Cash in/out</span></a>
+                            </li>
                         </ul><!-- .nk-menu-sub -->
                     </li>
                     <!-- <li class="nk-menu-item has-sub">

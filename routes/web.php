@@ -6,6 +6,10 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CentralPurchaseController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AccountTransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,8 +23,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::prefix('/dashboard')->group(function () {
+    Route::get('/', [HomeController::class, 'index']);
+});
+
 Route::get('/', function () {
     return view('dashboard.index');
+});
+
+Route::get('/', [AuthController::class, 'showFormLogin'])->name('login');
+Route::get('login', [AuthController::class, 'showFormLogin'])->name('login');
+Route::post('login', [AuthController::class, 'login']);
+Route::get('register', [AuthController::class, 'showFormRegister'])->name('register');
+Route::post('register', [AuthController::class, 'register']);
+
+Route::group(['middleware' => 'auth'], function () {
+
+    Route::get('home', [HomeController::class, 'index'])->name('home');
+    Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 //RouteProduct
@@ -82,4 +102,24 @@ Route::prefix('/central-purchase')->group(function () {
     Route::get('/edit/{id}', [CentralPurchaseController::class, 'edit']);
     Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
     Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
+});
+
+//RouteAccount
+Route::prefix('/account')->group(function () {
+    Route::get('/', [AccountController::class, 'index']);
+    Route::get('/create', [AccountController::class, 'create']);
+    Route::post('/', [AccountController::class, 'store']);
+    Route::get('/edit/{id}', [AccountController::class, 'edit']);
+    Route::patch('/{id}', [AccountController::class, 'update']);
+    Route::delete('/{id}', [AccountController::class, 'destroy']);
+});
+
+//RouteAccountTransaction
+Route::prefix('/account-transaction')->group(function () {
+    Route::get('/', [AccountTransactionController::class, 'index']);
+    Route::get('/create', [AccountTransactionController::class, 'create']);
+    Route::post('/', [AccountTransactionController::class, 'store']);
+    Route::get('/edit/{id}', [AccountTransactionController::class, 'edit']);
+    Route::patch('/{id}', [AccountTransactionController::class, 'update']);
+    Route::delete('/{id}', [AccountTransactionController::class, 'destroy']);
 });
