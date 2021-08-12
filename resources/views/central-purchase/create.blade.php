@@ -362,17 +362,7 @@
                 discount: 0,
                 isPaid: false,
                 paymentMethod: '',
-                accounts: [{
-                        id: '1',
-                        name: 'BCA',
-                        type: 'transfer',
-                    },
-                    {
-                        id: '2',
-                        name: 'Akun Cash',
-                        type: 'cash',
-                    }
-                ],
+                accounts: JSON.parse('{!! $accounts !!}'),
                 accountId: '',
                 suppliers: JSON.parse('{!! $suppliers !!}'),
                 cart: [],

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use Illuminate\Http\Request;
 use App\Models\CentralPurchase;
 use App\Models\Product;
@@ -35,11 +36,13 @@ class CentralPurchaseController extends Controller
     public function create()
     {
         $suppliers = Supplier::all();
+        $accounts = Account::all();
         $maxid = DB::table('central_purchases')->max('id');
         $code = "PO/VH/" . date('dmy') . "/" . sprintf('%04d', $maxid + 1);
         return view('central-purchase.create', [
             'code' => $code,
             'suppliers' => $suppliers,
+            'accounts' => $accounts,
         ]);
     }
 
