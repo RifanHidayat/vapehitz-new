@@ -18,4 +18,9 @@ class Product extends Model
     {
         return $this->belongsTo(ProductSubcategory::class);
     }
+
+    public function centralPurchases()
+    {
+        return $this->belongsToMany(CentralPurchase::class)->withPivot('stock', 'price', 'quantity');
+    }
 }
