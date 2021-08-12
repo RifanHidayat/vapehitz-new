@@ -123,3 +123,9 @@ Route::prefix('/account-transaction')->group(function () {
     Route::patch('/{id}', [AccountTransactionController::class, 'update']);
     Route::delete('/{id}', [AccountTransactionController::class, 'destroy']);
 });
+// Datatables
+Route::prefix('/datatables')->group(function () {
+    Route::prefix('/central-purchases')->group(function () {
+        Route::get('/products', [CentralPurchaseController::class, 'datatableProducts']);
+    });
+});

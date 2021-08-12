@@ -30,7 +30,7 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        $maxid = DB::table('customers')->max('id');
+        $maxid = DB::table('suppliers')->max('id');
         $code = "S" . sprintf('%04d', $maxid + 1);
         return view('supplier.create', [
             'code' => $code,
@@ -49,9 +49,16 @@ class SupplierController extends Controller
             'name' => 'required',
             'handphone' => 'nullable|numeric',
         ]));
+
+        $code = $request->code;
+        if ($code == null) {
+            $maxid = DB::table('suppliers')->max('id');
+            $code = "S" . sprintf('%04d', $maxid + 1);
+        }
+
         $supplier = new Supplier;
         $supplier->name = $request->name;
-        $supplier->code = $request->code;
+        $supplier->code = $code;
         $supplier->address = $request->address;
         $supplier->telephone = $request->telephone;
         $supplier->handphone = $request->handphone;
