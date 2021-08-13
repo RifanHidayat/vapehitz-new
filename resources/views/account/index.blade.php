@@ -32,8 +32,7 @@
                             <div class="form-control-wrap">
                                 <select v-model="type" class="form-control">
                                     <option value="cash">Cash</option>
-                                    <option value="hutang">Hutang</option>
-                                    <option value="none">None</option>
+                                    <option value="transfer">Transfer</option>
                                 </select>
                             </div>
                         </div>

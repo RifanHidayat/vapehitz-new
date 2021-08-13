@@ -21,10 +21,11 @@ class CentralPurchaseController extends Controller
      */
     public function index()
     {
-        $centralpurchase = CentralPurchase::all();
-
+        $centralpurchases = CentralPurchase::all();
+        $suppliers = Supplier::all();
         return view('central-purchase.index', [
-            'centralpuchases' => $centralpurchase,
+            'centralpurchases' => $centralpurchases,
+            'suppliers' => $suppliers,
         ]);
     }
 
@@ -159,7 +160,15 @@ class CentralPurchaseController extends Controller
      */
     public function edit($id)
     {
-        //
+        $suppliers = Supplier::all();
+        $accounts = Account::all();
+        $centralpurchases = CentralPurchase::with(['products'])->findOrFail($id);
+
+        return view('central-purchase.edit', [
+            'central_purchases' => $centralpurchases,
+            'suppliers' => $suppliers,
+            'accounts' => $accounts,
+        ]);
     }
 
     /**
@@ -182,7 +191,23 @@ class CentralPurchaseController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $centralpurchase = CentralPurchase::findOrFail($id);
+        try {
+            $centralpurchase->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $centralpurchase,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
 

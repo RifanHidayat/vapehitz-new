@@ -3,7 +3,6 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-
 <div class="nk-block-head nk-block-head-lg wide-lg">
     <div class="nk-block-head-content">
         <div class="card card-bordered">
@@ -19,13 +18,17 @@
                         <div class="form-group col-md-4">
                             <label class="form-label" for="full-name-1">Akun Masuk</label>
                             <div class="form-control-wrap">
-                                <input type="number" v-model="account_in" class="form-control" placeholder="In">
+                                <select v-model="account_in" class="form-control" id="account_in">
+                                    <option v-for="account in accounts" :value="account.id">@{{account.name}}</option>
+                                </select>
                             </div>
                         </div>
                         <div class=" form-group col-md-4">
                             <label class="form-label" for="full-name-1">Akun Keluar</label>
                             <div class="form-control-wrap">
-                                <input type="number" v-model="account_out" class="form-control" placeholder="Out">
+                                <select v-model="account_out" class="form-control" id="account_out">
+                                    <option v-for="account in accounts" :value="account.id">@{{account.name}}</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -141,6 +144,7 @@
             accountTransactions_edit_id: null,
             accountTransactions_edit_index: null,
             is_edit_accountTransaction: false,
+            accounts: JSON.parse('{!! $account !!}'),
             accountTransactions: JSON.parse('{!! $accountTransaction !!}'),
             loading: false,
             cleaveCurrency: {
