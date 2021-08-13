@@ -111,7 +111,7 @@
                                 <div class="form-group col-md-8">
                                     <label class="form-label" for="full-name-1">Harga Beli</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="purchase_price" v-cleave="cleaveCurrency" class="form-control text-right" placeholder="Harga Beli">
+                                        <input type="text" v-model="purchase_price" v-cleave="cleaveCurrency" class="form-control text-right" placeholder="Harga Beli">
                                     </div>
                                 </div>
                             </div>
@@ -119,19 +119,19 @@
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Agen</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="agent_price" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="Harga Jual Agen">
+                                        <input type="text" v-model="agent_price" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="Harga Jual Agen">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual WS</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="ws_price" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="Harga Jual WS">
+                                        <input type="text" v-model="ws_price" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="Harga Jual WS">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Retail</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="retail_price" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="Harga Jual Retail">
+                                        <input type="text" v-model="retail_price" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="Harga Jual Retail">
                                     </div>
                                 </div>
                             </div>

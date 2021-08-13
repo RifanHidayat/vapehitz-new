@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\AccountTransaction;
 use Exception;
 use Illuminate\Http\Request;
@@ -16,10 +17,12 @@ class AccountTransactionController extends Controller
      */
     public function index()
     {
+        $account = Account::all();
         $accountTransaction = AccountTransaction::all();
         $maxid = DB::table('account_transactions')->max('id');
         $number = "IO/VH/" . date('dmy') . "/" . sprintf($maxid + 1);
         return view('account-transaction.index', [
+            'account' => $account,
             'accountTransaction' => $accountTransaction,
             'number' => $number,
         ]);

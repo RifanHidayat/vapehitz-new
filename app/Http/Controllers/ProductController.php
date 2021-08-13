@@ -59,6 +59,7 @@ class ProductController extends Controller
             'name' => 'required',
             'code' => 'required|unique:products',
         ]));
+
         $product = new Product;
         $product->name = $request->name;
         $product->code = $request->code;
@@ -69,10 +70,10 @@ class ProductController extends Controller
         $product->retail_stock = $request->retail_stock;
         $product->studio_stock = $request->studio_stock;
         $product->bad_stock = $request->bad_stock;
-        $product->purchase_price = $request->purchase_price;
-        $product->agent_price = $request->agent_price;
-        $product->ws_price = $request->ws_price;
-        $product->retail_price = $request->retail_price;
+        $product->purchase_price = str_replace(".", "", $request->purchase_price);
+        $product->agent_price = str_replace(".", "", $request->agent_price);
+        $product->ws_price = str_replace(".", "", $request->ws_price);
+        $product->retail_price = str_replace(".", "", $request->retail_price);
         $product->status = $request->status;
         $product->is_changeable = $request->is_changeable;
         try {
