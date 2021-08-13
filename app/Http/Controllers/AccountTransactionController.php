@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountTransaction;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AccountTransactionController extends Controller
 {
@@ -13,7 +16,13 @@ class AccountTransactionController extends Controller
      */
     public function index()
     {
-        return view('account-transaction.index');
+        $accountTransaction = AccountTransaction::all();
+        $maxid = DB::table('account_transactions')->max('id');
+        $number = "IO/VH/" . date('dmy') . "/" . sprintf($maxid + 1);
+        return view('account-transaction.index', [
+            'accountTransaction' => $accountTransaction,
+            'number' => $number,
+        ]);
     }
 
     /**
@@ -23,7 +32,10 @@ class AccountTransactionController extends Controller
      */
     public function create()
     {
-        //
+        $accountTransaction = AccountTransaction::all();
+        return view('account-transaction.create', [
+            'accountTransaction' => $accountTransaction,
+        ]);
     }
 
     /**
@@ -34,7 +46,30 @@ class AccountTransactionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $accountTransaction = new AccountTransaction();
+        $accountTransaction->number = $request->number;
+        $accountTransaction->account_in = $request->account_in;
+        $accountTransaction->account_out = $request->account_out;
+        $accountTransaction->date = $request->date;
+        $accountTransaction->amount = $request->amount;
+        $accountTransaction->note = $request->note;
+
+        try {
+            $accountTransaction->save();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $accountTransaction,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -68,7 +103,29 @@ class AccountTransactionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $accountTransaction = AccountTransaction::find($id);
+        $accountTransaction->number = $request->number;
+        $accountTransaction->account_in = $request->account_in;
+        $accountTransaction->account_out = $request->account_out;
+        $accountTransaction->date = $request->date;
+        $accountTransaction->amount = $request->amount;
+        $accountTransaction->note = $request->note;
+        try {
+            $accountTransaction->save();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $accountTransaction,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -79,6 +136,22 @@ class AccountTransactionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $accountTransaction = AccountTransaction::findOrFail($id);
+        try {
+            $accountTransaction->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $accountTransaction,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 }

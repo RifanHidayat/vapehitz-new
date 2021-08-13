@@ -18,4 +18,9 @@ class CentralPurchase extends Model
     {
         return $this->belongsToMany(Product::class)->withPivot('stock', 'price', 'quantity');
     }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
 }

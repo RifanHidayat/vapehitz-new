@@ -9,4 +9,9 @@ class Account extends Model
 {
     use HasFactory;
     protected $fillable = ['number', 'name', 'init_balance', 'type',];
+
+    public function CentralPurchase()
+    {
+        return $this->hasMany(CentralPurchase::class);
+    }
 }

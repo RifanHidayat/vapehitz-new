@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInOutTransactionsTable extends Migration
+class CreateAccountTransactionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateInOutTransactionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('in_out_transactions', function (Blueprint $table) {
+        Schema::create('account_transactions', function (Blueprint $table) {
             $table->increments('id');
             $table->foreignId('account_in');
             $table->foreignId('account_out');
-            $table->integer('number')->nullable();
+            $table->string('number', 50)->nullable();
             $table->date('date');
             $table->integer('amount')->nullable();
             $table->string('note', 255)->nullable();
@@ -32,6 +32,6 @@ class CreateInOutTransactionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('in_out_transactions');
+        Schema::dropIfExists('account_transactions');
     }
 }

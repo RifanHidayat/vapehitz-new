@@ -31,9 +31,9 @@
                             <label class="form-label" for="full-name-1">Jenis Pembayaran</label>
                             <div class="form-control-wrap">
                                 <select v-model="type" class="form-control">
-                                    <option value="Cash">Cash</option>
-                                    <option value="Hutang">Hutang</option>
-                                    <option value="None">None</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="hutang">Hutang</option>
+                                    <option value="none">None</option>
                                 </select>
                             </div>
                         </div>
