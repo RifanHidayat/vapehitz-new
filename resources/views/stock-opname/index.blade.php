@@ -3,57 +3,41 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
+<div class="nk-block nk-block-lg">
+    <div class="nk-block-head">
         <div class="nk-block-head-content">
-            <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-            <h2 class="nk-block-title fw-normal">Master Data Produk</h2>
-            <div class="nk-block-des">
-                <p class="lead">Manage Produk</p>
-            </div>
+            <h4 class="title nk-block-title">Stock Opname</h4>
+            <!-- <div class="nk-block-des">
+                <p>You can alow display form in column as example below.</p>
+            </div> -->
         </div>
-    </div><!-- .nk-block -->
-    <div class="nk-block nk-block-lg">
-        <!-- <div class="nk-block-head">
-            <div class="nk-block-head-content">
-                <h4 class="title nk-block-title">Tambah Kategori Barang</h4>
-                <div class="nk-block-des">
-                    <p>You can alow display form in column as example below.</p>
-                </div>
-            </div>
-        </div> -->
-        <a href="{{url('/product/create')}}" class="btn btn-outline-success">Tambah Produk</a>
-        <p></p>
-        <div class="card card-bordered">
-            <div class="card-inner overflow-hidden">
-                <!-- <div class="card-head">
+    </div>
+    <a href="/stock-opname/create" class="btn btn-outline-success">Buat Baru</a>
+    <p></p>
+    <div class="card card-bordered">
+        <div class="card-inner overflow-hidden">
+            <!-- <div class="card-head">
                     <h5 class="card-title">Form</h5>
                 </div> -->
-                <table class="table table-striped" id="products">
+            <div class="table-responsive">
+                <table class="datatable-init table table-striped" id="stockOpname">
                     <thead>
                         <tr class="text-center">
-                            <th>Kode</th>
-                            <th>Kategori</th>
-                            <th>Subkategori</th>
-                            <th>Nama</th>
-                            <th>Berat</th>
-                            <th>Harga Beli</th>
-                            <th>Status</th>
+                            <th>Nomor Stock Opname</th>
+                            <th>Tanggal Stock Opname</th>
+                            <th>Keterangan</th>
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="text-center">
 
                     </tbody>
                 </table>
             </div>
         </div>
-    </div><!-- .nk-block -->
+    </div>
 </div>
-
-
 @endsection
-
 @section('pagescript')
 <script>
     let app = new Vue({
@@ -105,55 +89,32 @@
     })
 </script>
 <script>
-    var productTable = $(function() {
-        $('#products').DataTable({
+    $(function() {
+        const stockOpnameTable = $('#stockOpname').DataTable({
             processing: true,
             serverSide: true,
+            destroy: true,
+            "autoWidth": false,
             ajax: {
-                url: '/datatables/products',
+                url: '/datatables/stock-opname',
                 type: 'GET',
-                // length: 2,
             },
             columns: [{
                     data: 'code',
                     name: 'code'
                 },
                 {
-                    data: 'product_category.name',
-                    name: 'productCategory.name'
+                    data: 'date',
+                    name: 'date'
                 },
                 {
-                    data: 'product_subcategory.name',
-                    name: 'productSubcategory.name'
-                },
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-                {
-                    data: 'weight',
-                    name: 'weight'
-                },
-                {
-                    data: 'purchase_price',
-                    name: 'purchase_price'
-                },
-                {
-                    data: 'status',
-                    name: 'status',
-                    render: function(data) {
-                        if (data == '1') {
-                            return '<span class="badge badge-outline-success">Active</span>';
-                        } else {
-                            return '<span class="badge badge-outline-danger">Inactive</span>';
-                        }
-                    },
+                    data: 'note',
+                    name: 'note'
                 },
                 {
                     data: 'action',
                     name: 'action'
                 },
-
             ]
         });
     });

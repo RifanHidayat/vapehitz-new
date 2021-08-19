@@ -62,7 +62,7 @@
                                 <div class="form-control-wrap">
                                     <div class="input-group mb-3">
                                         <select v-on:change="onChangeSubcategory" class="form-control" v-model="product_subcategory_id">
-                                            <option v-for="subcategory in product_subcategories" :value="subcategory.id">@{{subcategory.name}}</option>
+                                            <option v-for="subcategory in subCategoryOptions" :value="subcategory.id">@{{subcategory.name}}</option>
                                         </select>
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#subcategoryModal">
@@ -111,7 +111,7 @@
                                 <div class="form-group col-md-8">
                                     <label class="form-label" for="full-name-1">Harga Beli</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="purchase_price" class="form-control" placeholder="Harga Beli">
+                                        <input type="text" v-cleave="cleaveCurrency" v-model="purchase_price" class="form-control" placeholder="Harga Beli">
                                     </div>
                                 </div>
                             </div>
@@ -119,19 +119,19 @@
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Agen</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="agent_price" class="form-control" placeholder="Harga Jual Agen">
+                                        <input type="text" v-cleave="cleaveCurrency" v-model="agent_price" class="form-control" placeholder="Harga Jual Agen">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual WS</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="ws_price" class="form-control" placeholder="Harga Jual WS">
+                                        <input type="text" v-cleave="cleaveCurrency" v-model="ws_price" class="form-control" placeholder="Harga Jual WS">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="form-label" for="full-name-1">Harga Jual Retail</label>
                                     <div class="form-control-wrap">
-                                        <input type="text" @keypress="isNumber($event)" v-model="retail_price" class="form-control" placeholder="Harga Jual Retail">
+                                        <input type="text" v-cleave="cleaveCurrency" v-model="retail_price" class="form-control" placeholder="Harga Jual Retail">
                                     </div>
                                 </div>
                             </div>
@@ -246,8 +246,25 @@
     </div>
 </div>
 @endsection
+@section('script')
+<script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+@endsection
 @section('pagescript')
 <script>
+    Vue.directive('cleave', {
+        inserted: (el, binding) => {
+            el.cleave = new Cleave(el, binding.value || {})
+        },
+        update: (el) => {
+            const event = new Event('input', {
+                bubbles: true
+            });
+            setTimeout(function() {
+                el.value = el.cleave.properties.result
+                el.dispatchEvent(event)
+            }, 100);
+        }
+    });
     let app = new Vue({
         el: '#app',
         data: {
@@ -275,6 +292,12 @@
                 name: '',
                 code: '',
                 loading: false,
+            },
+            cleaveCurrency: {
+                delimiter: '.',
+                numeralDecimalMark: ',',
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand'
             },
             loading: false,
             product_categories: JSON.parse('{!! $product_categories !!}'),
@@ -411,7 +434,13 @@
         computed: {
             number: function() {
                 return this.prefix + "-" + this.infix + "-" + this.code
-            }
+            },
+            subCategoryOptions: function() {
+                if (!this.product_category_id) {
+                    return [];
+                }
+                return this.product_subcategories.filter(subcategory => subcategory.product_category_id == this.product_category_id);
+            },
         }
     })
 </script>
