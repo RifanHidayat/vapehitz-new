@@ -10,9 +10,9 @@
                 <div class="card-inner overflow-hidden">
                     <form @submit.prevent="is_edit_account ? editAccount(accounts_edit_id, accounts_edit_index):submitForm()">
                         <div class=" form-group col-md-6">
-                            <label class="form-label" for="full-name-1">Nomor Kartu</label>
+                            <label class="form-label" for="full-name-1">Nomor Akun</label>
                             <div class="form-control-wrap">
-                                <input type="number" v-model="number" class="form-control" placeholder="Nomor Kartu">
+                                <input type="number" v-model="number" class="form-control" placeholder="Nomor Akun">
                             </div>
                         </div>
                         <div class="form-group col-md-6">

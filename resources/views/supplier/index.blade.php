@@ -30,7 +30,7 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table class="datatable-init table table-striped">
+                    <table class="table table-striped" id="suppliers">
                         <thead>
                             <tr class="text-center">
                                 <th>Code</th>
@@ -41,37 +41,10 @@
                                 <th>Email</th>
                                 <th>Status</th>
                                 <th>Action</th>
-                                <th>Payment</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($suppliers as $supplier)
-                            <tr class="text-justify">
-                                <td>{{ $supplier->code }}</td>
-                                <td>{{ $supplier->name }}</td>
-                                <td>{{ $supplier->address }}</td>
-                                <td>{{ $supplier->telephone }}</td>
-                                <td>{{ $supplier->handphone }}</td>
-                                <td>{{ $supplier->email }}</td>
-                                <td>
-                                    @if($supplier->status == 1)
-                                    <span class="badge badge-outline-success">Active</span>
-                                    @else
-                                    <span class="badge badge-outline-danger">Inactive</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="btn-group" aria-label="Basic example">
-                                        <a href="/supplier/edit/{{$supplier->id}}" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
-                                        <a href="#" @click.prevent="deleteRow({{ $supplier->id }})" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
-                                    </div>
-                                <td><a href="" class="btn btn-outline-warning">Pay</a></td>
-                                <!-- <em class="far fa-heart"></em>
-                                <em class="fas fa-star"></em>
-                                <em class="fab fa-facebook"></em> -->
-                                </td>
-                            </tr>
-                            @endforeach
+
                         </tbody>
                     </table>
                 </div>
@@ -129,5 +102,104 @@
             }
         }
     })
+</script>
+<script>
+    $(function() {
+        var supplierTable = $('#suppliers').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '/datatables/suppliers',
+                type: 'GET',
+                // length: 2,
+            },
+            columns: [{
+                    data: 'code',
+                    name: 'code'
+                },
+                {
+                    data: 'name',
+                    name: 'name'
+                },
+                {
+                    data: 'address',
+                    name: 'address'
+                },
+                {
+                    data: 'telephone',
+                    name: 'telephone'
+                },
+                {
+                    data: 'handphone',
+                    name: 'handphone'
+                },
+                {
+                    data: 'email',
+                    name: 'email'
+                },
+                {
+                    data: 'status',
+                    name: 'status',
+                    render: function(row) {
+                        if (row == '1')
+                            return '<span class="badge badge-outline-success">Active</span>'
+                        else
+                            return '<span class="badge badge-outline-danger">Inactive</span>'
+                    },
+                },
+                {
+                    data: 'action',
+                    name: 'action'
+                },
+
+            ]
+        });
+        $('#suppliers').on('click', 'tr .btn-delete', function(e) {
+            e.preventDefault();
+            // alert('click');
+            const id = $(this).attr('data-id');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "The data will be deleted",
+                icon: 'warning',
+                reverseButtons: true,
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return axios.delete('/supplier/' + id)
+                        .then(function(response) {
+                            console.log(response.data);
+                        })
+                        .catch(function(error) {
+                            console.log(error.data);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops',
+                                text: 'Something wrong',
+                            })
+                        });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    supplierTable.ajax.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Data has been deleted',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // window.location.reload();
+
+                        }
+                    })
+                }
+            })
+        })
+    });
 </script>
 @endsection

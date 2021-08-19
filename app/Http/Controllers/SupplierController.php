@@ -6,6 +6,7 @@ use App\Models\Supplier;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class SupplierController extends Controller
 {
@@ -174,5 +175,33 @@ class SupplierController extends Controller
                 'errors' => $e,
             ], 500);
         }
+    }
+
+    public function datatableSuppliers()
+    {
+        $suppliers = Supplier::all();
+        return DataTables::of($suppliers)
+            ->addIndexColumn()
+            ->addColumn('action', function ($row) {
+                $button = '
+                <div class="drodown">
+                <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <ul class="link-list-opt no-bdr">
+                        <a href="/supplier/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                            <span>Edit</span>
+                        </a>
+                        <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                        <span>Delete</span>
+                        </a>
+                        <a href="#"><em class="icon fas fa-check"></em>
+                            <span>Pay</span>
+                        </a>
+                    </ul>
+                </div>
+                </div>';
+                return $button;
+            })
+            ->make();
     }
 }

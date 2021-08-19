@@ -58,6 +58,12 @@
                             <li class="nk-menu-item">
                                 <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
                             </li>
+                            <li class="nk-menu-item">
+                                &nbsp;
+                            </li>
+                            <li class="nk-menu-item">
+                                <a href="/stock-opname" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
+                            </li>
 
                         </ul><!-- .nk-menu-sub -->
                     </li>
