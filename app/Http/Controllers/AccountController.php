@@ -42,7 +42,12 @@ class AccountController extends Controller
      */
     public function store(Request $request)
     {
-        $accounts = Account::create($request->all());
+        $accounts = new Account;
+        $accounts->number = $request->number;
+        $accounts->name = $request->name;
+        $accounts->date = $request->date;
+        $accounts->init_balance = str_replace(".", "", $request->init_balance);
+        $accounts->type = $request->type;
         try {
             $accounts->save();
             return response()->json([
@@ -95,6 +100,7 @@ class AccountController extends Controller
         $account = Account::find($id);
         $account->number = $request->number;
         $account->name = $request->name;
+        $account->date = $request->date;
         $account->init_balance = $request->init_balance;
         $account->type = $request->type;
         try {

@@ -17,6 +17,7 @@ class CreateAccountsTable extends Migration
             $table->increments('id');
             $table->integer('number')->nullable();
             $table->string('name', 255);
+            $table->date('date')->nullable();
             $table->integer('init_balance')->nullable();
             $table->string('type', 30)->nullable();
             $table->timestamps();

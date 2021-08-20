@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCentralSalesTable extends Migration
+class CreateShipmentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,9 @@ class CreateCentralSalesTable extends Migration
      */
     public function up()
     {
-        Schema::create('central_sales', function (Blueprint $table) {
+        Schema::create('shipments', function (Blueprint $table) {
             $table->increments('id');
-            $table->foreignId('customer_id');
-            $table->foreignId('shipment_id');
-            $table->string('code', 50);
-            $table->dateTime('date');
-            $table->integer('debt');
+            $table->string('name', 50);
             $table->timestamps();
         });
     }
@@ -31,6 +27,6 @@ class CreateCentralSalesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('central_sales');
+        Schema::dropIfExists('shipments');
     }
 }

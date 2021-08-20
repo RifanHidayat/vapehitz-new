@@ -22,6 +22,12 @@
                             </div>
                         </div>
                         <div class="form-group col-md-6">
+                            <label class="form-label" for="full-name-1">Tanggal Saldo Awal</label>
+                            <div class="form-control-wrap">
+                                <input type="date" v-model="date" class="form-control" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
                             <label class="form-label" for="full-name-1">Saldo Awal</label>
                             <div class="form-control-wrap">
                                 <input type="text" v-model="init_balance" class="form-control text-right" class="form-control" placeholder="0.00">
@@ -73,6 +79,7 @@
                                 <th>Nomor Kartu</th>
                                 <th>Nama</th>
                                 <th>Saldo</th>
+                                <th>Tanggal Saldo Awal</th>
                                 <th>Jenis Transaksi</th>
                                 <th>Action</th>
                             </tr>
@@ -81,7 +88,8 @@
                             <tr v-for="(account, index) in accounts" class="text-center">
                                 <td>@{{account.number}}</td>
                                 <td>@{{account.name}}</td>
-                                <td>@{{account.init_balance}}</td>
+                                <td>@{{currencyFormat(account.init_balance)}}</td>
+                                <td>@{{account.date}}</td>
                                 <td>@{{account.type}}</td>
                                 <td>
                                     <div class="btn-group" aria-label="Basic example">
@@ -122,6 +130,7 @@
         data: {
             name: '',
             number: '',
+            date: '',
             type: '',
             init_balance: '',
             accounts_edit_id: null,
@@ -149,6 +158,7 @@
                         number: this.number,
                         type: this.type,
                         init_balance: this.init_balance,
+                        date: this.date,
                     })
                     .then(function(response) {
                         vm.loading = false;
@@ -172,6 +182,7 @@
                 axios.patch('/account/' + id, {
                         number: this.number,
                         name: this.name,
+                        date: this.date,
                         init_balance: this.init_balance,
                         type: this.type,
                     })
@@ -182,6 +193,7 @@
                             data
                         } = response.data
                         vm.accounts[index].number = data.number;
+                        vm.accounts[index].date = data.date;
                         vm.accounts[index].name = data.name;
                         vm.accounts[index].init_balance = data.init_balance;
                         vm.accounts[index].type = data.type;
@@ -201,6 +213,7 @@
                 this.number = account.number;
                 this.name = account.name;
                 this.init_balance = account.init_balance;
+                this.date = account.date;
                 this.type = account.type;
                 this.accounts_edit_id = account.id;
                 this.accounts_edit_index = index;
@@ -210,6 +223,7 @@
             onCloseEdit: function() {
                 this.is_edit_account = false;
                 this.number = "";
+                this.date = "";
                 this.name = "";
                 this.init_balance = "";
                 this.type = "";
@@ -258,6 +272,12 @@
                     }
                 })
             },
+            currencyFormat: function(number) {
+                return Intl.NumberFormat('de-DE').format(number);
+            },
+            clearCurrencyFormat: function(number) {
+                return number.replaceAll('.', number);
+            }
         }
     })
 </script>

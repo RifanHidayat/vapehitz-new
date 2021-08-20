@@ -28,4 +28,9 @@ class Product extends Model
     {
         return $this->belongsToMany(StockOpname::class)->withPivot('good_stock', 'bad_stock', 'description');
     }
+
+    public function centralSale()
+    {
+        return $this->belongsToMany(CentralSale::class);
+    }
 }

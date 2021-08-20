@@ -274,7 +274,7 @@
                     </div>
                     <div class="modal-footer">
                         <button v-if="is_edit_subcategory == true" v-on:click="onCloseEditSub" type="button" class="btn btn-primary">
-                            &times;
+                            &times
                         </button>
                         <button class="btn btn-primary" type="submit" :disabled="subcategory.loading">
                             <span v-if="subcategory.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -515,7 +515,7 @@
             },
             editProductSubcategory: function(id, index) {
                 let vm = this;
-                vm.category.loading = true;
+                vm.subcategory.loading = true;
                 axios.patch('/product-subcategory/' + id, {
                         subcategory: this.subcategory.product_category_id,
                         name: this.subcategory.name,
@@ -536,7 +536,7 @@
                         // $('#categoryModal').modal('hide')
                     })
                     .catch(function(error) {
-                        vm.category.loading = false;
+                        vm.subcategory.loading = false;
                         console.log(error);
                         Swal.fire(
                             'Oops!',

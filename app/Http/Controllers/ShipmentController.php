@@ -2,16 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CentralSale;
-use App\Models\Customer;
-use App\Models\Product;
 use App\Models\Shipment;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables;
 
-class CentralSaleController extends Controller
+class ShipmentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,10 +15,7 @@ class CentralSaleController extends Controller
      */
     public function index()
     {
-        $centralSale = CentralSale::all();
-        return view('central-sale.index', [
-            'centralSale' => $centralSale,
-        ]);
+        //
     }
 
     /**
@@ -33,15 +25,7 @@ class CentralSaleController extends Controller
      */
     public function create()
     {
-        $customers = Customer::all();
-        $shipments = Shipment::all();
-        $maxid = DB::table('central_sales')->max('id');
-        $code = "SO/" . date('dmy') . "/" . sprintf('%04d', $maxid + 1);
-        return view('central-sale.create', [
-            'code' => $code,
-            'customer' => $customers,
-            'shipment' => $shipments,
-        ]);
+        //
     }
 
     /**
@@ -52,20 +36,16 @@ class CentralSaleController extends Controller
      */
     public function store(Request $request)
     {
-        $centralSale = new CentralSale;
-        $centralSale->code = $request->code;
-        $centralSale->date = $request->date . ' ' . date('H:i:s');
-        $centralSale->customer_id = $request->customerId;
-        $centralSale->shipment_id = $request->shipmentId;
-        $centralSale->debt = $request->debt;
+        $shipment = new Shipment;
+        $shipment->name = $request->name;
 
         try {
-            $centralSale->save();
+            $shipment->save();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
                 'error' => false,
-                'data' => $centralSale,
+                'data' => $shipment,
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -108,7 +88,24 @@ class CentralSaleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $shipment = Shipment::findOrFail($id);
+        $shipment->name = $request->name;
+        try {
+            $shipment->save();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $shipment,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -120,17 +117,5 @@ class CentralSaleController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function datatableProducts()
-    {
-        $products = Product::with('productCategory')->with('productSubcategory')->get();
-        return DataTables::of($products)
-            ->addIndexColumn()
-            ->addColumn('action', function () {
-                $button = '<button class="btn btn-outline-primary btn-sm btn-choose"><em class="fas fa-plus"></em>&nbsp;Pilih</button>';
-                return $button;
-            })
-            ->make(true);
     }
 }

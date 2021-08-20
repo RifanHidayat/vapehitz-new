@@ -12,6 +12,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\PurchaseTransactionController;
+use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StockOpnameController;
 use Illuminate\Support\Facades\Route;
 
@@ -118,6 +119,8 @@ Route::prefix('/purchase-transaction')->group(function () {
     Route::get('/edit/{id}', [PurchaseTransactionController::class, 'edit']);
     Route::patch('/{id}', [PurchaseTransactionController::class, 'update']);
     Route::delete('/{id}', [PurchaseTransactionController::class, 'destroy']);
+});
+
 //RouteCentralSale
 Route::prefix('/central-sale')->group(function () {
     Route::get('/', [CentralSaleController::class, 'index']);
@@ -157,6 +160,16 @@ Route::prefix('/stock-opname')->group(function () {
     Route::get('/edit/{id}', [StockOpnameController::class, 'edit']);
     Route::patch('/{id}', [StockOpnameController::class, 'update']);
     Route::delete('/{id}', [StockOpnameController::class, 'destroy']);
+});
+
+//RouteShipment
+Route::prefix('/shipment')->group(function () {
+    Route::get('/', [ShipmentController::class, 'index']);
+    Route::get('/create', [ShipmentController::class, 'create']);
+    Route::post('/', [ShipmentController::class, 'store']);
+    Route::get('/edit/{id}', [ShipmentController::class, 'edit']);
+    Route::patch('/{id}', [ShipmentController::class, 'update']);
+    Route::delete('/{id}', [ShipmentController::class, 'destroy']);
 });
 
 // Datatables
