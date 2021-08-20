@@ -61,8 +61,8 @@ class CentralPurchaseController extends Controller
         $centralPurchase->supplier_id = $request->supplier_id;
         $centralPurchase->account_id = $request->account_id;
         $centralPurchase->total = $request->total;
-        $centralPurchase->shipping_cost = $request->shipping_cost;
-        $centralPurchase->discount = $request->discount;
+        $centralPurchase->shipping_cost = str_replace(".", "", $request->shipping_cost);
+        $centralPurchase->discount = str_replace(".", "", $request->discount);
         $centralPurchase->netto = $request->netto;
         $centralPurchase->pay_amount = $request->pay_amount;
         $centralPurchase->payment_method = $request->payment_method;
@@ -117,10 +117,10 @@ class CentralPurchaseController extends Controller
                     continue;
                 }
 
-                $productRow->central_stock = $productRow->central_stock + $product['quantity'];
                 // Calculate average purchase price
                 $newPrice = (($productRow->central_stock * $productRow->purchase_price) + ($product['quantity'] * $product['purchase_price'])) / ($productRow->central_stock + $product['quantity']);
                 $productRow->purchase_price = round($newPrice);
+                $productRow->central_stock = $productRow->central_stock + $product['quantity'];
                 $productRow->save();
             }
             return response()->json([
@@ -149,7 +149,10 @@ class CentralPurchaseController extends Controller
      */
     public function show($id)
     {
-        //
+        $centralPurchase = CentralPurchase::with(['products'])->findOrFail($id);
+        return view('central-purchase.show', [
+            'centralPurchase' => $centralPurchase,
+        ]);
     }
 
     /**
@@ -275,5 +278,36 @@ class CentralPurchaseController extends Controller
     private function clearThousandFormat($number)
     {
         return str_replace(".", "", $number);
+    }
+
+    public function datatableCentralPurchase()
+    {
+        $centralPurchase = CentralPurchase::with(['supplier'])->select('central_purchases.*');
+        return DataTables::eloquent($centralPurchase)
+            ->addIndexColumn()
+            ->addColumn('supplier_name', function ($row) {
+                return ($row->supplier ? $row->supplier->name : "");
+            })
+            ->addColumn('action', function ($row) {
+                $button = '
+            <div class="drodown">
+            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <ul class="link-list-opt no-bdr">
+                    <a href="/central-purchase/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                        <span>Edit</span>
+                    </a>
+                    <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                    <span>Delete</span>
+                    </a>
+                    <a href="/central-purchase/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                        <span>Detail</span>
+                    </a>
+                </ul>
+            </div>
+            </div>';
+                return $button;
+            })
+            ->make(true);
     }
 }

@@ -30,9 +30,9 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table class="datatable-init table table-striped">
+                    <table class="table table-striped" id="centralPurchase">
                         <thead>
-                            <tr class="text-center">
+                            <tr>
                                 <th>Tanggal Order</th>
                                 <th>Nomor Order</th>
                                 <th>Nama Supplier</th>
@@ -42,33 +42,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($centralpurchases as $cp)
-                            <tr class="text-center">
-                                <td>{{$cp->date}}</td>
-                                <td>{{$cp->code}}</td>
-                                <td>{{$cp->supplier->name}}</td>
-                                <td>{{$cp->supplier->code}}</td>
-                                <td>{{$cp->netto}}</td>
-                                <td>
-                                    <div class="drodown">
-                                        <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
-                                        <div class="dropdown-menu dropdown-menu-right">
-                                            <ul class="link-list-opt no-bdr">
-                                                <a href="/central-purchase/edit/{{$cp->id}}"><em class="icon fas fa-pencil-alt"></em>
-                                                    <span>Edit</span>
-                                                </a>
-                                                <a href="#"><em class="icon fas fa-eye"></em>
-                                                    <span>View</span>
-                                                </a>
-                                                <a href="#" @click.prevent="deleteRow({{ $cp->id }})"><em class="icon fas fa-trash-alt"></em>
-                                                    <span>Delete</span>
-                                                </a>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
+
                         </tbody>
                     </table>
                 </div>
@@ -126,5 +100,89 @@
             }
         }
     })
+</script>
+<script>
+    var centralPurchaseTable = $(function() {
+        $('#centralPurchase').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '/datatables/central-purchases',
+                type: 'GET',
+                // length: 2,
+            },
+            columns: [{
+                    data: 'date',
+                    name: 'central_purchases.date'
+                },
+                {
+                    data: 'code',
+                    name: 'central_purchases.code'
+                },
+                {
+                    data: 'supplier_name',
+                    name: 'suppliers.name',
+                },
+                {
+                    data: 'supplier_id',
+                    name: 'suppliers.code'
+                },
+                {
+                    data: 'netto',
+                    name: 'central_purchases.netto'
+                },
+                {
+                    data: 'action',
+                    name: 'action'
+                },
+
+            ]
+        });
+        $('#centralPurchase').on('click', 'tr .btn-delete', function(e) {
+            e.preventDefault();
+            // alert('click');
+            const id = $(this).attr('data-id');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "The data will be deleted",
+                icon: 'warning',
+                reverseButtons: true,
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return axios.delete('/central-purchase/' + id)
+                        .then(function(response) {
+                            console.log(response.data);
+                        })
+                        .catch(function(error) {
+                            console.log(error.data);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops',
+                                text: 'Something wrong',
+                            })
+                        });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Data has been deleted',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+
+                        }
+                    })
+                }
+            })
+        })
+    });
 </script>
 @endsection

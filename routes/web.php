@@ -11,6 +11,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\PurchaseTransactionController;
+use App\Http\Controllers\StockOpnameController;
+use App\Models\CentralPurchase;
+use App\Models\StockOpname;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -95,6 +98,16 @@ Route::prefix('/supplier')->group(function () {
     Route::delete('/{id}', [SupplierController::class, 'destroy']);
 });
 
+//RouteSupplierPayment
+Route::prefix('/supplier-payment')->group(function () {
+    Route::get('/', [SupplierPaymentController::class, 'index']);
+    Route::get('/create', [SupplierPaymentController::class, 'create']);
+    Route::post('/', [SupplierPaymentController::class, 'store']);
+    Route::get('/edit/{id}', [SupplierPaymentController::class, 'edit']);
+    Route::patch('/{id}', [SupplierPaymentController::class, 'update']);
+    Route::delete('/{id}', [SupplierPaymentController::class, 'destroy']);
+});
+
 //RouteCentralPurchase
 Route::prefix('/central-purchase')->group(function () {
     Route::get('/', [CentralPurchaseController::class, 'index']);
@@ -105,6 +118,7 @@ Route::prefix('/central-purchase')->group(function () {
     Route::post('/', [CentralPurchaseController::class, 'store']);
     Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
     Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
+    Route::get('/show/{id}', [CentralPurchaseController::class, 'show']);
 });
 
 //RoutePurchaseTransaction
@@ -136,9 +150,34 @@ Route::prefix('/account-transaction')->group(function () {
     Route::patch('/{id}', [AccountTransactionController::class, 'update']);
     Route::delete('/{id}', [AccountTransactionController::class, 'destroy']);
 });
+
+//RouteStockOpname
+Route::prefix('/stock-opname')->group(function () {
+    Route::get('/', [StockOpnameController::class, 'index']);
+    Route::get('/create', [StockOpnameController::class, 'create']);
+    Route::post('/', [StockOpnameController::class, 'store']);
+    Route::get('/edit/{id}', [StockOpnameController::class, 'edit']);
+    Route::patch('/{id}', [StockOpnameController::class, 'update']);
+    Route::delete('/{id}', [StockOpnameController::class, 'destroy']);
+});
+
 // Datatables
 Route::prefix('/datatables')->group(function () {
     Route::prefix('/central-purchases')->group(function () {
+        Route::get('/', [CentralPurchaseController::class, 'datatableCentralPurchase']);
         Route::get('/products', [CentralPurchaseController::class, 'datatableProducts']);
+    });
+    Route::prefix('/suppliers')->group(function () {
+        Route::get('/', [SupplierController::class, 'datatableSuppliers']);
+    });
+    Route::prefix('/customers')->group(function () {
+        Route::get('/', [CustomerController::class, 'datatableCustomers']);
+    });
+    Route::prefix('/products')->group(function () {
+        Route::get('/', [ProductController::class, 'datatableProducts']);
+    });
+    Route::prefix('/stock-opname')->group(function () {
+        Route::get('/', [StockOpnameController::class, 'datatableStockOpname']);
+        Route::get('/products', [StockOpnameController::class, 'datatableProducts']);
     });
 });

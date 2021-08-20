@@ -65,25 +65,25 @@
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Harga Beli</div>
-                            <div class="data-value">{{ $products->purchase_price }}</div>
+                            <div class="data-value">Rp. {{ $products->purchase_price }}</div>
                         </div>
                     </li>
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Harga Jual Agen</div>
-                            <div class="data-value">{{ $products->agent_price }}</div>
+                            <div class="data-value">Rp. {{ $products->agent_price }}</div>
                         </div>
                     </li>
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Harga Jual Retail</div>
-                            <div class="data-value">{{ $products->retail_price }}</div>
+                            <div class="data-value">Rp. {{ $products->retail_price }}</div>
                         </div>
                     </li>
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Harga Jual WS</div>
-                            <div class="data-value">{{ $products->ws_price }}</div>
+                            <div class="data-value">Rp. {{ $products->ws_price }}</div>
                         </div>
                     </li>
                 </ul>

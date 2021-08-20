@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductSubcategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
@@ -37,7 +38,9 @@ class ProductController extends Controller
     public function create()
     {
         $productCategories = ProductCategory::all();
-        $productSubcategories = ProductSubcategory::all();
+        $productSubcategories = ProductSubcategory::with('productCategory')->get();
+
+        // return $productSubcategories;
         $maxid = DB::table('products')->max('id');
         $code = sprintf('%05d', $maxid + 1);
         return view('product.create', [
@@ -149,10 +152,10 @@ class ProductController extends Controller
         $product->retail_stock = $request->retail_stock;
         $product->studio_stock = $request->studio_stock;
         $product->bad_stock = $request->bad_stock;
-        $product->purchase_price = $request->purchase_price;
-        $product->agent_price = $request->agent_price;
-        $product->ws_price = $request->ws_price;
-        $product->retail_price = $request->retail_price;
+        $product->purchase_price = str_replace(".", "", $request->purchase_price);
+        $product->agent_price = str_replace(".", "", $request->agent_price);
+        $product->ws_price = str_replace(".", "", $request->ws_price);
+        $product->retail_price = str_replace(".", "", $request->retail_price);
         $product->status = $request->status;
         $product->is_changeable = $request->is_changeable;
 
@@ -199,5 +202,33 @@ class ProductController extends Controller
                 'errors' => $e,
             ], 500);
         }
+    }
+
+    public function datatableProducts()
+    {
+        $products = Product::with('productCategory')->with('productSubcategory')->get();
+        return DataTables::of($products)
+            ->addIndexColumn()
+            ->addColumn('action', function ($row) {
+                $button = '
+            <div class="dropright">
+            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <ul class="link-list-opt no-bdr">
+                    <a href="/product/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                        <span>Edit</span>
+                    </a>
+                    <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                    <span>Delete</span>
+                    </a>
+                    <a href="/product/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                        <span>Detail</span>
+                    </a>
+                </ul>
+            </div>
+            </div>';
+                return $button;
+            })
+            ->make();
     }
 }

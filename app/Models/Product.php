@@ -23,4 +23,9 @@ class Product extends Model
     {
         return $this->belongsToMany(CentralPurchase::class)->withPivot('stock', 'price', 'quantity');
     }
+
+    public function stockOpnames()
+    {
+        return $this->belongsToMany(StockOpname::class);
+    }
 }

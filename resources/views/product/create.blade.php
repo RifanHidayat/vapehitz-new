@@ -62,7 +62,7 @@
                                 <div class="form-control-wrap">
                                     <div class="input-group mb-3">
                                         <select v-on:change="onChangeSubcategory" class="form-control" v-model="product_subcategory_id">
-                                            <option v-for="subcategory in product_subcategories" :value="subcategory.id">@{{subcategory.name}}</option>
+                                            <option v-for="subcategory in subCategoryOptions" :value="subcategory.id">@{{subcategory.name}}</option>
                                         </select>
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#subcategoryModal">
@@ -289,6 +289,7 @@
                     <table class="datatable-init table table-striped">
                         <thead>
                             <tr class="text-center">
+                                <th>Kategori</th>
                                 <th>Kode</th>
                                 <th>Nama</th>
                                 <th>Action</th>
@@ -296,6 +297,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="(subcategory, index) in product_subcategories" :value="subcategory.id" class="text-center">
+                                <td>@{{subcategory.product_category.name}}</td>
                                 <td>@{{subcategory.code}}</td>
                                 <td>@{{subcategory.name}}</td>
                                 <td>
@@ -382,15 +384,6 @@
         methods: {
             submitForm: function() {
                 this.sendData();
-            },
-            isNumber: function(evt) {
-                evt = (evt) ? evt : window.event;
-                var charCode = (evt.which) ? evt.which : evt.keyCode;
-                if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
-                    evt.preventDefault();;
-                } else {
-                    return true;
-                }
             },
             sendData: function() {
                 // console.log('submitted');
@@ -688,7 +681,13 @@
         computed: {
             number: function() {
                 return this.prefix + this.infix + this.code
-            }
+            },
+            subCategoryOptions: function() {
+                if (!this.product_category_id) {
+                    return [];
+                }
+                return this.product_subcategories.filter(subcategory => subcategory.product_category_id == this.product_category_id);
+            },
         }
     })
 </script>
