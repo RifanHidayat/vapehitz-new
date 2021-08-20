@@ -210,6 +210,46 @@ class CentralPurchaseController extends Controller
         }
     }
 
+    public function pay($id)
+    {
+        $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
+        $accounts = Account::all();
+
+        // return $purchase;
+
+        // foreach($purchase->products)
+        // $selectedProducts = collect($purchase->products)->each(function ($product) {
+        //     $product['quantity'] = $product->pivot->quantity;
+        //     $product['purchase_price'] = $product->pivot->price;
+        // });
+
+        // return $selectedProducts;
+        $transactions = collect($purchase->purchaseTransactions)->sortBy('date')->values()->all();
+
+        return view('central-purchase.pay', [
+            'purchase' => $purchase,
+            'accounts' => $accounts,
+            'transactions' => $transactions,
+        ]);
+    }
+
+    public function return($id)
+    {
+        $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
+        $accounts = Account::all();
+
+        $selectedProducts = collect($purchase->products)->each(function ($product) {
+            $product['return_quantity'] = 1;
+            $product['cause'] = 'defective';
+        });
+
+        return view('central-purchase.return', [
+            'purchase' => $purchase,
+            'accounts' => $accounts,
+            'selected_products' => $selectedProducts,
+        ]);
+    }
+
 
     /**
      * Remove the specified resource from storage.

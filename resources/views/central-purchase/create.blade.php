@@ -39,7 +39,7 @@
                                     <li>
                                         <div class="drodown">
                                             <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="false"><em class="icon ni ni-more-h"></em></a>
-                                            <div class="dropdown-menu dropdown-menu-right" style="">
+                                            <div class="dropdown-menu dropdown-menu-right">
                                                 <ul class="link-list-opt no-bdr">
                                                     <!-- <li><a href="#"><em class="icon ni ni-plus"></em><span>Tambah</span></a></li> -->
                                                     <li><a href="#" @click.prevent="removeAllSelectedProducts"><em class="icon ni ni-notify"></em><span>Hapus Semua</span></a></li>

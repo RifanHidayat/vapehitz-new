@@ -23,4 +23,14 @@ class CentralPurchase extends Model
     {
         return $this->belongsTo(Account::class);
     }
+
+    public function purchaseTransactions()
+    {
+        return $this->belongsToMany(PurchaseTransaction::class)->withPivot('amount');
+    }
+
+    public function purchaseReturns()
+    {
+        return $this->belongsToMany(PurchaseReturn::class)->withPivot('quantity', 'cause');
+    }
 }

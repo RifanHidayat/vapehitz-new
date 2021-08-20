@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountTransactionController;
+use App\Http\Controllers\PurchaseTransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -98,10 +99,22 @@ Route::prefix('/supplier')->group(function () {
 Route::prefix('/central-purchase')->group(function () {
     Route::get('/', [CentralPurchaseController::class, 'index']);
     Route::get('/create', [CentralPurchaseController::class, 'create']);
-    Route::post('/', [CentralPurchaseController::class, 'store']);
     Route::get('/edit/{id}', [CentralPurchaseController::class, 'edit']);
+    Route::get('/pay/{id}', [CentralPurchaseController::class, 'pay']);
+    Route::get('/return/{id}', [CentralPurchaseController::class, 'return']);
+    Route::post('/', [CentralPurchaseController::class, 'store']);
     Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
     Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
+});
+
+//RoutePurchaseTransaction
+Route::prefix('/purchase-transaction')->group(function () {
+    Route::get('/', [PurchaseTransactionController::class, 'index']);
+    Route::get('/create', [PurchaseTransactionController::class, 'create']);
+    Route::post('/', [PurchaseTransactionController::class, 'store']);
+    Route::get('/edit/{id}', [PurchaseTransactionController::class, 'edit']);
+    Route::patch('/{id}', [PurchaseTransactionController::class, 'update']);
+    Route::delete('/{id}', [PurchaseTransactionController::class, 'destroy']);
 });
 
 //RouteAccount
