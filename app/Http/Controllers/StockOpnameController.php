@@ -144,8 +144,14 @@ class StockOpnameController extends Controller
     public function edit($id)
     {
         $stockOpname = StockOpname::with('products')->findOrFail($id);
+        $selectedProducts = collect($stockOpname->products)->each(function ($product) {
+            $product['good_stock'] = $product->pivot->good_stock;
+            $product['bad_stock'] = $product->pivot->bad_stock;
+            $product['description'] = $product->pivot->description;
+        });
         return view('stock-opname.edit', [
             'stockOpname' => $stockOpname,
+            'selected_products' => $selectedProducts,
         ]);
     }
 
@@ -169,7 +175,23 @@ class StockOpnameController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $stockOpname = StockOpname::findOrFail($id);
+        try {
+            $stockOpname->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $stockOpname,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     public function datatableProducts()
@@ -200,9 +222,6 @@ class StockOpnameController extends Controller
                     </a>
                     <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                     <span>Delete</span>
-                    </a>
-                    <a href="/stock-opname/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
-                        <span>Detail</span>
                     </a>
                 </ul>
             </div>

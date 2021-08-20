@@ -117,6 +117,51 @@
                 },
             ]
         });
+        $('#stockOpname').on('click', 'tr .btn-delete', function(e) {
+            e.preventDefault();
+            // alert('click');
+            const id = $(this).attr('data-id');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "The data will be deleted",
+                icon: 'warning',
+                reverseButtons: true,
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return axios.delete('/stock-opname/' + id)
+                        .then(function(response) {
+                            console.log(response.data);
+                        })
+                        .catch(function(error) {
+                            console.log(error.data);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops',
+                                text: 'Something wrong',
+                            })
+                        });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Data has been deleted',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+
+                        }
+                    })
+                }
+            })
+        });
     });
 </script>
 @endsection
