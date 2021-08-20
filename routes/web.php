@@ -6,13 +6,12 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CentralPurchaseController;
+use App\Http\Controllers\CentralSaleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\StockOpnameController;
-use App\Models\CentralPurchase;
-use App\Models\StockOpname;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -97,16 +96,6 @@ Route::prefix('/supplier')->group(function () {
     Route::delete('/{id}', [SupplierController::class, 'destroy']);
 });
 
-//RouteSupplierPayment
-Route::prefix('/supplier-payment')->group(function () {
-    Route::get('/', [SupplierPaymentController::class, 'index']);
-    Route::get('/create', [SupplierPaymentController::class, 'create']);
-    Route::post('/', [SupplierPaymentController::class, 'store']);
-    Route::get('/edit/{id}', [SupplierPaymentController::class, 'edit']);
-    Route::patch('/{id}', [SupplierPaymentController::class, 'update']);
-    Route::delete('/{id}', [SupplierPaymentController::class, 'destroy']);
-});
-
 //RouteCentralPurchase
 Route::prefix('/central-purchase')->group(function () {
     Route::get('/', [CentralPurchaseController::class, 'index']);
@@ -116,6 +105,17 @@ Route::prefix('/central-purchase')->group(function () {
     Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
     Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
     Route::get('/show/{id}', [CentralPurchaseController::class, 'show']);
+});
+
+//RouteCentralSale
+Route::prefix('/central-sale')->group(function () {
+    Route::get('/', [CentralSaleController::class, 'index']);
+    Route::get('/create', [CentralSaleController::class, 'create']);
+    Route::post('/', [CentralSaleController::class, 'store']);
+    Route::get('/edit/{id}', [CentralSaleController::class, 'edit']);
+    Route::patch('/{id}', [CentralSaleController::class, 'update']);
+    Route::delete('/{id}', [CentralSaleController::class, 'destroy']);
+    Route::get('/show/{id}', [CentralSaleController::class, 'show']);
 });
 
 //RouteAccount

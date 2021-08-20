@@ -11,7 +11,7 @@
                     <span>Data Stock Opname</span>
                 </a>
             </div>
-            <h2 class="nk-block-title fw-normal">Tambah Data Stock Opname</h2>
+            <h2 class="nk-block-title fw-normal">Edit Data Stock Opname</h2>
         </div>
     </div>
 </div>
@@ -228,7 +228,7 @@
             note: '{{$stockOpname->note}}',
             goodStock: '{{$stockOpname->goodStock}}',
             badStock: '{{$stockOpname->badStock}}',
-            selectedProducts: JSON.parse('{!! $stockOpname->products !!}'),
+            selectedProducts: JSON.parse('{!! $selected_products !!}'),
             check: [],
             loading: false,
         },
@@ -254,7 +254,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/stock-opname', {
+                axios.patch('/stock-opname/{{$stockOpname->id}}', {
                         code: vm.code,
                         date: vm.date,
                         note: vm.note,

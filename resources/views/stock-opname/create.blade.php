@@ -8,54 +8,55 @@
         <div class="nk-block-head-content">
             <div class="nk-block-head-sub">
                 <a class="back-to" href="/stock-opname"><em class="icon ni ni-arrow-left"></em>
-                    <span>Data Stock Opname</span>
+                    <span>Data Stok Opname</span>
                 </a>
             </div>
-            <h2 class="nk-block-title fw-normal">Tambah Data Stock Opname</h2>
+            <h2 class="nk-block-title fw-normal">Tambah Data Stok Opname</h2>
         </div>
     </div>
 </div>
 <p></p>
-<div class="nk-block nk-block-lg">
-    <div class="row g-gs align-items-start">
-        <div class="col-lg-5 col-md-12">
-            <div class="card card-bordered">
-                <div class="card-inner-group">
-                    <div class="card-inner card-inner-md">
-                        <div class="card-title-group">
-                            <div class="card-title">
-                                <h6 class="title">Informasi Pembelian</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <form @submit.prevent="submitForm">
-                        <div class="card-inner">
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Nomor Stok Opname</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="code" class="form-control" readonly>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Tanggal Stok Opname</label>
-                                <div class="form-control-wrap">
-                                    <input type="date" v-model="date" class="form-control">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Keterangan</label>
-                                <div class="form-control-wrap">
-                                    <textarea v-model="note" class="form-control" id="note" cols="30" rows="5" placeholder="Keterangan"></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group text-right">
-                                <button class="btn btn-primary" type="submit">Simpan</button>
-                            </div>
-                        </div>
-                    </form>
+<div class="card card-bordered">
+    <div class="card-inner-group">
+        <div class="card-inner card-inner-md">
+            <div class="card-title-group">
+                <div class="card-title">
+                    <h6 class="title">Informasi Pembelian</h6>
                 </div>
             </div>
         </div>
+        <form @submit.prevent="submitForm">
+            <div class="card-inner">
+                <div class="row">
+                    <div class="col-sm">
+                        <div class=" form-group col-md-12">
+                            <label class="form-label" for="full-name-1">Nomor Stok Opname</label>
+                            <div class="form-control-wrap">
+                                <input type="text" v-model="code" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm">
+                        <div class=" form-group col-md-12">
+                            <label class="form-label" for="full-name-1">Tanggal Stok Opname</label>
+                            <div class="form-control-wrap">
+                                <input type="date" v-model="date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p></p>
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="full-name-1">Keterangan</label>
+                    <div class="form-control-wrap">
+                        <textarea v-model="note" class="form-control" cols="30" rows="5" placeholder="Keterangan"></textarea>
+                    </div>
+                </div>
+                <div class="form-group text-right">
+                    <button class="btn btn-primary" type="submit">Simpan</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 <p></p>

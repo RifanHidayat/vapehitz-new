@@ -50,13 +50,19 @@
                                 <a href="/central-purchase" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembelian Barang</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
+                                <a href="/supplier-payment" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
+                            </li>
+                            <li class="nk-menu-item">
+                                &nbsp;
+                            </li>
+                            <li class="nk-menu-item">
+                                <a href="/central-sale" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 &nbsp;
