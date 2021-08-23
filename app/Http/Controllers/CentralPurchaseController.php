@@ -84,7 +84,7 @@ class CentralPurchaseController extends Controller
             return [
                 $item['id'] => [
                     'stock' => $item['central_stock'],
-                    'price' => $item['purchase_price'],
+                    'price' => str_replace(".", "", $item['purchase_price']),
                     'quantity' => $item['quantity'],
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),
@@ -166,6 +166,12 @@ class CentralPurchaseController extends Controller
         $suppliers = Supplier::all();
         $accounts = Account::all();
         $centralpurchases = CentralPurchase::with(['products'])->findOrFail($id);
+        $selectedProducts = collect($centralpurchases->products)->each(function ($product) {
+            $product['quantity'] = $product->pivot->quantity;
+            $product['stock'] = $product->pivot->stock;
+            $product['purchase_price'] = $product->pivot->price;
+            $product['cause'] = 'defective';
+        });
 
         return view('central-purchase.edit', [
             'central_purchases' => $centralpurchases,
@@ -183,7 +189,108 @@ class CentralPurchaseController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $centralPurchase = CentralPurchase::findOrFail($id);
+        $centralPurchase->code = $request->code;
+        $centralPurchase->date = $request->date;
+        $centralPurchase->supplier_id = $request->supplier_id;
+        $centralPurchase->account_id = $request->account_id;
+        $centralPurchase->total = $request->total;
+        $centralPurchase->shipping_cost = str_replace(".", "", $request->shipping_cost);
+        $centralPurchase->discount = str_replace(".", "", $request->discount);
+        $centralPurchase->netto = $request->netto;
+        $centralPurchase->pay_amount = $request->pay_amount;
+        $centralPurchase->payment_method = $request->payment_method;
+
+        $products = $request->selected_products;
+
+        try {
+            $centralPurchase->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'stock' => $item['central_stock'],
+                    'price' => str_replace(".", "", $item['purchase_price']),
+                    'quantity' => $item['quantity'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $centralPurchase->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $centralPurchase,
+            // ]);
+        } catch (Exception $e) {
+            $centralPurchase->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            $centralPurchase->products()->attach($keyedProducts);
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $centralPurchase,
+            // ]);
+        } catch (Exception $e) {
+            $centralPurchase->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                // Calculate average purchase price
+                $newPrice = (($productRow->central_stock * $productRow->purchase_price) + ($product['quantity'] * $product['purchase_price'])) / ($productRow->central_stock + $product['quantity']);
+                $productRow->purchase_price = round($newPrice);
+                $productRow->central_stock = $productRow->central_stock + $product['quantity'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $centralPurchase,
+            ]);
+        } catch (Exception $e) {
+            $centralPurchase->products()->detach();
+            $centralPurchase->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**

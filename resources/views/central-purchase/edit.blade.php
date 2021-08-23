@@ -91,7 +91,7 @@
                                                         <!-- <em class="icon ni ni-user"></em> -->
                                                         <span>Rp</span>
                                                     </div>
-                                                    <input type="text" v-model="product.purchase_price" class="form-control text-right" placeholder="Harga">
+                                                    <input type="text" v-model="product.purchase_price" v-cleave="cleaveCurrency" class="form-control text-right" placeholder="Harga">
                                                 </div>
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
@@ -186,7 +186,7 @@
                                             <!-- <em class="icon ni ni-user"></em> -->
                                             <span>Rp</span>
                                         </div>
-                                        <input type="text" v-model="shippingCost" class="form-control text-right" placeholder="Biaya Kirim">
+                                        <input type="text" v-model="shippingCost" v-cleave="cleaveCurrency" class="form-control text-right" placeholder="Biaya Kirim">
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-6 col-md-12">
@@ -196,7 +196,7 @@
                                             <!-- <em class="icon ni ni-user"></em> -->
                                             <span>Rp</span>
                                         </div>
-                                        <input type="text" v-model="discount" class="form-control text-right" placeholder="Diskon">
+                                        <input type="text" v-model="discount" v-cleave="cleaveCurrency" class="form-control text-right" placeholder="Diskon">
                                     </div>
                                 </div>
                             </div>
@@ -237,11 +237,11 @@
                                     </div>
                                     <div class="row justify-content-between">
                                         <p class="col-md-6 card-text mb-0">Biaya Kirim</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(shippingCost) }}</strong></p>
+                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ shippingCost }}</strong></p>
                                     </div>
                                     <div class="row justify-content-between">
                                         <p class="col-md-6 card-text mb-0">Diskon</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(discount) }}</strong></p>
+                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ discount }}</strong></p>
                                     </div>
                                     <div class="row justify-content-between">
                                         <p class="col-md-6 card-text mb-0">Net Total</p>
@@ -321,285 +321,314 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cartModalLabel">Keranjang</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p v-if="cart.length === 0" class="text-soft text-center">Belum ada barang</p>
-                    <ul class="list-group">
-                        <li v-for="(product, index) in cart" class="list-group-item">
-                            <div class="row">
-                                <div class="col-sm-10">@{{ product.name }}</div>
-                                <div class="col-sm-2 text-right">
-                                    <a href="#" @click.prevent="removeFromCart(index)" class="text-danger"><em class="fas fa-times"></em></a>
-                                </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cartModalLabel">Keranjang</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p v-if="cart.length === 0" class="text-soft text-center">Belum ada barang</p>
+                <ul class="list-group">
+                    <li v-for="(product, index) in cart" class="list-group-item">
+                        <div class="row">
+                            <div class="col-sm-10">@{{ product.name }}</div>
+                            <div class="col-sm-2 text-right">
+                                <a href="#" @click.prevent="removeFromCart(index)" class="text-danger"><em class="fas fa-times"></em></a>
                             </div>
-                        </li>
-                    </ul>
-                </div>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
+</div>
 
-    @endsection
-    @section('pagescript')
-    <script>
-        let app = new Vue({
-            el: '#app',
-            data: {
-                code: '{{$central_purchases->code}}',
-                date: '{{$central_purchases->date}}',
-                suppliersId: '{{$central_purchases->supplier_id}}',
-                shippingCost: '{{$central_purchases->shipping_cost}}',
-                discount: '{{$central_purchases->discount}}',
-                isPaid: false,
-                paymentMethod: '{{$central_purchases->payment_method}}',
-                accounts: JSON.parse('{!! $accounts !!}'),
-                accountId: '',
-                suppliers: JSON.parse('{!! $suppliers !!}'),
-                cart: [],
-                selectedProducts: JSON.parse('{!! $central_purchases->products !!}'),
-                loading: false,
+@endsection
+@section('script')
+<script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+@endsection
+@section('pagescript')
+<script>
+    Vue.directive('cleave', {
+        inserted: (el, binding) => {
+            el.cleave = new Cleave(el, binding.value || {})
+        },
+        update: (el) => {
+            const event = new Event('input', {
+                bubbles: true
+            });
+            setTimeout(function() {
+                el.value = el.cleave.properties.result
+                el.dispatchEvent(event)
+            }, 100);
+        }
+    });
+    let app = new Vue({
+        el: '#app',
+        data: {
+            code: '{{$central_purchases->code}}',
+            date: '{{$central_purchases->date}}',
+            suppliersId: '{{$central_purchases->supplier_id}}',
+            shippingCost: '{{$central_purchases->shipping_cost}}',
+            discount: '{{$central_purchases->discount}}',
+            isPaid: false,
+            paymentMethod: '{{$central_purchases->payment_method}}',
+            accounts: JSON.parse('{!! $accounts !!}'),
+            accountId: '',
+            suppliers: JSON.parse('{!! $suppliers !!}'),
+            cart: [],
+            selectedProducts: JSON.parse('{!! $central_purchases->products !!}'),
+            cleaveCurrency: {
+                delimiter: '.',
+                numeralDecimalMark: ',',
+                numeral: true,
+                numeralThousandsGroupStyle: 'thousand'
             },
-            methods: {
-                submitForm: function() {
-                    this.sendData();
-                },
-                sendData: function() {
-                    // console.log('submitted');
-                    let vm = this;
-                    vm.loading = true;
-                    axios.post('/central-purchase', {
-                            code: vm.code,
-                            date: vm.date,
-                            supplier_id: vm.suppliersId,
-                            account_id: vm.accountId,
-                            total: vm.subTotal,
-                            shipping_cost: vm.shippingCost,
-                            discount: vm.discount,
-                            netto: vm.netTotal,
-                            pay_amount: vm.payment,
-                            payment_method: vm.paymentMethod,
-                            selected_products: vm.selectedProducts,
+            loading: false,
+        },
+        methods: {
+            submitForm: function() {
+                this.sendData();
+            },
+            sendData: function() {
+                // console.log('submitted');
+                let vm = this;
+                vm.loading = true;
+                axios.patch('/central-purchase/{{$central_purchases->id}}', {
+                        code: vm.code,
+                        date: vm.date,
+                        supplier_id: vm.suppliersId,
+                        account_id: vm.accountId,
+                        total: vm.subTotal,
+                        shipping_cost: vm.shippingCost,
+                        discount: vm.discount,
+                        netto: vm.netTotal,
+                        pay_amount: vm.payment,
+                        payment_method: vm.paymentMethod,
+                        selected_products: vm.selectedProducts,
+                    })
+                    .then(function(response) {
+                        vm.loading = false;
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Data has been saved',
+                            icon: 'success',
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/central-purchase';
+                            }
                         })
-                        .then(function(response) {
-                            vm.loading = false;
-                            Swal.fire({
-                                title: 'Success',
-                                text: 'Data has been saved',
-                                icon: 'success',
-                                allowOutsideClick: false,
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = '/central-purchase';
-                                }
-                            })
-                            // console.log(response);
-                        })
-                        .catch(function(error) {
-                            vm.loading = false;
-                            console.log(error);
-                            Swal.fire(
-                                'Oops!',
-                                'Something wrong',
-                                'error'
-                            )
-                        });
-                },
-                removeFromCart: function(index) {
-                    this.cart.splice(index, 1);
-                },
-                moveFromCart: function() {
-                    const selectedProductIds = this.selectedProducts.map(product => product.id);
-                    const productsInCart = this.cart.filter(product => selectedProductIds.indexOf(product.id) < 0);
-                    this.cart.filter(product => selectedProductIds.indexOf(product.id) > -1)
-                        .map(product => product.id)
-                        .forEach(productId => {
-                            const index = selectedProductIds.findIndex((id) => id == productId);
-                            this.selectedProducts[index].quantity += 1;
-                        })
-                    // console.log(arr);
+                        // console.log(response);
+                    })
+                    .catch(function(error) {
+                        vm.loading = false;
+                        console.log(error);
+                        Swal.fire(
+                            'Oops!',
+                            'Something wrong',
+                            'error'
+                        )
+                    });
+            },
+            removeFromCart: function(index) {
+                this.cart.splice(index, 1);
+            },
+            moveFromCart: function() {
+                const selectedProductIds = this.selectedProducts.map(product => product.id);
+                const productsInCart = this.cart.filter(product => selectedProductIds.indexOf(product.id) < 0);
+                this.cart.filter(product => selectedProductIds.indexOf(product.id) > -1)
+                    .map(product => product.id)
+                    .forEach(productId => {
+                        const index = selectedProductIds.findIndex((id) => id == productId);
+                        this.selectedProducts[index].quantity += 1;
+                    })
+                // console.log(arr);
 
-                    this.selectedProducts = this.selectedProducts.concat(productsInCart);
-                    this.cart = [];
-                },
-                removeSelectedProduct: function(index) {
-                    this.selectedProducts.splice(index, 1);
-                },
-                removeAllSelectedProducts: function() {
-                    this.selectedProducts = [];
-                },
-                increaseProductQuantity: function(product) {
-                    product.quantity = product.quantity + 1;
-                },
-                reduceProductQuantity: function(product) {
-                    if (product.quantity > 1) {
-                        product.quantity = product.quantity - 1;
-                    }
-                },
-                currencyFormat: function(number) {
-                    return Intl.NumberFormat('de-DE').format(number);
+                this.selectedProducts = this.selectedProducts.concat(productsInCart);
+                this.cart = [];
+            },
+            removeSelectedProduct: function(index) {
+                this.selectedProducts.splice(index, 1);
+            },
+            removeAllSelectedProducts: function() {
+                this.selectedProducts = [];
+            },
+            increaseProductQuantity: function(product) {
+                product.quantity = product.quantity + 1;
+            },
+            reduceProductQuantity: function(product) {
+                if (product.quantity > 1) {
+                    product.quantity = product.quantity - 1;
                 }
             },
-            computed: {
-                subTotal: function() {
-                    const subTotal = this.selectedProducts.map(product => {
-                        const amount = Number(product.quantity) * Number(product.purchase_price);
-                        return amount;
-                    }).reduce((acc, cur) => {
-                        return acc + cur;
-                    }, 0);
-
-                    return subTotal;
-                },
-                netTotal: function() {
-                    const netTotal = Number(this.subTotal) + Number(this.shippingCost) - Number(this.discount);
-                    return netTotal;
-                },
-                payment: function() {
-                    if (this.isPaid) {
-                        return this.netTotal;
-                    }
-
+            currencyFormat: function(number) {
+                return Intl.NumberFormat('de-DE').format(number);
+            },
+            clearCurrencyFormat: function(number) {
+                if (!number) {
                     return 0;
-                },
-                changePayment: function() {
-                    return this.netTotal - this.payment;
-                },
-                accountOptions: function() {
-                    let vm = this;
-                    if (this.paymentMethod !== '') {
-                        return this.accounts.filter(account => account.type == vm.paymentMethod);
-                    }
-
-                    return this.accounts;
                 }
+                return number.replaceAll(".", "");
+            },
+        },
+        computed: {
+            subTotal: function() {
+                const subTotal = this.selectedProducts.map(product => {
+                    const amount = Number(product.quantity) * this.clearCurrencyFormat(product.purchase_price.toString());
+                    return amount;
+                }).reduce((acc, cur) => {
+                    return acc + cur;
+                }, 0);
+
+                return subTotal;
+            },
+            netTotal: function() {
+                const netTotal = Number(this.subTotal) + Number(this.clearCurrencyFormat(this.shippingCost)) - Number(this.clearCurrencyFormat(this.discount));
+                return netTotal;
+            },
+            payment: function() {
+                if (this.isPaid) {
+                    return this.netTotal;
+                }
+
+                return 0;
+            },
+            changePayment: function() {
+                return this.netTotal - this.payment;
+            },
+            accountOptions: function() {
+                let vm = this;
+                if (this.paymentMethod !== '') {
+                    return this.accounts.filter(account => account.type == vm.paymentMethod);
+                }
+
+                return this.accounts;
             }
-        })
-    </script>
-    <script>
-        $(function() {
-            const productsTable = $('#products-table').DataTable({
-                processing: true,
-                serverSide: true,
-                destroy: true,
-                "autoWidth": false,
-                // pageLength: 2,
-                ajax: {
-                    url: '/datatables/central-purchases/products',
-                    type: 'GET',
-                    // length: 2,
+        }
+    })
+</script>
+<script>
+    $(function() {
+        const productsTable = $('#products-table').DataTable({
+            processing: true,
+            serverSide: true,
+            destroy: true,
+            "autoWidth": false,
+            // pageLength: 2,
+            ajax: {
+                url: '/datatables/central-purchases/products',
+                type: 'GET',
+                // length: 2,
+            },
+            columns: [{
+                    data: 'product_category.name',
+                    name: 'productCategory.name',
                 },
-                columns: [{
-                        data: 'product_category.name',
-                        name: 'productCategory.name',
-                    },
-                    {
-                        data: 'name',
-                        name: 'products.name'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    },
-                ]
-            });
+                {
+                    data: 'name',
+                    name: 'products.name'
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                },
+            ]
+        });
 
-            $('#products-table tbody').on('click', '.btn-choose', function() {
-                const rowData = productsTable.row($(this).parents('tr')).data();
-                const data = {
-                    ...rowData
-                };
+        $('#products-table tbody').on('click', '.btn-choose', function() {
+            const rowData = productsTable.row($(this).parents('tr')).data();
+            const data = {
+                ...rowData
+            };
 
-                const cart = app.$data.cart;
-                const productIds = cart.map(product => product.id);
+            const cart = app.$data.cart;
+            const productIds = cart.map(product => product.id);
 
-                // If product already in cart or selected products
-                if (productIds.indexOf(data.id) < 0) {
-                    data['quantity'] = 1;
-                    cart.push(data);
-                }
+            // If product already in cart or selected products
+            if (productIds.indexOf(data.id) < 0) {
+                data['quantity'] = 1;
+                cart.push(data);
+            }
 
-                // $('#estimationModal').modal('hide');
+            // $('#estimationModal').modal('hide');
 
-            });
+        });
 
-            $("#supplier").select2({
-                language: {
-                    noResults: function() {
-                        const searchText = $("#supplier").data("select2").dropdown.$search.val();
-                        return `
+        $("#supplier").select2({
+            language: {
+                noResults: function() {
+                    const searchText = $("#supplier").data("select2").dropdown.$search.val();
+                    return `
                         <a href="#" class="d-block" id="btn-add-supplier"><i class="fas fa-plus fa-sm"></i> Tambah ${searchText} </a>
                         <div class="progress mt-2" id="loadingSupplier" style="display: none">
                             <div class="progress-bar bg-primary w-100 progress-bar-striped progress-bar-animated" data-progress="100"></div>
                         </div>
                         `;
-                    },
                 },
-                escapeMarkup: function(markup) {
-                    return markup;
-                },
-            });
-            $("#supplier").on('change', function() {
-                app.$data.suppliersId = $(this).val();
-                // console.log(searchText);
-            });
+            },
+            escapeMarkup: function(markup) {
+                return markup;
+            },
+        });
+        $("#supplier").on('change', function() {
+            app.$data.suppliersId = $(this).val();
+            // console.log(searchText);
+        });
 
-            $(document).on('click', '#btn-add-supplier', function(e) {
-                e.preventDefault();
-                const searchText = $("#supplier").data("select2").dropdown.$search.val();
-                const data = {
-                    name: searchText,
-                    status: 1,
-                }
-
-                addSupplier(data);
-                // console.log('clicked');
-            })
-
-            function hideElement(el) {
-                $(el).hide();
+        $(document).on('click', '#btn-add-supplier', function(e) {
+            e.preventDefault();
+            const searchText = $("#supplier").data("select2").dropdown.$search.val();
+            const data = {
+                name: searchText,
+                status: 1,
             }
 
-            function showElement(el) {
-                $(el).show();
-            }
-
-            function addSupplier(data) {
-                showElement('#loadingSupplier');
-                axios.post('/supplier', data)
-                    .then(function(response) {
-                        const {
-                            data
-                        } = response.data;
-                        app.$data.suppliers.push(data);
-                        app.$data.suppliersId = data.id;
-                        $('#supplier').val(data.id);
-                        $('#supplier').select2('close');
-                        hideElement('#loadingSupplier');
-                    })
-                    .catch(function(error) {
-                        // vm.loading = false;
-                        $('#supplier').select2('close');
-                        hideElement('#loadingSupplier');
-                        console.log(error);
-                        Swal.fire(
-                            'Terjadi Kesalahan',
-                            'Gagal menambahkan supplier',
-                            'error'
-                        )
-                    });
-            }
+            addSupplier(data);
+            // console.log('clicked');
         })
-    </script>
-    @endsection
+
+        function hideElement(el) {
+            $(el).hide();
+        }
+
+        function showElement(el) {
+            $(el).show();
+        }
+
+        function addSupplier(data) {
+            showElement('#loadingSupplier');
+            axios.post('/supplier', data)
+                .then(function(response) {
+                    const {
+                        data
+                    } = response.data;
+                    app.$data.suppliers.push(data);
+                    app.$data.suppliersId = data.id;
+                    $('#supplier').val(data.id);
+                    $('#supplier').select2('close');
+                    hideElement('#loadingSupplier');
+                })
+                .catch(function(error) {
+                    // vm.loading = false;
+                    $('#supplier').select2('close');
+                    hideElement('#loadingSupplier');
+                    console.log(error);
+                    Swal.fire(
+                        'Terjadi Kesalahan',
+                        'Gagal menambahkan supplier',
+                        'error'
+                    )
+                });
+        }
+    })
+</script>
+@endsection

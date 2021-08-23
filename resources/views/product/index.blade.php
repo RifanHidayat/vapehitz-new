@@ -53,7 +53,6 @@
 
 
 @endsection
-
 @section('pagescript')
 <script>
     let app = new Vue({

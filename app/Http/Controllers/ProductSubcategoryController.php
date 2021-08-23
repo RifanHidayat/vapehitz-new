@@ -42,11 +42,12 @@ class ProductSubcategoryController extends Controller
         $productSubcategory->product_category_id = $request->subcategory;
         try {
             $productSubcategory->save();
+            $newSubCategory = ProductSubcategory::with('productCategory')->find($productSubcategory->id);
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
                 'error' => false,
-                'data' => $productSubcategory,
+                'data' => $newSubCategory,
             ]);
         } catch (Exception $e) {
             return response()->json([

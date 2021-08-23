@@ -91,7 +91,7 @@
                                                         <!-- <em class="icon ni ni-user"></em> -->
                                                         <span>Rp</span>
                                                     </div>
-                                                    <input type="text" v-model="product.purchase_price" class="form-control text-right" placeholder="Harga">
+                                                    <input type="text" v-model="product.purchase_price" v-cleave="cleaveCurrency" class="form-control text-right" placeholder="Harga">
                                                 </div>
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
@@ -482,13 +482,16 @@
         computed: {
             subTotal: function() {
                 const subTotal = this.selectedProducts.map(product => {
-                    const amount = Number(product.quantity) * Number(product.purchase_price);
-                    return amount;
-                }).reduce((acc, cur) => {
-                    return acc + cur;
-                }, 0);
+                        const amount = Number(product.quantity) * this.clearCurrencyFormat(product.purchase_price.toString());
+                        return amount;
+                    })
+                    .reduce((acc, cur) => {
+                        return acc + cur;
+                    }, 0);
+
 
                 return subTotal;
+
             },
             netTotal: function() {
                 const netTotal = Number(this.subTotal) + Number(this.clearCurrencyFormat(this.shippingCost)) - Number(this.clearCurrencyFormat(this.discount));

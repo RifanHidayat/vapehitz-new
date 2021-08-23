@@ -498,6 +498,7 @@
                         } = response.data
                         vm.product_categories[index].name = data.name;
                         vm.product_categories[index].code = data.code;
+                        vm.onChangeCategory();
                         // vm.product_categories.push(response.data.data);
                         // vm.product_category_id = response.data.data.id
                         // vm.onChangeCategory();
@@ -530,6 +531,7 @@
                         vm.product_subcategories[index].product_category_id = data.product_category_id;
                         vm.product_subcategories[index].name = data.name;
                         vm.product_subcategories[index].code = data.code;
+                        vm.onChangeSubcategory();
                         // vm.product_categories.push(response.data.data);
                         // vm.product_category_id = response.data.data.id
                         // vm.onChangeCategory();

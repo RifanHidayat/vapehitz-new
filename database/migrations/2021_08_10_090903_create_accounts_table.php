@@ -20,6 +20,7 @@ class CreateAccountsTable extends Migration
             $table->date('date')->nullable();
             $table->integer('init_balance')->nullable();
             $table->string('type', 30)->nullable();
+            $table->tinyInteger('is_default')->nullable()->default(0);
             $table->timestamps();
         });
     }

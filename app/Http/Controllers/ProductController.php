@@ -79,6 +79,7 @@ class ProductController extends Controller
         $product->retail_price = str_replace(".", "", $request->retail_price);
         $product->status = $request->status;
         $product->is_changeable = $request->is_changeable;
+
         try {
             $product->save();
             return response()->json([
