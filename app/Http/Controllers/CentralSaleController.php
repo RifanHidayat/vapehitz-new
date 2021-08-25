@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\CentralSale;
 use App\Models\Customer;
 use App\Models\Product;
@@ -9,6 +10,7 @@ use App\Models\Shipment;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\DataTables as DataTablesDataTables;
 use Yajra\DataTables\Facades\DataTables;
 
 class CentralSaleController extends Controller
@@ -20,9 +22,11 @@ class CentralSaleController extends Controller
      */
     public function index()
     {
+        $shipments = Shipment::all();
         $centralSale = CentralSale::all();
         return view('central-sale.index', [
             'centralSale' => $centralSale,
+            'shipment' => $shipments,
         ]);
     }
 
@@ -35,12 +39,14 @@ class CentralSaleController extends Controller
     {
         $customers = Customer::all();
         $shipments = Shipment::all();
+        $accounts = Account::all();
         $maxid = DB::table('central_sales')->max('id');
         $code = "SO/" . date('dmy') . "/" . sprintf('%04d', $maxid + 1);
         return view('central-sale.create', [
             'code' => $code,
             'customer' => $customers,
             'shipment' => $shipments,
+            'accounts' => $accounts,
         ]);
     }
 
@@ -58,6 +64,24 @@ class CentralSaleController extends Controller
         $centralSale->customer_id = $request->customerId;
         $centralSale->shipment_id = $request->shipmentId;
         $centralSale->debt = $request->debt;
+        $centralSale->total_weight = $request->total_weight;
+        $centralSale->total_cost = $request->total_cost;
+        $centralSale->discount = $request->discount;
+        $centralSale->subtotal = $request->subtotal;
+        $centralSale->shipping_cost = $request->shipping_cost;
+        $centralSale->other_cost = $request->other_cost;
+        $centralSale->detail_other_cost = $request->detail_other_cost;
+        $centralSale->deposit_customer = $request->deposit_customer;
+        $centralSale->net_total = $request->net_total;
+        $centralSale->receipt_1 = $request->receipt_1;
+        $centralSale->receive_1 = $request->receive_1;
+        $centralSale->receipt_2 = $request->receipt_2;
+        $centralSale->receive_2 = $request->receive_2;
+        $centralSale->recipient = $request->recipient;
+        $centralSale->payment_amount = $request->payment_amount;
+        $centralSale->remaining_payment = $request->remaining_payment;
+        $centralSale->address_recipient = $request->address_recipient;
+        $centralSale->detail = $request->detail;
 
         try {
             $centralSale->save();
@@ -132,5 +156,33 @@ class CentralSaleController extends Controller
                 return $button;
             })
             ->make(true);
+    }
+
+    public function datatableCentralSale()
+    {
+        $centralSale = CentralSale::with('products')->with('shipments')->select('central_sales.*');
+        return DataTables::eloquent($centralSale)
+            ->addIndexColumn()
+            ->addColumn('shipment', function ($row) {
+                return ($row->shipment ? $row->shipment->name : "");
+            })
+            ->addColumn('action', function ($row) {
+                $button = '
+            <div class="dropright">
+            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <ul class="link-list-opt no-bdr">
+                    <a href="/central-sale/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                        <span>Edit</span>
+                    </a>
+                    <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                    <span>Delete</span>
+                    </a>
+                </ul>
+            </div>
+            </div>';
+                return $button;
+            })
+            ->make();
     }
 }
