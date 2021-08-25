@@ -15,6 +15,11 @@ class Account extends Model
         return $this->hasMany(CentralPurchase::class);
     }
 
+    public function CentralSale()
+    {
+        return $this->hasMany(CentralSale::class);
+    }
+
     public function AccountTransactions()
     {
         return $this->belongsTo(AccountTransaction::class);
