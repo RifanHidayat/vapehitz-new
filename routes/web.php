@@ -14,7 +14,6 @@ use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\PurchaseTransactionController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StockOpnameController;
-use App\Models\CentralSale;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -193,6 +192,6 @@ Route::prefix('/datatables')->group(function () {
         Route::get('/products', [StockOpnameController::class, 'datatableProducts']);
     });
     Route::prefix('/central-sale')->group(function () {
-        Route::get('/', [CentralSale::class, 'datatableCentralSale']);
+        Route::get('/', [CentralSaleController::class, 'datatableCentralSale']);
     });
 });

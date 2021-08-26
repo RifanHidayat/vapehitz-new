@@ -92,7 +92,48 @@
                 <em class="fas fa-dolly fa-4x"></em>
                 <p class="mt-3">Belum ada barang yang dipilih</p>
             </div>
-            <div v-for="(product, index) in selectedProducts" :key="index" class="card card-bordered">
+            <div v-else class="card">
+                <div class="row justify-content-between align-items-center">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Kode Barang</th>
+                                        <th>Nama Barang</th>
+                                        <th>Stok Gudang</th>
+                                        <th>Good Stock</th>
+                                        <th>Bad Stock</th>
+                                        <th>Selisih</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
+                                        <td>@{{product.code}}</td>
+                                        <td>@{{product.name}}</td>
+                                        <td>@{{product.central_stock}}</td>
+                                        <td>
+                                            <input type="text" v-model="product.good_stock" class="form-control text-right" placeholder="Good Stock">
+                                        </td>
+                                        <td>
+                                            <input type="text" v-model="product.bad_stock" class="form-control text-right" placeholder="Bad Stock">
+                                        </td>
+                                        <td>@{{total}}</td>
+                                        <td>
+                                            <input type="text" v-model="product.description" class="form-control text-right" placeholder="Keterangan">
+                                        </td>
+                                        <td>
+                                            <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div v-for="(product, index) in selectedProducts" :key="index" class="card card-bordered">
                 <div class="card-inner">
                     <div class="row justify-content-between align-items-center">
                         <div class="col-md-10">
@@ -143,7 +184,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>

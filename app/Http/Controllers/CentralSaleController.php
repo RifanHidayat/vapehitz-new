@@ -10,8 +10,7 @@ use App\Models\Shipment;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\DataTables as DataTablesDataTables;
-use Yajra\DataTables\Facades\DataTables;
+use Yajra\DataTables\DataTables;
 
 class CentralSaleController extends Controller
 {
@@ -120,7 +119,8 @@ class CentralSaleController extends Controller
      */
     public function edit($id)
     {
-        //
+        $centralSale = CentralSale::findOrFail($id);
+        return $centralSale;
     }
 
     /**
@@ -160,10 +160,10 @@ class CentralSaleController extends Controller
 
     public function datatableCentralSale()
     {
-        $centralSale = CentralSale::with('products')->with('shipments')->select('central_sales.*');
-        return DataTables::eloquent($centralSale)
+        $centralSale = CentralSale::with('products')->with('shipment')->select('central_sales.*');
+        return DataTables::of($centralSale)
             ->addIndexColumn()
-            ->addColumn('shipment', function ($row) {
+            ->addColumn('shipment_name', function ($row) {
                 return ($row->shipment ? $row->shipment->name : "");
             })
             ->addColumn('action', function ($row) {
@@ -183,6 +183,6 @@ class CentralSaleController extends Controller
             </div>';
                 return $button;
             })
-            ->make();
+            ->make(true);
     }
 }
