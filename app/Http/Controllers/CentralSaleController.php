@@ -119,8 +119,24 @@ class CentralSaleController extends Controller
      */
     public function edit($id)
     {
-        $centralSale = CentralSale::findOrFail($id);
-        return $centralSale;
+        $customers = Customer::all();
+        $accounts = Account::all();
+        $shipments = Shipment::all();
+        $centralsales = CentralSale::with(['products'])->findOrFail($id);
+        $selectedProducts = collect($centralsales->products)->each(function ($product) {
+            $product['quantity'] = $product->pivot->quantity;
+            $product['price'] = $product->pivot->price;
+            $product['stock'] = $product->pivot->stock;
+            // $product['cause'] = 'defective';
+        });
+
+        return view('central-sale.edit', [
+            'selected_products' => $selectedProducts,
+            'central_sales' => $centralsales,
+            'customers' => $customers,
+            'accounts' => $accounts,
+            'shipments' => $shipments,
+        ]);
     }
 
     /**

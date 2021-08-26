@@ -18,7 +18,7 @@ class CentralSaleProductTable extends Migration
             $table->foreignId('central_sale_id');
             $table->foreignId('product_id');
             $table->integer('stock')->nullable();
-            $table->integer('selling_price')->nullable();
+            $table->integer('price')->nullable();
             $table->integer('quantity')->nullable();
             $table->integer('free')->nullable();
             $table->timestamps();
