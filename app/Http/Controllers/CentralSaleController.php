@@ -7,6 +7,7 @@ use App\Models\CentralSale;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Shipment;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -60,8 +61,8 @@ class CentralSaleController extends Controller
         $centralSale = new CentralSale;
         $centralSale->code = $request->code;
         $centralSale->date = $request->date . ' ' . date('H:i:s');
-        $centralSale->customer_id = $request->customerId;
-        $centralSale->shipment_id = $request->shipmentId;
+        $centralSale->customer_id = $request->customer_id;
+        $centralSale->shipment_id = $request->shipment_id;
         $centralSale->debt = $request->debt;
         $centralSale->total_weight = $request->total_weight;
         $centralSale->total_cost = $request->total_cost;
@@ -81,6 +82,7 @@ class CentralSaleController extends Controller
         $centralSale->remaining_payment = $request->remaining_payment;
         $centralSale->address_recipient = $request->address_recipient;
         $centralSale->detail = $request->detail;
+        $products = $request->selected_products;
 
         try {
             $centralSale->save();
@@ -91,6 +93,62 @@ class CentralSaleController extends Controller
                 'data' => $centralSale,
             ]);
         } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'stock' => $item['central_stock'],
+                    'price' => str_replace(".", "", $item['agent_price']),
+                    'quantity' => $item['quantity'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $centralSale->products()->attach($keyedProducts);
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $centralSale,
+            // ]);
+        } catch (Exception $e) {
+            $centralSale->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $productRow->central_stock = $productRow->central_stock - $product['quantity'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $centralSale,
+            ]);
+        } catch (Exception $e) {
+            $centralSale->products()->detach();
+            $centralSale->delete();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -131,7 +189,6 @@ class CentralSaleController extends Controller
         });
 
         return view('central-sale.edit', [
-            'selected_products' => $selectedProducts,
             'central_sales' => $centralsales,
             'customers' => $customers,
             'accounts' => $accounts,

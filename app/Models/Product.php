@@ -33,4 +33,14 @@ class Product extends Model
     {
         return $this->belongsToMany(CentralSale::class);
     }
+
+    public function badstockRelease()
+    {
+        return $this->belongsToMany(BadstockRelease::class);
+    }
+
+    public function reqtoRetail()
+    {
+        return $this->belongsToMany(ReqToRetail::class);
+    }
 }

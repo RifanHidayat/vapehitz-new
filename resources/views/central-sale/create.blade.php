@@ -533,8 +533,8 @@
                 let vm = this;
                 vm.loading = true;
                 axios.post('/central-sale', {
-                        shipmentId: vm.shipmentId,
-                        customerId: vm.customerId,
+                        shipment_id: vm.shipmentId,
+                        customer_id: vm.customerId,
                         code: vm.code,
                         date: vm.date,
                         debt: vm.debt,
@@ -556,6 +556,9 @@
                         recipient: vm.recipient,
                         address_recipient: vm.address_recipient,
                         detail: vm.detail,
+                        quantity: vm.quantity,
+                        price: vm.agent_price,
+                        free: vm.free,
                         selected_products: vm.selectedProducts,
                     })
                     .then(function(response) {

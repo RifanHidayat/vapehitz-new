@@ -14,6 +14,9 @@ use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\PurchaseTransactionController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StockOpnameController;
+use App\Http\Controllers\BadstockReleaseController;
+use App\Http\Controllers\ReqToRetailController;
+use App\Http\Controllers\ReturSupplierController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -162,6 +165,16 @@ Route::prefix('/stock-opname')->group(function () {
     Route::delete('/{id}', [StockOpnameController::class, 'destroy']);
 });
 
+//RouteBadstockRelease
+Route::prefix('/badstock-release')->group(function () {
+    Route::get('/', [BadstockReleaseController::class, 'index']);
+    Route::get('/create', [BadstockReleaseController::class, 'create']);
+    Route::post('/', [BadstockReleaseController::class, 'store']);
+    Route::get('/edit/{id}', [BadstockReleaseController::class, 'edit']);
+    Route::patch('/{id}', [BadstockReleaseController::class, 'update']);
+    Route::delete('/{id}', [BadstockReleaseController::class, 'destroy']);
+});
+
 //RouteShipment
 Route::prefix('/shipment')->group(function () {
     Route::get('/', [ShipmentController::class, 'index']);
@@ -170,6 +183,25 @@ Route::prefix('/shipment')->group(function () {
     Route::get('/edit/{id}', [ShipmentController::class, 'edit']);
     Route::patch('/{id}', [ShipmentController::class, 'update']);
     Route::delete('/{id}', [ShipmentController::class, 'destroy']);
+});
+
+//RouteReturSupplier
+Route::prefix('/retur-supplier')->group(function () {
+    Route::get('/', [ReturSupplierController::class, 'index']);
+    Route::get('/create', [ReturSupplierController::class, 'create']);
+    Route::post('/', [ReturSupplierController::class, 'store']);
+    Route::get('/edit/{id}', [ReturSupplierController::class, 'edit']);
+    Route::patch('/{id}', [ReturSupplierController::class, 'update']);
+    Route::delete('/{id}', [ReturSupplierController::class, 'destroy']);
+});
+//RouteReqToRetail
+Route::prefix('/reqtoretail')->group(function () {
+    Route::get('/', [ReqToRetailController::class, 'index']);
+    Route::get('/create', [ReqToRetailController::class, 'create']);
+    Route::post('/', [ReqToRetailController::class, 'store']);
+    Route::get('/edit/{id}', [ReqToRetailController::class, 'edit']);
+    Route::patch('/{id}', [ReqToRetailController::class, 'update']);
+    Route::delete('/{id}', [ReqToRetailController::class, 'destroy']);
 });
 
 // Datatables
@@ -193,5 +225,11 @@ Route::prefix('/datatables')->group(function () {
     });
     Route::prefix('/central-sale')->group(function () {
         Route::get('/', [CentralSaleController::class, 'datatableCentralSale']);
+    });
+    Route::prefix('/badstock-release')->group(function () {
+        Route::get('/', [BadstockReleaseController::class, 'datatableBadstockRelease']);
+    });
+    Route::prefix('/reqtoretail')->group(function () {
+        Route::get('/', [ReqToRetailController::class, 'datatableReqtoretail']);
     });
 });

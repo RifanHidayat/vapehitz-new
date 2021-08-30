@@ -30,7 +30,7 @@
                         <div class="form-group col-md-6">
                             <label class="form-label" for="full-name-1">Saldo Awal</label>
                             <div class="form-control-wrap">
-                                <input type="text" v-model="init_balance" class="form-control text-right" class="form-control" placeholder="0.00">
+                                <input type="text" v-model="init_balance" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="0.00">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
