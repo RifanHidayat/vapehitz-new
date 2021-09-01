@@ -154,6 +154,7 @@
         el: '#app',
         data: {
             code: '{{$code}}',
+            quantity: '0',
             selectedProducts: [],
             check: [],
             loading: false,

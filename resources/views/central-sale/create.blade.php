@@ -159,7 +159,7 @@
                                         <td>@{{product.code}}</td>
                                         <td>@{{product.name}}</td>
                                         <td>@{{product.weight}}</td>
-                                        <td></td>
+                                        <td><input type="text" :value="calculateBooked(product)" class="form-control" readonly></td>
                                         <td>@{{product.central_stock}}</td>
                                         <td>
                                             <input type="text" v-model="product.agent_price" :value="currencyFormat(product.agent_price)" class="form-control">
@@ -507,7 +507,6 @@
             recipient: '',
             address_recipient: '',
             detail: '',
-            free: '0',
             discount_type: 'nominal',
             customers: JSON.parse('{!! $customer !!}'),
             shipments: JSON.parse('{!! $shipment !!}'),
@@ -692,6 +691,9 @@
             },
             subTotalProduct: function(product) {
                 return Number(product.quantity) * Number(product.agent_price);
+            },
+            calculateBooked: function(product) {
+                return Number(product.quantity) + Number(product.free);
             }
         },
         computed: {

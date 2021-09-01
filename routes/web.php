@@ -114,6 +114,19 @@ Route::prefix('/central-purchase')->group(function () {
     Route::get('/show/{id}', [CentralPurchaseController::class, 'show']);
 });
 
+//RouteCentralSale
+Route::prefix('/central-sale')->group(function () {
+    Route::get('/', [CentralSaleController::class, 'index']);
+    Route::get('/create', [CentralSaleController::class, 'create']);
+    Route::post('/', [CentralSaleController::class, 'store']);
+    Route::get('/edit/{id}', [CentralSaleController::class, 'edit']);
+    Route::get('/approve/{id}', [CentralSaleController::class, 'approve']);
+    Route::patch('/approve/{id}', [CentralSaleController::class, 'approved']);
+    Route::patch('/{id}', [CentralSaleController::class, 'update']);
+    Route::delete('/{id}', [CentralSaleController::class, 'destroy']);
+    Route::get('/show/{id}', [CentralSaleController::class, 'show']);
+});
+
 //RoutePurchaseTransaction
 Route::prefix('/purchase-transaction')->group(function () {
     Route::get('/', [PurchaseTransactionController::class, 'index']);
@@ -122,17 +135,6 @@ Route::prefix('/purchase-transaction')->group(function () {
     Route::get('/edit/{id}', [PurchaseTransactionController::class, 'edit']);
     Route::patch('/{id}', [PurchaseTransactionController::class, 'update']);
     Route::delete('/{id}', [PurchaseTransactionController::class, 'destroy']);
-});
-
-//RouteCentralSale
-Route::prefix('/central-sale')->group(function () {
-    Route::get('/', [CentralSaleController::class, 'index']);
-    Route::get('/create', [CentralSaleController::class, 'create']);
-    Route::post('/', [CentralSaleController::class, 'store']);
-    Route::get('/edit/{id}', [CentralSaleController::class, 'edit']);
-    Route::patch('/{id}', [CentralSaleController::class, 'update']);
-    Route::delete('/{id}', [CentralSaleController::class, 'destroy']);
-    Route::get('/show/{id}', [CentralSaleController::class, 'show']);
 });
 
 //RouteAccount

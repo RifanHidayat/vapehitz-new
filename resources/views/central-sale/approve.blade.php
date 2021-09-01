@@ -10,7 +10,7 @@
             <div class="nk-block-head nk-block-head-sm">
                 <div class="nk-block-between g-3">
                     <div class="nk-block-head-content">
-                        <h3 class="nk-block-title page-title">Edit Penjualan Barang</h3>
+                        <h3 class="nk-block-title page-title">Konfirmasi Barang</h3>
                     </div>
                     <div class="nk-block-head-content">
                         <a href="/central-sale" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
@@ -388,7 +388,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.patch('/central-sale/{{$centralSales->id}}', {
+                axios.patch('/central-sale/approve/{{$centralSales->id}}', {
                         shipment_id: vm.shipmentId,
                         customer_id: vm.customerId,
                         code: vm.code,
