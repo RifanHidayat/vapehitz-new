@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CentralSaleProductTable extends Migration
+class CreateReqToRetailsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,12 @@ class CentralSaleProductTable extends Migration
      */
     public function up()
     {
-        Schema::create('central_sale_product', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('central_sale_id');
-            $table->foreignId('product_id');
-            $table->integer('stock')->nullable();
-            $table->integer('price')->nullable();
+        Schema::create('req_to_retails', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('code', 255);
+            $table->date('date');
             $table->integer('quantity')->nullable();
-            $table->integer('free')->nullable();
+            $table->tinyInteger('status')->default(0);
             $table->timestamps();
         });
     }
@@ -32,6 +30,6 @@ class CentralSaleProductTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('central_sale_product');
+        Schema::dropIfExists('req_to_retails');
     }
 }

@@ -53,7 +53,7 @@
                                 <a href="/supplier-payment" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
+                                <a href="/retur-supplier" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
@@ -70,7 +70,15 @@
                             <li class="nk-menu-item">
                                 <a href="/stock-opname" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
                             </li>
-
+                            <li class="nk-menu-item">
+                                <a href="/badstock-release" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pengeluaran Badstok</span></a>
+                            </li>
+                            <li class="nk-menu-item">
+                                &nbsp;
+                            </li>
+                            <li class="nk-menu-item">
+                                <a href="/reqtoretail" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Retail</span></a>
+                            </li>
                         </ul><!-- .nk-menu-sub -->
                     </li>
                     <li class="nk-menu-item has-sub">

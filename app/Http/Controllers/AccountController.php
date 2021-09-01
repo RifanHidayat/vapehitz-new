@@ -101,7 +101,7 @@ class AccountController extends Controller
         $account->number = $request->number;
         $account->name = $request->name;
         $account->date = $request->date;
-        $account->init_balance = $request->init_balance;
+        $account->init_balance = str_replace(".", "", $request->init_balance);
         $account->type = $request->type;
         try {
             $account->save();

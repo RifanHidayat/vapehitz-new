@@ -216,7 +216,6 @@
         </div>
     </div>
 </div>
-</div>
 @endsection
 @section('pagescript')
 <script>
