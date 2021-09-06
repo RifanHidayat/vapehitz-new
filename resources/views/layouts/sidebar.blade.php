@@ -90,6 +90,20 @@
                             <li class="nk-menu-item">
                                 <a href="/saleretail" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
                             </li>
+                            <li class="nk-menu-item">
+                                <a href="{{url('/stock-opname-retail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
+                            </li>
+                        </ul><!-- .nk-menu-sub -->
+                    </li>
+                    <li class="nk-menu-item has-sub">
+                        <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
+                            <span class="nk-menu-icon"><em class="icon ni ni-book"></em></span>
+                            <span class="nk-menu-text">Transaksi Studio</span>
+                        </a>
+                        <ul class="nk-menu-sub" style="display: none;">
+                            <li class="nk-menu-item">
+                                <a href="{{url('/stock-opname-studio')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
+                            </li>
                         </ul><!-- .nk-menu-sub -->
                     </li>
                     <li class="nk-menu-item has-sub">

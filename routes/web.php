@@ -18,6 +18,8 @@ use App\Http\Controllers\BadstockReleaseController;
 use App\Http\Controllers\ReqToRetailController;
 use App\Http\Controllers\ReturSupplierController;
 use App\Http\Controllers\SaleRetailController;
+use App\Http\Controllers\StockOpnameRetailController;
+use App\Http\Controllers\StockOpnameStudioController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -168,6 +170,26 @@ Route::prefix('/stock-opname')->group(function () {
     Route::delete('/{id}', [StockOpnameController::class, 'destroy']);
 });
 
+//RouteStockOpnameRetail
+Route::prefix('/stock-opname-retail')->group(function () {
+    Route::get('/', [StockOpnameRetailController::class, 'index']);
+    Route::get('/create', [StockOpnameRetailController::class, 'create']);
+    Route::post('/', [StockOpnameRetailController::class, 'store']);
+    Route::get('/edit/{id}', [StockOpnameRetailController::class, 'edit']);
+    Route::patch('/{id}', [StockOpnameRetailController::class, 'update']);
+    Route::delete('/{id}', [StockOpnameRetailController::class, 'destroy']);
+});
+
+//RouteStockOpnameStudio
+Route::prefix('/stock-opname-studio')->group(function () {
+    Route::get('/', [StockOpnameStudioController::class, 'index']);
+    Route::get('/create', [StockOpnameStudioController::class, 'create']);
+    Route::post('/', [StockOpnameStudioController::class, 'store']);
+    Route::get('/edit/{id}', [StockOpnameStudioController::class, 'edit']);
+    Route::patch('/{id}', [StockOpnameStudioController::class, 'update']);
+    Route::delete('/{id}', [StockOpnameStudioController::class, 'destroy']);
+});
+
 //RouteBadstockRelease
 Route::prefix('/badstock-release')->group(function () {
     Route::get('/', [BadstockReleaseController::class, 'index']);
@@ -245,5 +267,13 @@ Route::prefix('/datatables')->group(function () {
     });
     Route::prefix('/reqtoretail')->group(function () {
         Route::get('/', [ReqToRetailController::class, 'datatableReqtoretail']);
+    });
+    Route::prefix('/stock-opname-retail')->group(function () {
+        Route::get('/', [StockOpnameRetailController::class, 'datatableStockOpnameRetail']);
+        Route::get('/products', [StockOpnameRetailController::class, 'datatableProducts']);
+    });
+    Route::prefix('/stock-opname-studio')->group(function () {
+        Route::get('/', [StockOpnameStudioController::class, 'datatableStockOpnameStudio']);
+        Route::get('/products', [StockOpnameStudioController::class, 'datatableProducts']);
     });
 });
