@@ -164,7 +164,89 @@ class StockOpnameController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $stockOpname = StockOpname::findOrFail($id);
+        $stockOpname->code = $request->code;
+        $stockOpname->date = $request->date;
+        $stockOpname->note = $request->note;
+        $products = $request->selected_products;
+        try {
+            $stockOpname->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'good_stock' => $item['good_stock'],
+                    'bad_stock' => $item['bad_stock'],
+                    'description' => $item['description'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $stockOpname->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $stockOpname,
+            // ]);
+        } catch (Exception $e) {
+            $stockOpname->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            $stockOpname->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            $stockOpname->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                // Calculate average purchase price
+                $productRow->central_stock = $product['good_stock'];
+                $productRow->bad_stock = $product['bad_stock'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $stockOpname,
+            ]);
+        } catch (Exception $e) {
+            $stockOpname->products()->detach();
+            $stockOpname->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**

@@ -17,6 +17,7 @@ use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\BadstockReleaseController;
 use App\Http\Controllers\ReqToRetailController;
 use App\Http\Controllers\ReturSupplierController;
+use App\Http\Controllers\SaleRetailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -196,6 +197,7 @@ Route::prefix('/retur-supplier')->group(function () {
     Route::patch('/{id}', [ReturSupplierController::class, 'update']);
     Route::delete('/{id}', [ReturSupplierController::class, 'destroy']);
 });
+
 //RouteReqToRetail
 Route::prefix('/reqtoretail')->group(function () {
     Route::get('/', [ReqToRetailController::class, 'index']);
@@ -204,6 +206,16 @@ Route::prefix('/reqtoretail')->group(function () {
     Route::get('/edit/{id}', [ReqToRetailController::class, 'edit']);
     Route::patch('/{id}', [ReqToRetailController::class, 'update']);
     Route::delete('/{id}', [ReqToRetailController::class, 'destroy']);
+});
+
+//RouteSaleRetail
+Route::prefix('/saleretail')->group(function () {
+    Route::get('/', [SaleRetailController::class, 'index']);
+    Route::get('/create', [SaleRetailController::class, 'create']);
+    Route::post('/', [SaleRetailController::class, 'store']);
+    Route::get('/edit/{id}', [SaleRetailController::class, 'edit']);
+    Route::patch('/{id}', [SaleRetailController::class, 'update']);
+    Route::delete('/{id}', [SaleRetailController::class, 'destroy']);
 });
 
 // Datatables

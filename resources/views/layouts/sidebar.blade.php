@@ -83,6 +83,17 @@
                     </li>
                     <li class="nk-menu-item has-sub">
                         <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
+                            <span class="nk-menu-icon"><em class="icon ni ni-book"></em></span>
+                            <span class="nk-menu-text">Transaksi Retail</span>
+                        </a>
+                        <ul class="nk-menu-sub" style="display: none;">
+                            <li class="nk-menu-item">
+                                <a href="/saleretail" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
+                            </li>
+                        </ul><!-- .nk-menu-sub -->
+                    </li>
+                    <li class="nk-menu-item has-sub">
+                        <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
                             <span class="nk-menu-icon"><em class="icon ni ni-coins"></em></span>
                             <span class="nk-menu-text">Keuangan</span>
                         </a>
