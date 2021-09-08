@@ -31,6 +31,6 @@ class ProductStockOpnameTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('product_stock_opname');
     }
 }

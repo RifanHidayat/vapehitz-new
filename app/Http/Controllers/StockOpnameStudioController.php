@@ -136,7 +136,15 @@ class StockOpnameStudioController extends Controller
      */
     public function show($id)
     {
-        //
+        $stockOpnameStudio = StockOpnameStudio::with('products')->findOrFail($id);
+        $selectedProducts = collect($stockOpnameStudio->products)->each(function ($product) {
+            $product['good_stock'] = $product->pivot->good_stock;
+            $product['description'] = $product->pivot->description;
+        });
+        return view('stock-opname-studio.show', [
+            'stockOpnameStudio' => $stockOpnameStudio,
+            'selected_products' => $selectedProducts,
+        ]);
     }
 
     /**
@@ -147,7 +155,15 @@ class StockOpnameStudioController extends Controller
      */
     public function edit($id)
     {
-        //
+        $stockOpnameStudio = StockOpnameStudio::with('products')->findOrFail($id);
+        $selectedProducts = collect($stockOpnameStudio->products)->each(function ($product) {
+            $product['good_stock'] = $product->pivot->good_stock;
+            $product['description'] = $product->pivot->description;
+        });
+        return view('stock-opname-studio.edit', [
+            'stockOpnameStudio' => $stockOpnameStudio,
+            'selected_products' => $selectedProducts,
+        ]);
     }
 
     /**
@@ -159,7 +175,86 @@ class StockOpnameStudioController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $stockOpnameStudio = StockOpnameStudio::findOrFail($id);
+        $stockOpnameStudio->code = $request->code;
+        $stockOpnameStudio->date = $request->date;
+        $stockOpnameStudio->note = $request->note;
+        $products = $request->selected_products;
+        try {
+            $stockOpnameStudio->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'good_stock' => $item['good_stock'],
+                    'description' => $item['description'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $stockOpnameStudio->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $stockOpnameStudio,
+            // ]);
+        } catch (Exception $e) {
+            $stockOpnameStudio->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            $stockOpnameStudio->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            $stockOpnameStudio->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $productRow->studio_stock = $product['good_stock'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $stockOpnameStudio,
+            ]);
+        } catch (Exception $e) {
+            $stockOpnameStudio->products()->detach();
+            $stockOpnameStudio->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -170,7 +265,39 @@ class StockOpnameStudioController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $stockOpnameStudio = StockOpnameStudio::findOrFail($id);
+        try {
+            $stockOpnameStudio->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $stockOpnameStudio,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+
+    public function datatableStockOpnameStudio()
+    {
+        $stockOpnameStudio = StockOpnameStudio::with('products')->select('stock_opname_studios.*');
+        return DataTables::eloquent($stockOpnameStudio)
+            ->addIndexColumn()
+            ->addColumn('action', function ($row) {
+                $button = '
+                    <a href="/studio-stock-opname/show/' . $row->id . '" class="btn btn-outline-success btn-sm"><em class="icon fas fa-eye"></em>
+                        <span>Detail</span>
+                    </a>
+                    ';
+                return $button;
+            })
+            ->make();
     }
 
     public function datatableProducts()

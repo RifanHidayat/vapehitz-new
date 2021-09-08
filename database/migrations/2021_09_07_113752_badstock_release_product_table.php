@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ProductStockOpnameRetailTable extends Migration
+class BadstockReleaseProductTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class ProductStockOpnameRetailTable extends Migration
      */
     public function up()
     {
-        Schema::create('product_stock_opname_retail', function (Blueprint $table) {
+        Schema::create('badstock_release_product', function (Blueprint $table) {
             $table->increments('id');
             $table->foreignId('product_id');
-            $table->foreignId('stock_opname_retail_id');
-            $table->decimal('good_stock')->default(0);
-            $table->string('description')->default(0);
+            $table->foreignId('badstock_release_id');
+            $table->decimal('bad_stock')->default(0);
+            $table->string('quantity')->default(0);
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ class ProductStockOpnameRetailTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('product_stock_opname_retail');
+        Schema::dropIfExists('badstock_release_product');
     }
 }

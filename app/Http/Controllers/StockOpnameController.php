@@ -132,7 +132,15 @@ class StockOpnameController extends Controller
      */
     public function show($id)
     {
-        //
+        $stockOpname = StockOpname::with('products')->findOrFail($id);
+        $selectedProducts = collect($stockOpname->products)->each(function ($product) {
+            $product['good_stock'] = $product->pivot->good_stock;
+            $product['bad_stock'] = $product->pivot->bad_stock;
+            $product['description'] = $product->pivot->description;
+        });
+        return view('stock-opname.show', [
+            'stockOpname' => $stockOpname,
+        ]);
     }
 
     /**
@@ -151,7 +159,6 @@ class StockOpnameController extends Controller
         });
         return view('stock-opname.edit', [
             'stockOpname' => $stockOpname,
-            'selected_products' => $selectedProducts,
         ]);
     }
 
@@ -287,7 +294,9 @@ class StockOpnameController extends Controller
             })
             ->make(true);
     }
-
+    // <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+    //  <span>Delete</span>
+    // </a>
     public function datatableStockOpname()
     {
         $stockOpname = StockOpname::with('products')->select('stock_opnames.*');
@@ -295,19 +304,9 @@ class StockOpnameController extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 $button = '
-            <div class="dropright">
-            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
-            <div class="dropdown-menu dropdown-menu-right">
-                <ul class="link-list-opt no-bdr">
-                    <a href="/stock-opname/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
-                        <span>Edit</span>
-                    </a>
-                    <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
-                    <span>Delete</span>
-                    </a>
-                </ul>
-            </div>
-            </div>';
+                <a href="/stock-opname/show/' . $row->id . '" class="btn btn-outline-success btn-sm"><em class="icon fas fa-eye"></em>
+                    <span>Detail</span>
+                </a>';
                 return $button;
             })
             ->make();

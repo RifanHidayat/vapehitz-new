@@ -12,7 +12,7 @@
     </div>
     <div class="card card-bordered">
         <div class="card-inner">
-            <form @submit.prevent="submitForm">
+            <form @submit.prevent="submitForm" enctype="multipart/form-data">
                 <div class="col-lg-5">
                     <div class="form-group">
                         <label class="form-label" for="full-name-1">Kode</label>
@@ -36,12 +36,13 @@
                         <label class="form-label" for="full-name-1">Upload Gambar</label>
                         <div class="input-group mb-3">
                             <div class="custom-file">
-                                <input type="file" v-model="image" class="custom-file-input" id="inputGroupFile02">
-                                <label class="custom-file-label" for="inputGroupFile02">Pilih Gambar</label>
+                                <input type="file" ref="image" v-on:change="handleFileUpload" accept=".jpg, .jpeg, .png" class="form-control form-control-sm">
                             </div>
                         </div>
+                        <img src="{{asset($badstock->image)}}">
                     </div>
                 </div>
+                <p></p>
                 <div class="col-lg-12">
                     <div class="form-group">
                         <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal">
@@ -171,7 +172,7 @@
             image: '',
             date: '{{$badstock->date}}',
             productId: '',
-            selectedProducts: [],
+            selectedProducts: JSON.parse('{!! $badstock->products !!}'),
             check: [],
             quantity: '0',
             // bad_stock: '',
@@ -199,7 +200,20 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/badstock-release', {
+
+                const data = {
+                    productId: vm.productId,
+                    code: vm.code,
+                    date: vm.date,
+                    image: vm.image,
+                    selected_products: JSON.stringify(vm.selectedProducts),
+                }
+
+                let formData = new FormData();
+                for (var key in data) {
+                    formData.append(key, data[key]);
+                }
+                axios.patch('/badstock-release/{{$badstock->id}}', {
                         productId: vm.productId,
                         code: vm.code,
                         date: vm.date,
@@ -241,7 +255,10 @@
             },
             subTotalProduct: function(product) {
                 return Number(product.bad_stock) - Number(product.quantity);
-            }
+            },
+            handleFileUpload: function() {
+                this.image = this.$refs.image.files[0];
+            },
         },
     })
 </script>

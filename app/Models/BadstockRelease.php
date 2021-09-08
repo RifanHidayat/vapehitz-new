@@ -9,8 +9,8 @@ class BadstockRelease extends Model
 {
     use HasFactory;
 
-    public function product()
+    public function products()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsToMany(Product::class)->withPivot('bad_stock', 'quantity');
     }
 }
