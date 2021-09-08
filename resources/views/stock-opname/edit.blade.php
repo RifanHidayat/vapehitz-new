@@ -8,53 +8,53 @@
         <div class="nk-block-head-content">
             <div class="nk-block-head-sub">
                 <a class="back-to" href="/stock-opname"><em class="icon ni ni-arrow-left"></em>
-                    <span>Data Stock Opname</span>
+                    <span>Data Stok Opname</span>
                 </a>
             </div>
-            <h2 class="nk-block-title fw-normal">Edit Data Stock Opname</h2>
+            <h3 class="nk-block-title fw-normal">Ubah Data Stok Opname</h3>
         </div>
     </div>
-</div>
-<p></p>
-<div class="nk-block nk-block-lg">
-    <div class="row g-gs align-items-start">
-        <div class="col-lg-5 col-md-12">
-            <div class="card card-bordered">
-                <div class="card-inner-group">
-                    <div class="card-inner card-inner-md">
-                        <div class="card-title-group">
-                            <div class="card-title">
-                                <h6 class="title">Informasi Pembelian</h6>
-                            </div>
-                        </div>
+    <div class="card card-bordered">
+        <div class="card-inner-group">
+            <div class="card-inner card-inner-md">
+                <div class="card-title-group">
+                    <div class="card-title">
+                        <h6 class="title">Informasi Stok Opname</h6>
                     </div>
-                    <form @submit.prevent="submitForm">
-                        <div class="card-inner">
-                            <div class="form-group">
+                </div>
+            </div>
+            <form @submit.prevent="submitForm">
+                <div class="card-inner">
+                    <div class="row">
+                        <div class="col-sm">
+                            <div class=" form-group col-md-12">
                                 <label class="form-label" for="full-name-1">Nomor Stok Opname</label>
                                 <div class="form-control-wrap">
                                     <input type="text" v-model="code" class="form-control" readonly>
                                 </div>
                             </div>
-                            <div class="form-group">
+                        </div>
+                        <div class="col-sm">
+                            <div class=" form-group col-md-12">
                                 <label class="form-label" for="full-name-1">Tanggal Stok Opname</label>
                                 <div class="form-control-wrap">
                                     <input type="date" v-model="date" class="form-control">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Keterangan</label>
-                                <div class="form-control-wrap">
-                                    <textarea v-model="note" class="form-control" id="note" cols="30" rows="5" placeholder="Keterangan"></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group text-right">
-                                <button class="btn btn-primary" type="submit">Simpan</button>
-                            </div>
                         </div>
-                    </form>
+                    </div>
+                    <p></p>
+                    <div class="form-group col-md-6">
+                        <label class="form-label" for="full-name-1">Keterangan</label>
+                        <div class="form-control-wrap">
+                            <textarea v-model="note" class="form-control" cols="30" rows="5" placeholder="Keterangan"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group text-right">
+                        <button class="btn btn-primary" type="submit">Simpan</button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -88,57 +88,41 @@
         </div>
         <div class="card-inner">
             <div v-if="selectedProducts.length === 0" class="text-center text-soft">
-                <em class="fas fa-dolly fa-4x"></em>
                 <p class="mt-3">Belum ada barang yang dipilih</p>
             </div>
-            <div v-for="(product, index) in selectedProducts" :key="index" class="card card-bordered">
-                <div class="card-inner">
-                    <div class="row justify-content-between align-items-center">
-                        <div class="col-md-10">
-                            <h5 class="card-title">Data Produk</h5>
-                            <div class="row justify-content-between align-items-center mt-3">
-                                <p class="col-md-6 mb-0">Kode</p>
-                                <p class="col-md-6 text-right mb-0"><strong>@{{product.code}}</strong></p>
-                            </div>
-                            <div class="row justify-content-between align-items-center mt-3">
-                                <p class="col-md-6 mb-0">Nama</p>
-                                <p class="col-md-6 text-right mb-0"><strong>@{{product.name}}</strong></p>
-                            </div>
-                            <div class="row justify-content-between align-items-center mt-3">
-                                <p class="col-md-6 mb-0">Stok Gudang</p>
-                                <p class="col-md-6 text-right mb-0"><strong>@{{product.central_stock}}</strong></p>
-                            </div>
-                            <div class="row justify-content-between align-items-center mt-3">
-                                <p class="col-md-6 mb-0">Good Stock</p>
-                                <div class="col-md-6">
-                                    <div class="form-control-wrap">
-                                        <input type="text" v-model="product.good_stock" class="form-control text-right" placeholder="Good Stock">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row justify-content-between align-items-center mt-3">
-                                <p class="col-md-6 mb-0">Bad Stock</p>
-                                <div class="col-md-6">
-                                    <div class="form-control-wrap">
-                                        <input type="text" v-model="product.bad_stock" class="form-control text-right" placeholder="Bad Stock">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row justify-content-between align-items-center mt-3">
-                                <p class="col-md-6 mb-0">Selisih</p>
-                                <p class="col-md-6 text-right mb-0"><strong>@{{total}}</strong></p>
-                            </div>
-                            <div class="row justify-content-between align-items-center mt-3">
-                                <p class="col-md-6 mb-0">Keterangan</p>
-                                <div class="col-md-6">
-                                    <div class="form-control-wrap">
-                                        <input type="text" v-model="product.description" class="form-control text-right" placeholder="Keterangan">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2 text-right">
-                            <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
+            <div v-else class="card">
+                <div class="row justify-content-between align-items-center">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Kode Barang</th>
+                                        <th>Nama Barang</th>
+                                        <th>Stok Retail</th>
+                                        <th>Real Stock</th>
+                                        <th>Selisih</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
+                                        <td>@{{product.code}}</td>
+                                        <td>@{{product.name}}</td>
+                                        <td>@{{product.central_stock}}</td>
+                                        <td>
+                                            <input type="number" v-model="product.good_stock" class="form-control text-right" placeholder="Real Stock">
+                                        </td>
+                                        <td><input type="number" :value="totalDifference(product)" class="form-control" readonly></td>
+                                        <td>
+                                            <input type="text" v-model="product.description" class="form-control" placeholder="Keterangan">
+                                        </td>
+                                        <td>
+                                            <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -184,7 +168,7 @@
             <div class="modal-footer">
                 <button @click="onSelectedProduct" type="button" class="btn btn-primary" data-dismiss="modal">
                     <div data-dismiss="modal">
-                        <em class="fas fa-check"></em>&nbsp;<span class="badge badge-pill badge-light"></span>
+                        <em class="ni ni-check"></em>&nbsp;<span class="badge badge-pill badge-light"></span>
                     </div>
                 </button>
             </div>
@@ -207,7 +191,7 @@
                         <div class="row">
                             <div class="col-sm-10">@{{ product.name }}</div>
                             <div class="col-sm-2 text-right">
-                                <a href="#" @click.prevent="removeFromCheck(index)" class="text-danger"><em class="fas fa-times"></em></a>
+                                <a href="#" @click.prevent="removeFromCheck(index)" class="text-danger">X</a>
                             </div>
                         </div>
                     </li>
@@ -227,7 +211,7 @@
             note: '{{$stockOpname->note}}',
             goodStock: '{{$stockOpname->goodStock}}',
             badStock: '{{$stockOpname->badStock}}',
-            selectedProducts: JSON.parse('{!! $selected_products !!}'),
+            selectedProducts: JSON.parse('{!! $stockOpname->products !!}'),
             check: [],
             loading: false,
         },
@@ -291,6 +275,9 @@
             },
             removeFromCheck: function(index) {
                 this.check.splice(index, 1);
+            },
+            totalDifference: function(product) {
+                return Number(product.central_stock) - Number(product.good_stock);
             },
         },
         computed: {

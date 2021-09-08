@@ -7,11 +7,11 @@
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <div class="nk-block-head-sub">
-                <a class="back-to" href="/stock-opname-studio"><em class="icon ni ni-arrow-left"></em>
-                    <span>Data Stok Opname Retail</span>
+                <a class="back-to" href="/studio-stock-opname"><em class="icon ni ni-arrow-left"></em>
+                    <span>Data Stok Opname Studio</span>
                 </a>
             </div>
-            <h3 class="nk-block-title fw-normal">Tambah Data Stok Opname Retail</h3>
+            <h3 class="nk-block-title fw-normal">Tambah Data Stok Opname Studio</h3>
         </div>
     </div>
     <div class="card card-bordered">
@@ -100,7 +100,7 @@
                                     <tr class="text-center">
                                         <th>Kode Barang</th>
                                         <th>Nama Barang</th>
-                                        <th>Stok Retail</th>
+                                        <th>Stok Studio</th>
                                         <th>Real Stock</th>
                                         <th>Selisih</th>
                                         <th>Keterangan</th>
@@ -110,7 +110,7 @@
                                     <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
                                         <td>@{{product.code}}</td>
                                         <td>@{{product.name}}</td>
-                                        <td>@{{product.retail_stock}}</td>
+                                        <td>@{{product.studio_stock}}</td>
                                         <td>
                                             <input type="number" v-model="product.good_stock" class="form-control text-right" placeholder="Real Stock">
                                         </td>
@@ -241,7 +241,7 @@
                 this.check.splice(index, 1);
             },
             totalDifference: function(product) {
-                return Number(product.retail_stock) - Number(product.good_stock);
+                return Number(product.studio_stock) - Number(product.good_stock);
             },
             submitForm: function() {
                 this.sendData();
@@ -250,7 +250,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/stock-opname-studio', {
+                axios.post('/studio-stock-opname', {
                         code: vm.code,
                         date: vm.date,
                         note: vm.note,
@@ -265,7 +265,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/stock-opname-studio';
+                                window.location.href = '/studio-stock-opname';
                             }
                         })
                         // console.log(response);

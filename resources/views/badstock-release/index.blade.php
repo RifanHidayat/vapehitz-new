@@ -23,6 +23,7 @@
                             <tr>
                                 <th>Nomor Proses</th>
                                 <th>Tanggal Proses</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -102,6 +103,10 @@
                 {
                     data: 'date',
                     name: 'date'
+                },
+                {
+                    data: 'status',
+                    name: 'status'
                 },
                 {
                     data: 'action',

@@ -136,7 +136,15 @@ class StockOpnameRetailController extends Controller
      */
     public function show($id)
     {
-        //
+        $stockOpnameRetail = StockOpnameRetail::with('products')->findOrFail($id);
+        $selectedProducts = collect($stockOpnameRetail->products)->each(function ($product) {
+            $product['good_stock'] = $product->pivot->good_stock;
+            $product['description'] = $product->pivot->description;
+        });
+        return view('stock-opname-retail.show', [
+            'stockOpnameRetail' => $stockOpnameRetail,
+            'selected_products' => $selectedProducts,
+        ]);
     }
 
     /**
@@ -147,7 +155,15 @@ class StockOpnameRetailController extends Controller
      */
     public function edit($id)
     {
-        //
+        $stockOpnameRetail = StockOpnameRetail::with('products')->findOrFail($id);
+        $selectedProducts = collect($stockOpnameRetail->products)->each(function ($product) {
+            $product['good_stock'] = $product->pivot->good_stock;
+            $product['description'] = $product->pivot->description;
+        });
+        return view('stock-opname-retail.edit', [
+            'stockOpnameRetail' => $stockOpnameRetail,
+            'selected_products' => $selectedProducts,
+        ]);
     }
 
     /**
@@ -159,8 +175,94 @@ class StockOpnameRetailController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $stockOpnameRetail = StockOpnameRetail::findOrFail($id);
+        $stockOpnameRetail->code = $request->code;
+        $stockOpnameRetail->date = $request->date;
+        $stockOpnameRetail->note = $request->note;
+        $products = $request->selected_products;
+        try {
+            $stockOpnameRetail->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'good_stock' => $item['good_stock'],
+                    'description' => $item['description'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $stockOpnameRetail->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $stockOpnameRetail,
+            // ]);
+        } catch (Exception $e) {
+            $stockOpnameRetail->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            $stockOpnameRetail->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            $stockOpnameRetail->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $productRow->retail_stock = $product['good_stock'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $stockOpnameRetail,
+            ]);
+        } catch (Exception $e) {
+            $stockOpnameRetail->products()->detach();
+            $stockOpnameRetail->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
 
     /**
      * Remove the specified resource from storage.
@@ -171,6 +273,21 @@ class StockOpnameRetailController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function datatableStockOpnameRetail()
+    {
+        $stockOpnameRetail = StockOpnameRetail::with('products')->select('stock_opname_retails.*');
+        return DataTables::eloquent($stockOpnameRetail)
+            ->addIndexColumn()
+            ->addColumn('action', function ($row) {
+                $button = '
+                    <a href="/retail-stock-opname/show/' . $row->id . '" class="btn btn-outline-success btn-sm"><em class="icon fas fa-eye"></em>
+                        <span>Detail</span>
+                    </a>';
+                return $button;
+            })
+            ->make();
     }
 
     public function datatableProducts()

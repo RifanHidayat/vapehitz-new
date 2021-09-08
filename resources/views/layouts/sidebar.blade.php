@@ -91,7 +91,7 @@
                                 <a href="/saleretail" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="{{url('/stock-opname-retail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
+                                <a href="{{url('/retail-stock-opname')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
                             </li>
                         </ul><!-- .nk-menu-sub -->
                     </li>
@@ -102,7 +102,7 @@
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             <li class="nk-menu-item">
-                                <a href="{{url('/stock-opname-studio')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
+                                <a href="{{url('/studio-stock-opname')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
                             </li>
                         </ul><!-- .nk-menu-sub -->
                     </li>

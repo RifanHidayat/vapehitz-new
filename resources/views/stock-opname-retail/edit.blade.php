@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+@section('pagestyle')
 
+@endsection
 @section('content')
 <div class="components-preview wide-md mx-auto">
     <div class="nk-block-head nk-block-head-lg wide-sm">
@@ -11,7 +13,7 @@
                     <span>Data Stok Opname Retail</span>
                 </a>
             </div>
-            <h3 class="nk-block-title fw-normal">Tambah Data Stok Opname Retail</h3>
+            <h3 class="nk-block-title fw-normal">Ubah Data Stok Opname Retail</h3>
         </div>
     </div>
     <div class="card card-bordered">
@@ -19,7 +21,7 @@
             <div class="card-inner card-inner-md">
                 <div class="card-title-group">
                     <div class="card-title">
-                        <h6 class="title">Informasi Pembelian</h6>
+                        <h6 class="title">Informasi Stok Opname</h6>
                     </div>
                 </div>
             </div>
@@ -72,7 +74,7 @@
                             <a class="btn btn-icon btn-trigger" data-toggle="modal" href="#addProduct" data-backdrop="static" data-keyboard="false"><em class="icon ni ni-plus"></em></a>
                         </li>
                         <li>
-                            <div class="drodown">
+                            <div class="dropdown">
                                 <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="false"><em class="icon ni ni-more-h"></em></a>
                                 <div class="dropdown-menu dropdown-menu-right">
                                     <ul class="link-list-opt no-bdr">
@@ -88,7 +90,6 @@
         </div>
         <div class="card-inner">
             <div v-if="selectedProducts.length === 0" class="text-center text-soft">
-                <em class="fas fa-dolly fa-4x"></em>
                 <p class="mt-3">Belum ada barang yang dipilih</p>
             </div>
             <div v-else class="card">
@@ -169,7 +170,7 @@
             <div class="modal-footer">
                 <button @click="onSelectedProduct" type="button" class="btn btn-primary" data-dismiss="modal">
                     <div data-dismiss="modal">
-                        <em class="fas fa-check"></em>&nbsp;<span class="badge badge-pill badge-light"></span>
+                        <em class="ni ni-check"></em>&nbsp;<span class="badge badge-pill badge-light"></span>
                     </div>
                 </button>
             </div>
@@ -194,7 +195,7 @@
                         <div class="row">
                             <div class="col-sm-10">@{{ product.name }}</div>
                             <div class="col-sm-2 text-right">
-                                <a href="#" @click.prevent="removeFromCheck(index)" class="text-danger"><em class="fas fa-times"></em></a>
+                                <a href="#" @click.prevent="removeFromCheck(index)" class="text-danger">X</a>
                             </div>
                         </div>
                     </li>
@@ -210,10 +211,10 @@
     let app = new Vue({
         el: '#app',
         data: {
-            code: '{{$code}}',
-            date: '',
-            note: '',
-            selectedProducts: [],
+            code: '{{$stockOpnameRetail->code}}',
+            date: '{{$stockOpnameRetail->date}}',
+            note: '{{$stockOpnameRetail->note}}',
+            selectedProducts: JSON.parse('{!! $stockOpnameRetail->products !!}'),
             check: [],
         },
         methods: {
@@ -250,7 +251,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/retail-stock-opname', {
+                axios.patch('/retail-stock-opname/{{$stockOpnameRetail->id}}', {
                         code: vm.code,
                         date: vm.date,
                         note: vm.note,
