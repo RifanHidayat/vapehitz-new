@@ -109,7 +109,7 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: '/datatables/suppliers',
+                url: "{{url('/datatables/suppliers')}}",
                 type: 'GET',
                 // length: 2,
             },

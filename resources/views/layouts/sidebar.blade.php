@@ -29,13 +29,13 @@
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             <li class="nk-menu-item">
-                                <a href="/supplier" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data Supplier</span></a>
+                                <a href="{{url('/supplier')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data Supplier</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/customer" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data Customer</span></a>
+                                <a href="{{url('/customer')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data Customer</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/product" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Produk</span></a>
+                                <a href="{{url('/product')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Produk</span></a>
                             </li>
 
                         </ul><!-- .nk-menu-sub -->
@@ -47,13 +47,13 @@
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             <li class="nk-menu-item">
-                                <a href="/central-purchase" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembelian Barang</span></a>
+                                <a href="{{url('/central-purchase')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembelian Barang</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/supplier-payment" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
+                                <a href="{{url('/supplier-payment')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/retur-supplier" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
+                                <a href="{{url('/retur-supplier')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
@@ -62,22 +62,22 @@
                                 &nbsp;
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/central-sale" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
+                                <a href="{{url('/central-sale')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 &nbsp;
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/stock-opname" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
+                                <a href="{{url('/stock-opname')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/badstock-release" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pengeluaran Badstok</span></a>
+                                <a href="{{url('/badstock-release')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pengeluaran Badstok</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 &nbsp;
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/reqtoretail" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Retail</span></a>
+                                <a href="{{url('/reqtoretail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Retail</span></a>
                             </li>
                         </ul><!-- .nk-menu-sub -->
                     </li>
@@ -88,7 +88,7 @@
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             <li class="nk-menu-item">
-                                <a href="/saleretail" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
+                                <a href="{{url('/saleretail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 <a href="{{url('/retail-stock-opname')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
@@ -108,15 +108,32 @@
                     </li>
                     <li class="nk-menu-item has-sub">
                         <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
+                            <span class="nk-menu-icon"><em class="icon ni ni-users"></em></span>
+                            <span class="nk-menu-text">Administrator</span>
+                        </a>
+                        <ul class="nk-menu-sub" style="display: none;">
+                            <li class="nk-menu-item">
+                                <a href="{{url('/group')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data Groups</span></a>
+                            </li>
+                            <li class="nk-menu-item">
+                                <a href="{{url('/user')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data User</span></a>
+                            </li>
+                            <li class="nk-menu-item">
+                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Ganti Password</span></a>
+                            </li>
+                        </ul><!-- .nk-menu-sub -->
+                    </li>
+                    <li class="nk-menu-item has-sub">
+                        <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
                             <span class="nk-menu-icon"><em class="icon ni ni-coins"></em></span>
                             <span class="nk-menu-text">Keuangan</span>
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             <li class="nk-menu-item">
-                                <a href="/account" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Akun</span></a>
+                                <a href="{{url('/account')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Akun</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/account-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Cash in/out</span></a>
+                                <a href="{{url('/account-transaction')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Cash in/out</span></a>
                             </li>
                         </ul><!-- .nk-menu-sub -->
                     </li>

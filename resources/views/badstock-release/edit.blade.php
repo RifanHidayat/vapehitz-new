@@ -39,7 +39,15 @@
                                 <input type="file" ref="image" v-on:change="handleFileUpload" accept=".jpg, .jpeg, .png" class="form-control form-control-sm">
                             </div>
                         </div>
-                        <img src="{{asset($badstock->image)}}">
+                    </div>
+                </div>
+                <p></p>
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label class="form-label" for="full-name-1">Current Image</label>
+                        <div class="form-control-wrap">
+                            <img src="{{asset($badstock->image)}}">
+                        </div>
                     </div>
                 </div>
                 <p></p>

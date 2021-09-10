@@ -20,6 +20,8 @@ use App\Http\Controllers\ReturSupplierController;
 use App\Http\Controllers\SaleRetailController;
 use App\Http\Controllers\StockOpnameRetailController;
 use App\Http\Controllers\StockOpnameStudioController;
+use App\Http\Controllers\GroupController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +43,7 @@ Route::get('/', function () {
     return view('dashboard.index');
 });
 
+//RouteAuth
 Route::get('/', [AuthController::class, 'showFormLogin'])->name('login');
 Route::get('login', [AuthController::class, 'showFormLogin'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
@@ -51,200 +54,221 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('home', [HomeController::class, 'index'])->name('home');
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+    //RouteProduct
+    Route::prefix('/product')->group(function () {
+        Route::get('/', [ProductController::class, 'index']);
+        Route::get('/create', [ProductController::class, 'create']);
+        Route::post('/', [ProductController::class, 'store']);
+        Route::get('/edit/{id}', [ProductController::class, 'edit']);
+        Route::patch('/{id}', [ProductController::class, 'update']);
+        Route::delete('/{id}', [ProductController::class, 'destroy']);
+        Route::get('/show/{id}', [ProductController::class, 'show']);
+    });
+
+    //RouteProductCategory
+    Route::prefix('/product-category')->group(function () {
+        Route::get('/', [ProductCategoryController::class, 'index']);
+        Route::get('/create', [ProductCategoryController::class, 'create']);
+        Route::get('/edit/{id}', [ProductCategoryController::class, 'edit']);
+        Route::post('/', [ProductCategoryController::class, 'store']);
+        Route::patch('/{id}', [ProductCategoryController::class, 'update']);
+        Route::delete('/{id}', [ProductCategoryController::class, 'destroy']);
+    });
+
+    //RouteProductSubcategory
+    Route::prefix('/product-subcategory')->group(function () {
+        Route::get('/', [ProductSubcategoryController::class, 'index']);
+        Route::get('/create', [ProductSubcategoryController::class, 'create']);
+        Route::get('/edit/{id}', [ProductSubcategoryController::class, 'edit']);
+        Route::post('/', [ProductSubcategoryController::class, 'store']);
+        Route::patch('/{id}', [ProductSubcategoryController::class, 'update']);
+        Route::delete('/{id}', [ProductSubcategoryController::class, 'destroy']);
+    });
+
+    //RouteCustomers
+    Route::prefix('/customer')->group(function () {
+        Route::get('/', [CustomerController::class, 'index']);
+        Route::get('/create', [CustomerController::class, 'create']);
+        Route::post('/', [CustomerController::class, 'store']);
+        Route::get('/edit/{id}', [CustomerController::class, 'edit']);
+        Route::patch('/{id}', [CustomerController::class, 'update']);
+        Route::delete('/{id}', [CustomerController::class, 'destroy']);
+    });
+
+    //RouteSupplier
+    Route::prefix('/supplier')->group(function () {
+        Route::get('/', [SupplierController::class, 'index']);
+        Route::get('/create', [SupplierController::class, 'create']);
+        Route::post('/', [SupplierController::class, 'store']);
+        Route::get('/edit/{id}', [SupplierController::class, 'edit']);
+        Route::patch('/{id}', [SupplierController::class, 'update']);
+        Route::delete('/{id}', [SupplierController::class, 'destroy']);
+    });
+
+    //RouteCentralPurchase
+    Route::prefix('/central-purchase')->group(function () {
+        Route::get('/', [CentralPurchaseController::class, 'index']);
+        Route::get('/create', [CentralPurchaseController::class, 'create']);
+        Route::get('/edit/{id}', [CentralPurchaseController::class, 'edit']);
+        Route::get('/pay/{id}', [CentralPurchaseController::class, 'pay']);
+        Route::get('/return/{id}', [CentralPurchaseController::class, 'return']);
+        Route::post('/', [CentralPurchaseController::class, 'store']);
+        Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
+        Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
+        Route::get('/show/{id}', [CentralPurchaseController::class, 'show']);
+    });
+
+    //RouteCentralSale
+    Route::prefix('/central-sale')->group(function () {
+        Route::get('/', [CentralSaleController::class, 'index']);
+        Route::get('/create', [CentralSaleController::class, 'create']);
+        Route::post('/', [CentralSaleController::class, 'store']);
+        Route::get('/edit/{id}', [CentralSaleController::class, 'edit']);
+        Route::get('/approve/{id}', [CentralSaleController::class, 'approve']);
+        Route::patch('/approve/{id}', [CentralSaleController::class, 'approved']);
+        Route::patch('/{id}', [CentralSaleController::class, 'update']);
+        Route::delete('/{id}', [CentralSaleController::class, 'destroy']);
+        Route::get('/show/{id}', [CentralSaleController::class, 'show']);
+    });
+
+    //RoutePurchaseTransaction
+    Route::prefix('/purchase-transaction')->group(function () {
+        Route::get('/', [PurchaseTransactionController::class, 'index']);
+        Route::get('/create', [PurchaseTransactionController::class, 'create']);
+        Route::post('/', [PurchaseTransactionController::class, 'store']);
+        Route::get('/edit/{id}', [PurchaseTransactionController::class, 'edit']);
+        Route::patch('/{id}', [PurchaseTransactionController::class, 'update']);
+        Route::delete('/{id}', [PurchaseTransactionController::class, 'destroy']);
+    });
+
+    //RouteAccount
+    Route::prefix('/account')->group(function () {
+        Route::get('/', [AccountController::class, 'index']);
+        Route::get('/create', [AccountController::class, 'create']);
+        Route::post('/', [AccountController::class, 'store']);
+        Route::get('/edit/{id}', [AccountController::class, 'edit']);
+        Route::patch('/{id}', [AccountController::class, 'update']);
+        Route::delete('/{id}', [AccountController::class, 'destroy']);
+    });
+
+    //RouteAccountTransaction
+    Route::prefix('/account-transaction')->group(function () {
+        Route::get('/', [AccountTransactionController::class, 'index']);
+        Route::get('/create', [AccountTransactionController::class, 'create']);
+        Route::post('/', [AccountTransactionController::class, 'store']);
+        Route::get('/edit/{id}', [AccountTransactionController::class, 'edit']);
+        Route::patch('/{id}', [AccountTransactionController::class, 'update']);
+        Route::delete('/{id}', [AccountTransactionController::class, 'destroy']);
+    });
+
+    //RouteStockOpname
+    Route::prefix('/stock-opname')->group(function () {
+        Route::get('/', [StockOpnameController::class, 'index']);
+        Route::get('/create', [StockOpnameController::class, 'create']);
+        Route::post('/', [StockOpnameController::class, 'store']);
+        // Route::get('/edit/{id}', [StockOpnameController::class, 'edit']);
+        // Route::patch('/{id}', [StockOpnameController::class, 'update']);
+        Route::delete('/{id}', [StockOpnameController::class, 'destroy']);
+        Route::get('/show/{id}', [StockOpnameController::class, 'show']);
+    });
+
+    //RouteStockOpnameRetail
+    Route::prefix('/retail-stock-opname')->group(function () {
+        Route::get('/', [StockOpnameRetailController::class, 'index']);
+        Route::get('/create', [StockOpnameRetailController::class, 'create']);
+        Route::post('/', [StockOpnameRetailController::class, 'store']);
+        // Route::get('/edit/{id}', [StockOpnameRetailController::class, 'edit']);
+        // Route::patch('/{id}', [StockOpnameRetailController::class, 'update']);
+        Route::delete('/{id}', [StockOpnameRetailController::class, 'destroy']);
+        Route::get('/show/{id}', [StockOpnameRetailController::class, 'show']);
+    });
+
+    //RouteStockOpnameStudio
+    Route::prefix('/studio-stock-opname')->group(function () {
+        Route::get('/', [StockOpnameStudioController::class, 'index']);
+        Route::get('/create', [StockOpnameStudioController::class, 'create']);
+        Route::post('/', [StockOpnameStudioController::class, 'store']);
+        // Route::get('/edit/{id}', [StockOpnameStudioController::class, 'edit']);
+        // Route::patch('/{id}', [StockOpnameStudioController::class, 'update']);
+        Route::delete('/{id}', [StockOpnameStudioController::class, 'destroy']);
+        Route::get('/show/{id}', [StockOpnameStudioController::class, 'show']);
+    });
+
+    //RouteBadstockRelease
+    Route::prefix('/badstock-release')->group(function () {
+        Route::get('/', [BadstockReleaseController::class, 'index']);
+        Route::get('/create', [BadstockReleaseController::class, 'create']);
+        Route::post('/', [BadstockReleaseController::class, 'store']);
+        Route::get('/edit/{id}', [BadstockReleaseController::class, 'edit']);
+        Route::get('/approve/{id}', [BadstockReleaseController::class, 'approve']);
+        Route::patch('/approve/{id}', [BadstockReleaseController::class, 'approved']);
+        Route::patch('/{id}', [BadstockReleaseController::class, 'update']);
+        Route::delete('/{id}', [BadstockReleaseController::class, 'destroy']);
+        Route::get('/show/{id}', [BadstockReleaseController::class, 'show']);
+    });
+
+    //RouteShipment
+    Route::prefix('/shipment')->group(function () {
+        Route::get('/', [ShipmentController::class, 'index']);
+        Route::get('/create', [ShipmentController::class, 'create']);
+        Route::post('/', [ShipmentController::class, 'store']);
+        Route::get('/edit/{id}', [ShipmentController::class, 'edit']);
+        Route::patch('/{id}', [ShipmentController::class, 'update']);
+        Route::delete('/{id}', [ShipmentController::class, 'destroy']);
+    });
+
+    //RouteReturSupplier
+    Route::prefix('/retur-supplier')->group(function () {
+        Route::get('/', [ReturSupplierController::class, 'index']);
+        Route::get('/create', [ReturSupplierController::class, 'create']);
+        Route::post('/', [ReturSupplierController::class, 'store']);
+        Route::get('/edit/{id}', [ReturSupplierController::class, 'edit']);
+        Route::patch('/{id}', [ReturSupplierController::class, 'update']);
+        Route::delete('/{id}', [ReturSupplierController::class, 'destroy']);
+    });
+
+    //RouteReqToRetail
+    Route::prefix('/reqtoretail')->group(function () {
+        Route::get('/', [ReqToRetailController::class, 'index']);
+        Route::get('/create', [ReqToRetailController::class, 'create']);
+        Route::post('/', [ReqToRetailController::class, 'store']);
+        Route::get('/edit/{id}', [ReqToRetailController::class, 'edit']);
+        Route::patch('/{id}', [ReqToRetailController::class, 'update']);
+        Route::delete('/{id}', [ReqToRetailController::class, 'destroy']);
+    });
+
+    //RouteSaleRetail
+    Route::prefix('/saleretail')->group(function () {
+        Route::get('/', [SaleRetailController::class, 'index']);
+        Route::get('/create', [SaleRetailController::class, 'create']);
+        Route::post('/', [SaleRetailController::class, 'store']);
+        Route::get('/edit/{id}', [SaleRetailController::class, 'edit']);
+        Route::patch('/{id}', [SaleRetailController::class, 'update']);
+        Route::delete('/{id}', [SaleRetailController::class, 'destroy']);
+    });
+
+    //RouteGroup
+    Route::prefix('/group')->group(function () {
+        Route::get('/', [GroupController::class, 'index']);
+        Route::get('/create', [GroupController::class, 'create']);
+        Route::post('/', [GroupController::class, 'store']);
+        Route::get('/edit/{id}', [GroupController::class, 'edit']);
+        Route::patch('/{id}', [GroupController::class, 'update']);
+        Route::delete('/{id}', [GroupController::class, 'destroy']);
+    });
+
+    //RouteUser
+    Route::prefix('/user')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
+        Route::get('/create', [UserController::class, 'create']);
+        Route::post('/', [UserController::class, 'store']);
+        Route::get('/edit/{id}', [UserController::class, 'edit']);
+        Route::patch('/{id}', [UserController::class, 'update']);
+        Route::delete('/{id}', [UserController::class, 'destroy']);
+    });
 });
 
-//RouteProduct
-Route::prefix('/product')->group(function () {
-    Route::get('/', [ProductController::class, 'index']);
-    Route::get('/create', [ProductController::class, 'create']);
-    Route::post('/', [ProductController::class, 'store']);
-    Route::get('/edit/{id}', [ProductController::class, 'edit']);
-    Route::patch('/{id}', [ProductController::class, 'update']);
-    Route::delete('/{id}', [ProductController::class, 'destroy']);
-    Route::get('/show/{id}', [ProductController::class, 'show']);
-});
 
-//RouteProductCategory
-Route::prefix('/product-category')->group(function () {
-    Route::get('/', [ProductCategoryController::class, 'index']);
-    Route::get('/create', [ProductCategoryController::class, 'create']);
-    Route::get('/edit/{id}', [ProductCategoryController::class, 'edit']);
-    Route::post('/', [ProductCategoryController::class, 'store']);
-    Route::patch('/{id}', [ProductCategoryController::class, 'update']);
-    Route::delete('/{id}', [ProductCategoryController::class, 'destroy']);
-});
-
-//RouteProductSubcategory
-Route::prefix('/product-subcategory')->group(function () {
-    Route::get('/', [ProductSubcategoryController::class, 'index']);
-    Route::get('/create', [ProductSubcategoryController::class, 'create']);
-    Route::get('/edit/{id}', [ProductSubcategoryController::class, 'edit']);
-    Route::post('/', [ProductSubcategoryController::class, 'store']);
-    Route::patch('/{id}', [ProductSubcategoryController::class, 'update']);
-    Route::delete('/{id}', [ProductSubcategoryController::class, 'destroy']);
-});
-
-//RouteCustomers
-Route::prefix('/customer')->group(function () {
-    Route::get('/', [CustomerController::class, 'index']);
-    Route::get('/create', [CustomerController::class, 'create']);
-    Route::post('/', [CustomerController::class, 'store']);
-    Route::get('/edit/{id}', [CustomerController::class, 'edit']);
-    Route::patch('/{id}', [CustomerController::class, 'update']);
-    Route::delete('/{id}', [CustomerController::class, 'destroy']);
-});
-
-//RouteSupplier
-Route::prefix('/supplier')->group(function () {
-    Route::get('/', [SupplierController::class, 'index']);
-    Route::get('/create', [SupplierController::class, 'create']);
-    Route::post('/', [SupplierController::class, 'store']);
-    Route::get('/edit/{id}', [SupplierController::class, 'edit']);
-    Route::patch('/{id}', [SupplierController::class, 'update']);
-    Route::delete('/{id}', [SupplierController::class, 'destroy']);
-});
-
-//RouteCentralPurchase
-Route::prefix('/central-purchase')->group(function () {
-    Route::get('/', [CentralPurchaseController::class, 'index']);
-    Route::get('/create', [CentralPurchaseController::class, 'create']);
-    Route::get('/edit/{id}', [CentralPurchaseController::class, 'edit']);
-    Route::get('/pay/{id}', [CentralPurchaseController::class, 'pay']);
-    Route::get('/return/{id}', [CentralPurchaseController::class, 'return']);
-    Route::post('/', [CentralPurchaseController::class, 'store']);
-    Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
-    Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
-    Route::get('/show/{id}', [CentralPurchaseController::class, 'show']);
-});
-
-//RouteCentralSale
-Route::prefix('/central-sale')->group(function () {
-    Route::get('/', [CentralSaleController::class, 'index']);
-    Route::get('/create', [CentralSaleController::class, 'create']);
-    Route::post('/', [CentralSaleController::class, 'store']);
-    Route::get('/edit/{id}', [CentralSaleController::class, 'edit']);
-    Route::get('/approve/{id}', [CentralSaleController::class, 'approve']);
-    Route::patch('/approve/{id}', [CentralSaleController::class, 'approved']);
-    Route::patch('/{id}', [CentralSaleController::class, 'update']);
-    Route::delete('/{id}', [CentralSaleController::class, 'destroy']);
-    Route::get('/show/{id}', [CentralSaleController::class, 'show']);
-});
-
-//RoutePurchaseTransaction
-Route::prefix('/purchase-transaction')->group(function () {
-    Route::get('/', [PurchaseTransactionController::class, 'index']);
-    Route::get('/create', [PurchaseTransactionController::class, 'create']);
-    Route::post('/', [PurchaseTransactionController::class, 'store']);
-    Route::get('/edit/{id}', [PurchaseTransactionController::class, 'edit']);
-    Route::patch('/{id}', [PurchaseTransactionController::class, 'update']);
-    Route::delete('/{id}', [PurchaseTransactionController::class, 'destroy']);
-});
-
-//RouteAccount
-Route::prefix('/account')->group(function () {
-    Route::get('/', [AccountController::class, 'index']);
-    Route::get('/create', [AccountController::class, 'create']);
-    Route::post('/', [AccountController::class, 'store']);
-    Route::get('/edit/{id}', [AccountController::class, 'edit']);
-    Route::patch('/{id}', [AccountController::class, 'update']);
-    Route::delete('/{id}', [AccountController::class, 'destroy']);
-});
-
-//RouteAccountTransaction
-Route::prefix('/account-transaction')->group(function () {
-    Route::get('/', [AccountTransactionController::class, 'index']);
-    Route::get('/create', [AccountTransactionController::class, 'create']);
-    Route::post('/', [AccountTransactionController::class, 'store']);
-    Route::get('/edit/{id}', [AccountTransactionController::class, 'edit']);
-    Route::patch('/{id}', [AccountTransactionController::class, 'update']);
-    Route::delete('/{id}', [AccountTransactionController::class, 'destroy']);
-});
-
-//RouteStockOpname
-Route::prefix('/stock-opname')->group(function () {
-    Route::get('/', [StockOpnameController::class, 'index']);
-    Route::get('/create', [StockOpnameController::class, 'create']);
-    Route::post('/', [StockOpnameController::class, 'store']);
-    // Route::get('/edit/{id}', [StockOpnameController::class, 'edit']);
-    // Route::patch('/{id}', [StockOpnameController::class, 'update']);
-    Route::delete('/{id}', [StockOpnameController::class, 'destroy']);
-    Route::get('/show/{id}', [StockOpnameController::class, 'show']);
-});
-
-//RouteStockOpnameRetail
-Route::prefix('/retail-stock-opname')->group(function () {
-    Route::get('/', [StockOpnameRetailController::class, 'index']);
-    Route::get('/create', [StockOpnameRetailController::class, 'create']);
-    Route::post('/', [StockOpnameRetailController::class, 'store']);
-    // Route::get('/edit/{id}', [StockOpnameRetailController::class, 'edit']);
-    // Route::patch('/{id}', [StockOpnameRetailController::class, 'update']);
-    Route::delete('/{id}', [StockOpnameRetailController::class, 'destroy']);
-    Route::get('/show/{id}', [StockOpnameRetailController::class, 'show']);
-});
-
-//RouteStockOpnameStudio
-Route::prefix('/studio-stock-opname')->group(function () {
-    Route::get('/', [StockOpnameStudioController::class, 'index']);
-    Route::get('/create', [StockOpnameStudioController::class, 'create']);
-    Route::post('/', [StockOpnameStudioController::class, 'store']);
-    // Route::get('/edit/{id}', [StockOpnameStudioController::class, 'edit']);
-    // Route::patch('/{id}', [StockOpnameStudioController::class, 'update']);
-    Route::delete('/{id}', [StockOpnameStudioController::class, 'destroy']);
-    Route::get('/show/{id}', [StockOpnameStudioController::class, 'show']);
-});
-
-//RouteBadstockRelease
-Route::prefix('/badstock-release')->group(function () {
-    Route::get('/', [BadstockReleaseController::class, 'index']);
-    Route::get('/create', [BadstockReleaseController::class, 'create']);
-    Route::post('/', [BadstockReleaseController::class, 'store']);
-    Route::get('/edit/{id}', [BadstockReleaseController::class, 'edit']);
-    Route::get('/approve/{id}', [BadstockReleaseController::class, 'approve']);
-    Route::patch('/approve/{id}', [BadstockReleaseController::class, 'approved']);
-    Route::patch('/{id}', [BadstockReleaseController::class, 'update']);
-    Route::delete('/{id}', [BadstockReleaseController::class, 'destroy']);
-    Route::get('/show/{id}', [BadstockReleaseController::class, 'show']);
-});
-
-//RouteShipment
-Route::prefix('/shipment')->group(function () {
-    Route::get('/', [ShipmentController::class, 'index']);
-    Route::get('/create', [ShipmentController::class, 'create']);
-    Route::post('/', [ShipmentController::class, 'store']);
-    Route::get('/edit/{id}', [ShipmentController::class, 'edit']);
-    Route::patch('/{id}', [ShipmentController::class, 'update']);
-    Route::delete('/{id}', [ShipmentController::class, 'destroy']);
-});
-
-//RouteReturSupplier
-Route::prefix('/retur-supplier')->group(function () {
-    Route::get('/', [ReturSupplierController::class, 'index']);
-    Route::get('/create', [ReturSupplierController::class, 'create']);
-    Route::post('/', [ReturSupplierController::class, 'store']);
-    Route::get('/edit/{id}', [ReturSupplierController::class, 'edit']);
-    Route::patch('/{id}', [ReturSupplierController::class, 'update']);
-    Route::delete('/{id}', [ReturSupplierController::class, 'destroy']);
-});
-
-//RouteReqToRetail
-Route::prefix('/reqtoretail')->group(function () {
-    Route::get('/', [ReqToRetailController::class, 'index']);
-    Route::get('/create', [ReqToRetailController::class, 'create']);
-    Route::post('/', [ReqToRetailController::class, 'store']);
-    Route::get('/edit/{id}', [ReqToRetailController::class, 'edit']);
-    Route::patch('/{id}', [ReqToRetailController::class, 'update']);
-    Route::delete('/{id}', [ReqToRetailController::class, 'destroy']);
-});
-
-//RouteSaleRetail
-Route::prefix('/saleretail')->group(function () {
-    Route::get('/', [SaleRetailController::class, 'index']);
-    Route::get('/create', [SaleRetailController::class, 'create']);
-    Route::post('/', [SaleRetailController::class, 'store']);
-    Route::get('/edit/{id}', [SaleRetailController::class, 'edit']);
-    Route::patch('/{id}', [SaleRetailController::class, 'update']);
-    Route::delete('/{id}', [SaleRetailController::class, 'destroy']);
-});
 
 // Datatables
 Route::prefix('/datatables')->group(function () {
@@ -281,5 +305,11 @@ Route::prefix('/datatables')->group(function () {
     Route::prefix('/stock-opname-studio')->group(function () {
         Route::get('/', [StockOpnameStudioController::class, 'datatableStockOpnameStudio']);
         Route::get('/products', [StockOpnameStudioController::class, 'datatableProducts']);
+    });
+    Route::prefix('/group')->group(function () {
+        Route::get('/', [GroupController::class, 'datatableGroup']);
+    });
+    Route::prefix('/user')->group(function () {
+        Route::get('/', [UserController::class, 'datatableUser']);
     });
 });

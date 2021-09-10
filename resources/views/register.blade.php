@@ -41,6 +41,10 @@
                             <input type="text" name="email" class="form-control" placeholder="Email">
                         </div>
                         <div class="form-group">
+                            <label for=""><strong>Username</strong></label>
+                            <input type="text" name="username" class="form-control" placeholder="Username">
+                        </div>
+                        <div class="form-group">
                             <label for=""><strong>Password</strong></label>
                             <input type="password" name="password" class="form-control" placeholder="Password">
                         </div>

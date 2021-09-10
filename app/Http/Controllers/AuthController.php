@@ -19,45 +19,76 @@ class AuthController extends Controller
             //Login Success
             return redirect()->route('home');
         }
-        return view('login');
+        return view('auth.login');
     }
 
     public function login(Request $request)
     {
-        $rules = [
-            'email' => 'required|email',
-            'password' => 'required|string'
-        ];
+        $username = $request->username;
+        $password = $request->password;
 
-        $messages = [
-            'email.required' => 'Email wajib diisi',
-            'email.email' => 'Email tidak valid',
-            'password.required' => 'Password wajib diisi',
-            'password.string' => 'Password harus berupa string'
-        ];
+        Auth::attempt(['username' => $username, 'password' => $password]);
 
-        $validator = Validator::make($request->all(), $rules, $messages);
+        if (Auth::check()) {
+            $request->session()->regenerate();
+            $user = User::find(Auth::id());
+            $userLoginPermission = [];
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput($request->all);
+            if ($user !== null) {
+                $userLoginPermission = json_decode($user->group->permission);
+            }
+            $request->session()->put('userLoginPermissions', $userLoginPermission);
+            return redirect()->intended('home');
+            // return response()->json([
+            //     'status' => 'OK',
+            //     'message' => 'logged on',
+            //     'code' => 200
+            // ]);
         }
+        return response()->json([
+            'status' => 'Oops',
+            'message' => 'incorrect username or password',
+            'code' => 400
+        ], 400);
+        // } return response()->json([
+        //     'status' => 'Oops',
+        //     'message' => 'incorrect username or password',
+        //     'code' => 400
+        // ], 400);
+        // $rules = [
+        //     'username' => 'required|string',
+        //     'password' => 'required|string'
+        // ];
 
-        $data = [
-            'email'     => $request->input('email'),
-            'password'  => $request->input('password'),
-        ];
+        // $messages = [
+        //     'username.required' => 'Username wajib diisi',
+        //     'username.string' => 'Username tidak valid',
+        //     'password.required' => 'Password wajib diisi',
+        //     'password.string' => 'Password harus berupa string'
+        // ];
 
-        Auth::attempt($data);
+        // $validator = Validator::make($request->all(), $rules, $messages);
 
-        if (Auth::check()) { // true sekalian session field di users nanti bisa dipanggil via Auth
-            //Login Success
-            return redirect()->route('home');
-        } else { // false
+        // if ($validator->fails()) {
+        //     return redirect()->back()->withErrors($validator)->withInput($request->all);
+        // }
 
-            //Login Fail
-            Session::flash('error', 'Email atau password salah');
-            return redirect()->route('login');
-        }
+        // $data = [
+        //     'username'     => $request->input('username'),
+        //     'password'  => $request->input('password'),
+        // ];
+
+        // Auth::attempt($data);
+
+        // if (Auth::check()) { // true sekalian session field di users nanti bisa dipanggil via Auth
+        //     //Login Success
+        //     return redirect()->route('home');
+        // } else { // false
+
+        //     //Login Fail
+        //     Session::flash('error', 'Username atau password salah');
+        //     return redirect()->route('login');
+        // }
     }
 
     public function showFormRegister()
@@ -92,6 +123,8 @@ class AuthController extends Controller
 
         $user = new User;
         $user->name = ucwords(strtolower($request->name));
+        $user->username = $request->username;
+        $user->group_id = $request->group;
         $user->email = strtolower($request->email);
         $user->password = Hash::make($request->password);
         $user->email_verified_at = \Carbon\Carbon::now();
