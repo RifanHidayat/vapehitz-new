@@ -7,6 +7,7 @@ use App\Models\StockOpnameRetail;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -19,6 +20,10 @@ class StockOpnameRetailController extends Controller
      */
     public function index()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_sop_retail", $permission)) {
+            return redirect("/dashboard");
+        }
         return view('stock-opname-retail.index');
     }
 
@@ -29,6 +34,10 @@ class StockOpnameRetailController extends Controller
      */
     public function create()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("add_sop_retail", $permission)) {
+            return redirect("/dashboard");
+        }
         $maxid = DB::table('stock_opname_retails')->max('id');
         $code = "SOGR/VH/" . date('d-y') . "/" . sprintf('%04d', $maxid + 1);
         return view('stock-opname-retail.create', [
@@ -44,6 +53,11 @@ class StockOpnameRetailController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'code' => 'required',
+            'date' => 'required',
+            'selected_products' => 'required',
+        ]);
         $stockOpnameRetail = new StockOpnameRetail();
         $stockOpnameRetail->code = $request->code;
         $stockOpnameRetail->date = $request->date;
@@ -136,6 +150,10 @@ class StockOpnameRetailController extends Controller
      */
     public function show($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_sop_retail", $permission)) {
+            return redirect("/dashboard");
+        }
         $stockOpnameRetail = StockOpnameRetail::with('products')->findOrFail($id);
         $selectedProducts = collect($stockOpnameRetail->products)->each(function ($product) {
             $product['good_stock'] = $product->pivot->good_stock;
@@ -155,6 +173,10 @@ class StockOpnameRetailController extends Controller
      */
     public function edit($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("edit_sop_retail", $permission)) {
+            return redirect("/dashboard");
+        }
         $stockOpnameRetail = StockOpnameRetail::with('products')->findOrFail($id);
         $selectedProducts = collect($stockOpnameRetail->products)->each(function ($product) {
             $product['good_stock'] = $product->pivot->good_stock;
@@ -272,7 +294,27 @@ class StockOpnameRetailController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("delete_sop_retail", $permission)) {
+            return redirect("/dashboard");
+        }
+        $stockOpnameRetail = StockOpnameRetail::findOrFail($id);
+        try {
+            $stockOpnameRetail->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $stockOpnameRetail,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     public function datatableStockOpnameRetail()

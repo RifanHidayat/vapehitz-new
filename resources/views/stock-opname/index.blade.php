@@ -1,7 +1,35 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+<style>
+    .dataTables_filter {
+        text-align: right;
+        width: 90%;
+    }
 
+    table tr th {
+        font-size: 15px;
+        color: black;
+    }
+
+    table tr td {
+        font-size: 13px;
+        color: black;
+    }
+
+    .pull-left {
+        float: left !important;
+    }
+
+    .pull-right {
+        float: right !important;
+        margin-bottom: 20px;
+    }
+
+    .bottom {
+        float: right !important;
+    }
+</style>
 @section('content')
 <div class="nk-block nk-block-lg">
     <div class="nk-block-head">
@@ -94,7 +122,8 @@
             processing: true,
             serverSide: true,
             destroy: true,
-            "autoWidth": false,
+            autoWidth: false,
+            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
                 url: '/datatables/stock-opname',
                 type: 'GET',

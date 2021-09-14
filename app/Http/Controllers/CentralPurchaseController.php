@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -21,6 +22,10 @@ class CentralPurchaseController extends Controller
      */
     public function index()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_purchase_product", $permission)) {
+            return view("dashboard.index");
+        }
         $centralpurchases = CentralPurchase::all();
         $suppliers = Supplier::all();
         return view('central-purchase.index', [
@@ -36,6 +41,10 @@ class CentralPurchaseController extends Controller
      */
     public function create()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("add_purchase_product", $permission)) {
+            return view("dashboard.index");
+        }
         $suppliers = Supplier::all();
         $accounts = Account::all();
         $maxid = DB::table('central_purchases')->max('id');
@@ -149,6 +158,10 @@ class CentralPurchaseController extends Controller
      */
     public function show($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_purchase_product", $permission)) {
+            return view("dashboard.index");
+        }
         $centralPurchase = CentralPurchase::with(['products'])->findOrFail($id);
         return view('central-purchase.show', [
             'centralPurchase' => $centralPurchase,
@@ -163,6 +176,10 @@ class CentralPurchaseController extends Controller
      */
     public function edit($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("edit_purchase_product", $permission)) {
+            return view("dashboard.index");
+        }
         $suppliers = Supplier::all();
         $accounts = Account::all();
         $centralpurchases = CentralPurchase::with(['products'])->findOrFail($id);
@@ -301,6 +318,10 @@ class CentralPurchaseController extends Controller
      */
     public function destroy($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("delete_purchase_product", $permission)) {
+            return view("dashboard.index");
+        }
         $centralpurchase = CentralPurchase::findOrFail($id);
         try {
             $centralpurchase->delete();

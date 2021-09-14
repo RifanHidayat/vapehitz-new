@@ -47,10 +47,10 @@ Route::get('/', function () {
 Route::get('/', [AuthController::class, 'showFormLogin'])->name('login');
 Route::get('login', [AuthController::class, 'showFormLogin'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
-Route::get('register', [AuthController::class, 'showFormRegister'])->name('register');
-Route::post('register', [AuthController::class, 'register']);
 
 Route::group(['middleware' => 'auth'], function () {
+    Route::get('register', [AuthController::class, 'showFormRegister'])->name('register');
+    Route::post('register', [AuthController::class, 'register']);
 
     Route::get('home', [HomeController::class, 'index'])->name('home');
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');
@@ -168,7 +168,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/', [StockOpnameController::class, 'store']);
         // Route::get('/edit/{id}', [StockOpnameController::class, 'edit']);
         // Route::patch('/{id}', [StockOpnameController::class, 'update']);
-        Route::delete('/{id}', [StockOpnameController::class, 'destroy']);
+        // Route::delete('/{id}', [StockOpnameController::class, 'destroy']);
         Route::get('/show/{id}', [StockOpnameController::class, 'show']);
     });
 
@@ -179,7 +179,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/', [StockOpnameRetailController::class, 'store']);
         // Route::get('/edit/{id}', [StockOpnameRetailController::class, 'edit']);
         // Route::patch('/{id}', [StockOpnameRetailController::class, 'update']);
-        Route::delete('/{id}', [StockOpnameRetailController::class, 'destroy']);
+        // Route::delete('/{id}', [StockOpnameRetailController::class, 'destroy']);
         Route::get('/show/{id}', [StockOpnameRetailController::class, 'show']);
     });
 
@@ -190,7 +190,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/', [StockOpnameStudioController::class, 'store']);
         // Route::get('/edit/{id}', [StockOpnameStudioController::class, 'edit']);
         // Route::patch('/{id}', [StockOpnameStudioController::class, 'update']);
-        Route::delete('/{id}', [StockOpnameStudioController::class, 'destroy']);
+        // Route::delete('/{id}', [StockOpnameStudioController::class, 'destroy']);
         Route::get('/show/{id}', [StockOpnameStudioController::class, 'show']);
     });
 

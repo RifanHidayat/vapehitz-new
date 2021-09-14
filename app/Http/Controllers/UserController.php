@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -16,9 +17,11 @@ class UserController extends Controller
      */
     public function index()
     {
+        $groups = Group::all();
         $user = User::all();
         return view('user.index', [
             'user' => $user,
+            'groups' => $groups,
         ]);
     }
 
@@ -29,10 +32,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $groups = Group::all();
-        return view('user.create', [
-            'groups' => $groups,
-        ]);
+        // 
     }
 
     /**
@@ -65,7 +65,12 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+        $group = Group::all();
+        $user = User::with('group')->findOrFail($id);
+        return view('user.edit', [
+            'user' => $user,
+            'group' => $group,
+        ]);
     }
 
     /**
@@ -77,7 +82,22 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $user->name = $request->name;
+        $user->username = $request->username;
+        $user->group_id = $request->group;
+
+        try {
+            $user->save();
+            return redirect('/user')->with('status', 'Data Berhasil di Simpan');
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -88,7 +108,23 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = User::findOrFail($id);
+        try {
+            $user->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $user,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     public function datatableUser()

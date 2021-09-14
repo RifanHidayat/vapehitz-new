@@ -10,6 +10,14 @@
             <h4 class="nk-block-title fw-normal">Tambah Data Pengeluaran Badstock</h4>
         </div>
     </div>
+    <div v-if="errors.length" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong v-for="error in errors">
+            @{{ error }}
+        </strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true"></span>
+        </button>
+    </div>
     <div class="card card-bordered">
         <div class="card-inner">
             <form @submit.prevent="submitForm" enctype="multipart/form-data">
@@ -172,6 +180,7 @@
             productId: '',
             selectedProducts: [],
             check: [],
+            errors: [],
             // bad_stock: '',
             loading: false,
         },
@@ -191,7 +200,22 @@
                 this.check = [];
             },
             submitForm: function() {
-                this.sendData();
+                if (this.image && this.date && this.selectedProducts) {
+                    return this.sendData();
+                }
+                this.errors = [];
+                if (!this.code) {
+                    this.errors.push('Kolom Kode Harus di isi');
+                }
+                if (!this.date) {
+                    this.errors.push('Kolom Tanggal Harus di Isi');
+                }
+                if (this.image) {
+                    this.errors.push('Gambar Tidak Boleh Kosong');
+                }
+                if (!this.selectedProducts) {
+                    this.errors.push('Daftar Produk Tidak Boleh Kosong');
+                }
             },
             sendData: function() {
                 // console.log('submitted');

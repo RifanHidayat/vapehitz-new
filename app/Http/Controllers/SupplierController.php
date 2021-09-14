@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Supplier;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -17,6 +18,10 @@ class SupplierController extends Controller
      */
     public function index()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_supplier", $permission)) {
+            return redirect("/dashboard");
+        }
         $supplier = Supplier::all();
 
         return view('supplier.index', [
@@ -31,6 +36,10 @@ class SupplierController extends Controller
      */
     public function create()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("create_supplier", $permission)) {
+            return redirect("/dashboard");
+        }
         $maxid = DB::table('suppliers')->max('id');
         $code = "S" . sprintf('%04d', $maxid + 1);
         return view('supplier.create', [
@@ -102,6 +111,10 @@ class SupplierController extends Controller
      */
     public function edit($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("edit_supplier", $permission)) {
+            return redirect("/dashboard");
+        }
         $supplier = Supplier::findOrFail($id);
 
         return view('supplier.edit', [
@@ -158,6 +171,10 @@ class SupplierController extends Controller
      */
     public function destroy($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("delete_supplier", $permission)) {
+            return view("dashboard.index");
+        }
         $supplier = Supplier::findOrFail($id);
         try {
             $supplier->delete();
@@ -183,17 +200,28 @@ class SupplierController extends Controller
         return DataTables::of($suppliers)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
+                $permission = json_decode(Auth::user()->group->permission);
+                if (in_array("edit_supplier", $permission)) {
+                    $edit = '<a href="/supplier/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                <span>Edit</span>
+                </a>';
+                } else {
+                    $edit = "";
+                }
+                if (in_array("delete_supplier", $permission)) {
+                    $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                   <span>Delete</span>
+                   </a>';
+                } else {
+                    $delete = "";
+                }
                 $button = '
-                <div class="drodown">
+                <div class="dropdown">
                 <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <ul class="link-list-opt no-bdr">
-                        <a href="/supplier/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
-                            <span>Edit</span>
-                        </a>
-                        <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
-                        <span>Delete</span>
-                        </a>
+                    ' . $edit . '
+                    ' . $delete . '
                         <a href="#"><em class="icon fas fa-check"></em>
                             <span>Pay</span>
                         </a>

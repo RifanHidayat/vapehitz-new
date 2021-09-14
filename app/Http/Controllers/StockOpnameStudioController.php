@@ -44,6 +44,11 @@ class StockOpnameStudioController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'code' => 'required',
+            'date' => 'required',
+            'selected_products' => 'required',
+        ]);
         $stockOpnameStudio = new StockOpnameStudio();
         $stockOpnameStudio->code = $request->code;
         $stockOpnameStudio->date = $request->date;

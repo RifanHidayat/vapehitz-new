@@ -7,6 +7,7 @@ use App\Models\Product;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 
@@ -19,6 +20,10 @@ class BadstockReleaseController extends Controller
      */
     public function index()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_badstock_release", $permission)) {
+            return redirect("/dashboard");
+        }
         $badstock = BadstockRelease::all();
         return view('badstock-release.index', [
             'badstock' => $badstock,
@@ -32,6 +37,10 @@ class BadstockReleaseController extends Controller
      */
     public function create()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("add_badstock_release", $permission)) {
+            return redirect("/dashboard");
+        }
         $maxid = DB::table('badstock_releases')->max('id');
         $code = "BS/VH/" . date('Y-m') . "/" . sprintf('%04d', $maxid + 1);
         return view('badstock-release.create', [
@@ -154,6 +163,10 @@ class BadstockReleaseController extends Controller
      */
     public function show($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_badstock_release", $permission)) {
+            return redirect("/dashboard");
+        }
         $badstock = BadstockRelease::with('products')->findOrFail($id);
         $selectedProducts = collect($badstock->products)->each(function ($product) {
             $product['quantity'] = $product->pivot->quantity;
@@ -171,6 +184,10 @@ class BadstockReleaseController extends Controller
      */
     public function edit($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("edit_badstock_release", $permission)) {
+            return redirect("/dashboard");
+        }
         $badstock = BadstockRelease::with('products')->findOrFail($id);
         $selectedProducts = collect($badstock->products)->each(function ($product) {
             $product['quantity'] = $product->pivot->quantity;
@@ -288,11 +305,35 @@ class BadstockReleaseController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("delete_badstock_release", $permission)) {
+            return redirect('/dashboard');
+        }
+        $badstockRelease = BadstockRelease::findOrFail($id);
+        try {
+            $badstockRelease->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $badstockRelease,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     public function approve($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("approval_badstock_release", $permission)) {
+            return redirect("/dashboard");
+        }
         $badstockRelease = BadstockRelease::with('products')->findOrFail($id);
         $selectedProducts = collect($badstockRelease->products)->each(function ($product) {
             $product['quantity'] = $product->pivot->quantity;

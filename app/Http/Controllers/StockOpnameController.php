@@ -7,6 +7,7 @@ use App\Models\StockOpname;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -19,6 +20,10 @@ class StockOpnameController extends Controller
      */
     public function index()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_stock_opname", $permission)) {
+            return redirect("/dashboard");
+        }
         $stock_opname = StockOpname::with('products')->get();
         return view('stock-opname.index', [
             'stock_opname' => $stock_opname,
@@ -32,6 +37,10 @@ class StockOpnameController extends Controller
      */
     public function create()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("add_stock_opname", $permission)) {
+            return redirect("/dashboard");
+        }
         $maxid = DB::table('stock_opnames')->max('id');
         $code = "SOGP" . "-" . sprintf('%04d', $maxid + 1) . "/" . "VH" . "/" . date('d-y');
         // return $code;
@@ -48,6 +57,11 @@ class StockOpnameController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'code' => 'required',
+            'date' => 'required',
+            'selected_products' => 'required',
+        ]);
         $stockOpname = new StockOpname;
         $stockOpname->code = $request->code;
         $stockOpname->date = $request->date;

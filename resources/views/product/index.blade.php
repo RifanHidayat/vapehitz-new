@@ -1,20 +1,53 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+<style>
+    .dataTables_filter {
+        text-align: right;
+        width: 90%;
+    }
 
+    table tr th {
+        font-size: 15px;
+        color: black;
+    }
+
+    table tr td {
+        font-size: 13px;
+        color: black;
+    }
+
+    .pull-left {
+        float: left !important;
+    }
+
+    .pull-right {
+        float: right !important;
+        margin-bottom: 20px;
+    }
+
+    .bottom {
+        float: right !important;
+    }
+</style>
 @section('content')
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
-        <div class="nk-block-head-content">
-            <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-            <h2 class="nk-block-title fw-normal">Master Data Produk</h2>
-            <div class="nk-block-des">
-                <p class="lead">Manage Produk</p>
-            </div>
+@php
+$userLoginPermissions = [];
+if (request()->session()->has('userLoginPermissions')) {
+$userLoginPermissions = request()->session()->get('userLoginPermissions');
+}
+@endphp
+<div class="nk-block-head nk-block-head-lg wide-sm">
+    <div class="nk-block-head-content">
+        <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
+        <h2 class="nk-block-title fw-normal">Master Data Produk</h2>
+        <div class="nk-block-des">
+            <p class="lead">Manage Produk</p>
         </div>
-    </div><!-- .nk-block -->
-    <div class="nk-block nk-block-lg">
-        <!-- <div class="nk-block-head">
+    </div>
+</div><!-- .nk-block -->
+<div class="nk-block nk-block-lg">
+    <!-- <div class="nk-block-head">
             <div class="nk-block-head-content">
                 <h4 class="title nk-block-title">Tambah Kategori Barang</h4>
                 <div class="nk-block-des">
@@ -22,35 +55,35 @@
                 </div>
             </div>
         </div> -->
-        <a href="{{url('/product/create')}}" class="btn btn-outline-success">Tambah Produk</a>
-        <p></p>
-        <div class="card card-bordered">
-            <div class="card-inner overflow-hidden">
-                <!-- <div class="card-head">
+    @if(in_array("add_product", $userLoginPermissions))
+    <a href="{{url('/product/create')}}" class="btn btn-outline-success">Tambah Produk</a>
+    @endif
+    <p></p>
+    <div class="card card-bordered">
+        <div class="card-inner overflow-hidden">
+            <!-- <div class="card-head">
                     <h5 class="card-title">Form</h5>
                 </div> -->
-                <table class="table table-striped" id="products">
-                    <thead>
-                        <tr class="text-center">
-                            <th>Kode</th>
-                            <th>Kategori</th>
-                            <th>Subkategori</th>
-                            <th>Nama</th>
-                            <th>Berat</th>
-                            <th>Harga Beli</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <table class="table table-striped" id="products">
+                <thead>
+                    <tr class="text-center">
+                        <th>Kode</th>
+                        <th>Kategori</th>
+                        <th>Subkategori</th>
+                        <th>Nama</th>
+                        <th>Berat</th>
+                        <th>Harga Beli</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
-    </div><!-- .nk-block -->
-</div>
-
+    </div>
+</div><!-- .nk-block -->
 
 @endsection
 @section('pagescript')
@@ -108,6 +141,8 @@
         $('#products').DataTable({
             processing: true,
             serverSide: true,
+            autoWidth: false,
+            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
                 url: '/datatables/products',
                 type: 'GET',

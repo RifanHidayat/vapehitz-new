@@ -41,6 +41,7 @@
                                             <tr class="text-center">
                                                 <th></th>
                                                 <th></th>
+                                                <th>All</th>
                                                 <th>View</th>
                                                 <th>Tambah</th>
                                                 <th>Edit</th>
@@ -52,7 +53,11 @@
                                         <tbody>
                                             <tr v-for="permission in permissions">
                                                 <th class="">@{{permission.title}}</th>
-                                                <th class="">@{{ permission.subtitle }}</th>
+                                                <td class="">@{{permission.subtitle}}</td>
+                                                <td class="">
+                                                    <input type="checkbox" v-model="selectAll" @click="select()" />
+                                                    <span></span>
+                                                </td>
                                                 <td v-for="attribute in permission.attributes" class="text-center">
                                                     <label v-if="attribute !== null" class="checkbox justify-content-center">
                                                         <input type="checkbox" v-model="checkedPermissions" :value="attribute" />
@@ -90,7 +95,7 @@
                 },
                 {
                     subtitle: 'Master Data Supplier',
-                    attributes: ['view_supplier', 'add_supplier', 'edit_supplier', 'delete_supplier', 'print_supplier', null],
+                    attributes: ['view_supplier', 'add_supplier', 'edit_supplier', 'delete_supplier', 'print_supplier', null, null],
                 },
                 {
                     subtitle: 'Master Data Customer',
@@ -234,6 +239,7 @@
                 },
             ],
             checkedPermissions: [],
+            selectAll: false,
             loading: false,
         },
         methods: {
@@ -271,8 +277,40 @@
                             'error'
                         )
                     });
+            },
+            select() {
+                this.checkedPermissions = [];
+                if (!this.selectAll) {
+                    for (let i in this.permissions.attributes) {
+                        this.checkedPermissions.push(this.permissions.attributes[i]);
+                    }
+                }
+            },
+            updateCheckall: function() {
+                if (this.permissions.attributes.length == this.checkedPermissions.length) {
+                    this.selectAll = true;
+                } else {
+                    this.selectAll = false;
+                }
             }
-        }
+        },
+        // computed: {
+        //     checkAll: {
+        //         get: function() {
+        //             return this.permissions ? this.checkedPermissions.length == this.permissions.length : false;
+        //         },
+        //         set: function(value) {
+        //             var checkedPermissions = [];
+        //             console.log(checkedPermissions);
+        //             if (value) {
+        //                 this.permissions.map(function(index) {
+        //                     checkedPermissions.push(index.attributes);
+        //                 });
+        //             }
+        //             this.checkedPermissions = checkedPermissions;
+        //         }
+        //     }
+        // }
     })
 </script>
 @endsection

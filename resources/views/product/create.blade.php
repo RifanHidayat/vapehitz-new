@@ -176,7 +176,7 @@
                 </form>
             </div>
         </div>
-    </div><!-- .nk-block -->
+    </div>
     <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -297,7 +297,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="(subcategory, index) in product_subcategories" :value="subcategory.id" class="text-center">
-                                <td>@{{subcategory.product_category.name}}</td>
+                                <td>@{{subcategory.product_category==null ? "" : subcategory.product_category.name}}</td>
                                 <td>@{{subcategory.code}}</td>
                                 <td>@{{subcategory.name}}</td>
                                 <td>

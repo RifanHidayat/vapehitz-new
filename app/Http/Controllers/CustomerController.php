@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Exception;
-use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -18,6 +18,10 @@ class CustomerController extends Controller
      */
     public function index()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_customer", $permission)) {
+            return redirect("/dashboard");
+        }
         $customer = Customer::all();
 
         return view('customer.index', [
@@ -32,6 +36,10 @@ class CustomerController extends Controller
      */
     public function create()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("add_customer", $permission)) {
+            return redirect("/dashboard");
+        }
         $maxid = DB::table('customers')->max('id');
         $code = "C" . sprintf('%04d', $maxid + 1);
         return view('customer.create', [
@@ -96,6 +104,10 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("edit_customer", $permission)) {
+            return redirect("/dashboard");
+        }
         $customer = Customer::findOrFail($id);
 
         return view('customer.edit', [
@@ -150,6 +162,10 @@ class CustomerController extends Controller
      */
     public function destroy($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("delete_customer", $permission)) {
+            return redirect("/dashboard");
+        }
         $customer = Customer::findOrFail($id);
         try {
             $customer->delete();
@@ -175,17 +191,28 @@ class CustomerController extends Controller
         return DataTables::of($customers)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
+                $permission = json_decode(Auth::user()->group->permission);
+                if (in_array("edit_customer", $permission)) {
+                    $edit = '<a href="/customer/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                <span>Edit</span>
+                </a>';
+                } else {
+                    $edit = "";
+                }
+                if (in_array("delete_customer", $permission)) {
+                    $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                   <span>Delete</span>
+                   </a>';
+                } else {
+                    $delete = "";
+                }
                 $button = '
                 <div class="drodown">
                 <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <ul class="link-list-opt no-bdr">
-                        <a href="/customer/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
-                            <span>Edit</span>
-                        </a>
-                        <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
-                        <span>Delete</span>
-                        </a>
+                    ' . $edit . '
+                    ' . $delete . '
                         <a href="#"><em class="icon fas fa-check"></em>
                             <span>Pay</span>
                         </a>

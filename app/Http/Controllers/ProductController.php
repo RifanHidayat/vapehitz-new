@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductSubcategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -24,6 +25,10 @@ class ProductController extends Controller
         //     ->join('product_categories', 'products.product_category_id', '=', 'product_categories.id')
         //     ->select('products.*', 'product_categories.name')
         //     ->get();
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_product", $permission)) {
+            return redirect("/dashboard");
+        }
         $products = Product::with('productCategory')->get();
         return view('product.index', [
             'products' => $products,
@@ -37,6 +42,11 @@ class ProductController extends Controller
      */
     public function create()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("add_product", $permission)) {
+            return redirect("/dashboard");
+        }
+
         $productCategories = ProductCategory::all();
         $productSubcategories = ProductSubcategory::with('productCategory')->get();
 
@@ -106,6 +116,10 @@ class ProductController extends Controller
      */
     public function show($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_product", $permission)) {
+            return redirect("/dashboard");
+        }
         $products = Product::findOrFail($id);
         return view('product.show', [
             'products' => $products,
@@ -120,6 +134,10 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("edit_product", $permission)) {
+            return redirect("/dashboard");
+        }
         $product = Product::findOrFail($id);
         $productCategories = ProductCategory::all();
         $productSubcategories = ProductSubcategory::all();
@@ -186,6 +204,10 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("delete_product", $permission)) {
+            return redirect("/dashboard");
+        }
         $product = Product::findOrFail($id);
         try {
             $product->delete();
@@ -211,20 +233,36 @@ class ProductController extends Controller
         return DataTables::of($products)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
+                $permission = json_decode(Auth::user()->group->permission);
+                if (in_array("edit_product", $permission)) {
+                    $edit = '<a href="/product/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                    <span>Edit</span>
+                </a>';
+                } else {
+                    $edit = "";
+                }
+                if (in_array("delete_product", $permission)) {
+                    $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                    <span>Delete</span>
+                    </a>';
+                } else {
+                    $delete = "";
+                }
+                if (in_array("view_product", $permission)) {
+                    $show = '<a href="/product/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                    <span>Detail</span>
+                </a>';
+                } else {
+                    $show = "";
+                }
                 $button = '
             <div class="dropright">
             <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
             <div class="dropdown-menu dropdown-menu-right">
                 <ul class="link-list-opt no-bdr">
-                    <a href="/product/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
-                        <span>Edit</span>
-                    </a>
-                    <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
-                    <span>Delete</span>
-                    </a>
-                    <a href="/product/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
-                        <span>Detail</span>
-                    </a>
+                ' . $edit . '
+                ' . $delete . '
+                ' . $show . '
                 </ul>
             </div>
             </div>';

@@ -14,6 +14,14 @@
             <h3 class="nk-block-title fw-normal">Tambah Data Stok Opname Retail</h3>
         </div>
     </div>
+    <div v-if="errors.length" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong v-for="error in errors">
+            @{{ error }}
+        </strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true"></span>
+        </button>
+    </div>
     <div class="card card-bordered">
         <div class="card-inner-group">
             <div class="card-inner card-inner-md">
@@ -215,6 +223,7 @@
             note: '',
             selectedProducts: [],
             check: [],
+            errors: [],
         },
         methods: {
             onSelectedProduct: function() {
@@ -244,7 +253,16 @@
                 return Number(product.retail_stock) - Number(product.good_stock);
             },
             submitForm: function() {
-                this.sendData();
+                if (this.code && this.date) {
+                    return this.sendData();
+                }
+                this.errors = [];
+                if (!this.code) {
+                    this.errors.push('Kolom Kode Harus di isi');
+                }
+                if (!this.date) {
+                    this.errors.push('Kolom Tanggal Harus di Isi');
+                }
             },
             sendData: function() {
                 // console.log('submitted');
@@ -275,7 +293,7 @@
                         console.log(error);
                         Swal.fire(
                             'Oops!',
-                            'Something wrong',
+                            'Daftar Produk Tidak Boleh Kosong',
                             'error'
                         )
                     });

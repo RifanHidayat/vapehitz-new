@@ -15,6 +15,14 @@
         </div>
     </div>
 </div>
+<div v-if="errors.length" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong v-for="error in errors">
+        @{{ error }}
+    </strong>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true"></span>
+    </button>
+</div>
 <p></p>
 <div class="card card-bordered">
     <div class="card-inner-group">
@@ -271,6 +279,7 @@
             badStock: '0',
             selectedProducts: [],
             check: [],
+            errors: [],
             loading: false,
         },
         methods: {
@@ -289,7 +298,16 @@
                 this.check = [];
             },
             submitForm: function() {
-                this.sendData();
+                if (this.code && this.date) {
+                    return this.sendData();
+                }
+                this.errors = [];
+                if (!this.code) {
+                    this.errors.push('Kolom Kode Harus di isi');
+                }
+                if (!this.date) {
+                    this.errors.push('Kolom Tanggal Harus di Isi');
+                }
             },
             sendData: function() {
                 // console.log('submitted');
@@ -320,7 +338,7 @@
                         console.log(error);
                         Swal.fire(
                             'Oops!',
-                            'Something wrong',
+                            'Daftar Produk Tidak Boleh Kosong',
                             'error'
                         )
                     });

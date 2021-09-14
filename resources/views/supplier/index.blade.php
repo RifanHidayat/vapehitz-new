@@ -1,28 +1,56 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+<style>
+    .dataTables_filter {
+        text-align: right;
+        width: 90%;
+    }
 
+    table tr th {
+        font-size: 15px;
+        color: black;
+    }
+
+    table tr td {
+        font-size: 13px;
+        color: black;
+    }
+
+    .pull-left {
+        float: left !important;
+    }
+
+    .pull-right {
+        float: right !important;
+        margin-bottom: 20px;
+    }
+
+    .bottom {
+        float: right !important;
+    }
+</style>
 @section('content')
-<div class="components-preview wide-md mx-auto">
+@php
+$userLoginPermissions = [];
+if (request()->session()->has('userLoginPermissions')) {
+$userLoginPermissions = request()->session()->get('userLoginPermissions');
+}
+@endphp
+<div class="components-preview">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
-            <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-            <h2 class="nk-block-title fw-normal">Master Data Supplier</h2>
             <div class="nk-block-des">
-                <p class="lead">Manage Supplier</p>
+                <h4>
+                    Manage Supplier
+                </h4>
             </div>
         </div>
-    </div><!-- .nk-block -->
+    </div>
     <div class="nk-block nk-block-lg">
-        <!-- <div class="nk-block-head">
-            <div class="nk-block-head-content">
-                <h4 class="title nk-block-title">Tambah Kategori Barang</h4>
-                <div class="nk-block-des">
-                    <p>You can alow display form in column as example below.</p>
-                </div>
-            </div>
-        </div> -->
+        @if(in_array("add_supplier", $userLoginPermissions))
         <a href="{{url('/supplier/create')}}" class="btn btn-outline-success">Tambah Supplier</a>
+        @endif
         <p></p>
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
@@ -50,7 +78,7 @@
                 </div>
             </div>
         </div>
-    </div><!-- .nk-block -->
+    </div>
 </div>
 @endsection
 @section('pagescript')
@@ -108,10 +136,12 @@
         var supplierTable = $('#suppliers').DataTable({
             processing: true,
             serverSide: true,
+            autoWidth: false,
+            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
                 url: "{{url('/datatables/suppliers')}}",
                 type: 'GET',
-                // length: 2,
+                //length: 2,
             },
             columns: [{
                     data: 'code',
