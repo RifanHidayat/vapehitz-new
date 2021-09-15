@@ -12,7 +12,7 @@
     </div>
     <div class="card card-bordered">
         <div class="card-inner">
-            <form @submit.prevent="submitForm">
+            <form @submit.prevent="submitForm" enctype="multipart/form-data">
                 <div class="col-lg-5">
                     <div class="form-group">
                         <label class="form-label" for="full-name-1">Kode</label>
@@ -36,12 +36,16 @@
                         <label class="form-label" for="full-name-1">Upload Gambar</label>
                         <div class="input-group mb-3">
                             <div class="custom-file">
-                                <input type="file" v-model="image" class="custom-file-input" id="inputGroupFile02">
-                                <label class="custom-file-label" for="inputGroupFile02">Pilih Gambar</label>
+                                <!-- <input type="file" ref="image" v-on:change="handleFileUpload" accept=".jpg, .jpeg, .png" class="form-control form-control-sm"> -->
+                                <input type="file" ref="image" @change="onFileChange" class="form-control" />
                             </div>
                         </div>
                     </div>
                 </div>
+                <div id="preview" class="col-lg-5">
+                    <a href=""><img v-if="url" :src="url" /></a>
+                </div>
+                <p></p>
                 <div class="col-lg-12">
                     <div class="form-group">
                         <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal">
@@ -68,7 +72,7 @@
                                         <td>@{{product.central_stock}}</td>
                                         <td>@{{product.bad_stock}}</td>
                                         <td>
-                                            <input type="number" v-model="product.quantity" class="form-control">
+                                            <input type="number" v-model="product.quantity" @input="validateQuantity(product)" class="form-control">
                                         </td>
                                         <td>
                                             <input type="number" :value="subTotalProduct(product)" class="form-control" readonly>
@@ -172,6 +176,7 @@
             productId: '',
             selectedProducts: JSON.parse('{!! $badstockRelease->products !!}'),
             check: [],
+            url: '{{asset($badstockRelease->image)}}',
             // bad_stock: '',
             loading: false,
         },
@@ -239,7 +244,19 @@
             },
             subTotalProduct: function(product) {
                 return Number(product.bad_stock) - Number(product.quantity);
-            }
+            },
+            validateQuantity: function(product) {
+                // console.log(product.quantity);
+                if (product.quantity > product.bad_stock) {
+                    // console.log("lebih besar")
+                    product.quantity = product.bad_stock;
+                }
+            },
+            onFileChange(e) {
+                this.image = this.$refs.image.files[0];
+                const file = e.target.files[0];
+                this.url = URL.createObjectURL(file);
+            },
         },
     })
 </script>

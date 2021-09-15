@@ -1,7 +1,35 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+<style>
+    .dataTables_filter {
+        text-align: right;
+        width: 90%;
+    }
 
+    table tr th {
+        font-size: 15px;
+        color: black;
+    }
+
+    table tr td {
+        font-size: 13px;
+        color: black;
+    }
+
+    .pull-left {
+        float: left !important;
+    }
+
+    .pull-right {
+        float: right !important;
+        margin-bottom: 20px;
+    }
+
+    .bottom {
+        float: right !important;
+    }
+</style>
 @section('content')
 <div class="components-preview wide-md mx-auto">
     <div class="nk-block-head nk-block-head-lg wide-sm">
@@ -380,7 +408,8 @@
         const productTable = $('#products-table').DataTable({
             processing: true,
             serverSide: true,
-            "autoWidth": false,
+            autoWidth: false,
+            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
                 url: '/datatables/stock-opname/products',
                 type: 'GET',

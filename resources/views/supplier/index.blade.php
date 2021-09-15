@@ -31,12 +31,7 @@
     }
 </style>
 @section('content')
-@php
-$userLoginPermissions = [];
-if (request()->session()->has('userLoginPermissions')) {
-$userLoginPermissions = request()->session()->get('userLoginPermissions');
-}
-@endphp
+@php $permission = json_decode(Auth::user()->group->permission);@endphp
 <div class="components-preview">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
@@ -48,7 +43,7 @@ $userLoginPermissions = request()->session()->get('userLoginPermissions');
         </div>
     </div>
     <div class="nk-block nk-block-lg">
-        @if(in_array("add_supplier", $userLoginPermissions))
+        @if(in_array("add_supplier", $permission))
         <a href="{{url('/supplier/create')}}" class="btn btn-outline-success">Tambah Supplier</a>
         @endif
         <p></p>
@@ -59,8 +54,8 @@ $userLoginPermissions = request()->session()->get('userLoginPermissions');
                 </div> -->
                 <div class="table-responsive">
                     <table class="table table-striped" id="suppliers">
-                        <thead>
-                            <tr class="text-center">
+                        <thead class="text-center">
+                            <tr>
                                 <th>Code</th>
                                 <th>Nama</th>
                                 <th>Alamat</th>
@@ -71,8 +66,7 @@ $userLoginPermissions = request()->session()->get('userLoginPermissions');
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-
+                        <tbody class="text-center">
                         </tbody>
                     </table>
                 </div>

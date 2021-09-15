@@ -3,6 +3,12 @@
 @section('title', 'Vapehitz')
 
 @section('content')
+@if (session('status'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Berhasil!</strong>&nbsp; {{session('status')}}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
 <div class="nk-block-head nk-block-head-sm">
     <div class="nk-block-between">
         <div class="nk-block-head-content">

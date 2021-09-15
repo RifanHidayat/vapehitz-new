@@ -31,12 +31,7 @@
     }
 </style>
 @section('content')
-@php
-$userLoginPermissions = [];
-if (request()->session()->has('userLoginPermissions')) {
-$userLoginPermissions = request()->session()->get('userLoginPermissions');
-}
-@endphp
+@php $permission = json_decode(Auth::user()->group->permission);@endphp
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
         <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
@@ -55,7 +50,7 @@ $userLoginPermissions = request()->session()->get('userLoginPermissions');
                 </div>
             </div>
         </div> -->
-    @if(in_array("add_product", $userLoginPermissions))
+    @if(in_array("add_product", $permission))
     <a href="{{url('/product/create')}}" class="btn btn-outline-success">Tambah Produk</a>
     @endif
     <p></p>
@@ -65,8 +60,8 @@ $userLoginPermissions = request()->session()->get('userLoginPermissions');
                     <h5 class="card-title">Form</h5>
                 </div> -->
             <table class="table table-striped" id="products">
-                <thead>
-                    <tr class="text-center">
+                <thead class="text-center">
+                    <tr>
                         <th>Kode</th>
                         <th>Kategori</th>
                         <th>Subkategori</th>
@@ -77,8 +72,7 @@ $userLoginPermissions = request()->session()->get('userLoginPermissions');
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
-
+                <tbody class="text-center">
                 </tbody>
             </table>
         </div>

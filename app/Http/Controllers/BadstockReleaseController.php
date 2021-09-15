@@ -209,17 +209,20 @@ class BadstockReleaseController extends Controller
         $request->validate([
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
         ]);
-        $file = $request->file('image');
-        $originalName = $file->getClientOriginalName();
-        $newFileName = time() . '-' . $originalName;
-        $path = $file->move(public_path('images'), $newFileName);
 
         $badstockRelease = BadstockRelease::findOrFail($id);
         $badstockRelease->code = $request->code;
         $badstockRelease->date = $request->date;
-        $badstockRelease->image = 'images/' . $newFileName;
         // dd($badstockRelease->image);
-        $products = json_decode($request->selected_products);
+
+        $file = $request->file('image');
+        if ($request->hasFile('image')) {
+            $originalName = $file->getClientOriginalName();
+            $newFileName = time() . '-' . $originalName;
+            $path = $file->move(public_path('images'), $newFileName);
+            $badstockRelease->image = 'images/' . $newFileName;
+        }
+        $products = $request->selected_products;
 
         try {
             $badstockRelease->save();
@@ -234,8 +237,8 @@ class BadstockReleaseController extends Controller
         $keyedProducts = collect($products)->mapWithKeys(function ($item) {
             return [
                 $item['id'] => [
-                    'bad_stock' => $item->bad_stock,
-                    'quantity' => $item->quantity,
+                    'bad_stock' => $item['bad_stock'],
+                    'quantity' => $item['quantity'],
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),
                 ]
@@ -271,12 +274,12 @@ class BadstockReleaseController extends Controller
         }
         try {
             foreach ($products as $product) {
-                $productRow = Product::find($product->id);
+                $productRow = Product::find($product['id']);
                 if ($productRow == null) {
                     continue;
                 }
 
-                $productRow->bad_stock = $product->bad_stock;
+                $productRow->bad_stock = $product['bad_stock'];
                 $productRow->save();
             }
             return response()->json([
@@ -345,10 +348,21 @@ class BadstockReleaseController extends Controller
 
     public function approved(Request $request, $id)
     {
+        $request->validate([
+            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
+        ]);
         $badstockRelease = BadstockRelease::findOrFail($id);
         $badstockRelease->code = $request->code;
         $badstockRelease->date = $request->date;
-        $badstockRelease->image = $request->image;
+
+        $file = $request->file('image');
+        if ($request->hasFile('image')) {
+            $originalName = $file->getClientOriginalName();
+            $newFileName = time() . '-' . $originalName;
+            $path = $file->move(public_path('images'), $newFileName);
+            $badstockRelease->image = 'images/' . $newFileName;
+        }
+
         $badstockRelease->status = "approved";
         $products = $request->selected_products;
 
@@ -449,20 +463,36 @@ class BadstockReleaseController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
+                $permission = json_decode(Auth::user()->group->permission);
+                if (in_array("edit_badstock_release", $permission)) {
+                    $edit = '<a href="/badstock-release/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                    <span>Edit</span>
+                </a>';
+                } else {
+                    $edit = "";
+                }
+                if (in_array("delete_badstock_release", $permission)) {
+                    $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                    <span>Delete</span>
+                    </a>';
+                } else {
+                    $delete = "";
+                }
+                if (in_array("view_badstock_release", $permission)) {
+                    $show = '<a href="/badstock-release/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                    <span>Detail</span>
+                </a>';
+                } else {
+                    $show = "";
+                }
                 $button = '
-                <div class="drodown">
+                <div class="dropdown">
                 <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <ul class="link-list-opt no-bdr">
-                        <a href="/badstock-release/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
-                            <span>Edit</span>
-                        </a>
-                        <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
-                        <span>Delete</span>
-                        </a>
-                        <a href="/badstock-release/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
-                            <span>Detail</span>
-                        </a>
+                        ' . $edit . '
+                        ' . $delete . '
+                        ' . $show . '
                     </ul>
                 </div>
                 </div>';

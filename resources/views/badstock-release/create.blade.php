@@ -44,10 +44,14 @@
                         <label class="form-label" for="full-name-1">Upload Gambar</label>
                         <div class="input-group mb-3">
                             <div class="custom-file">
-                                <input type="file" ref="image" v-on:change="handleFileUpload" accept=".jpg, .jpeg, .png" class="form-control form-control-sm">
+                                <!-- <input type="file" ref="image" v-on:change="handleFileUpload" accept=".jpg, .jpeg, .png" class="form-control form-control-sm"> -->
+                                <input type="file" ref="image" @change="onFileChange" class="form-control" />
                             </div>
                         </div>
                     </div>
+                </div>
+                <div id="preview" class="col-lg-5">
+                    <a href=""><img v-if="url" :src="url" /></a>
                 </div>
                 <div class="col-lg-12">
                     <div class="form-group">
@@ -75,7 +79,7 @@
                                         <td>@{{product.central_stock}}</td>
                                         <td>@{{product.bad_stock}}</td>
                                         <td>
-                                            <input type="number" v-model="product.quantity" value="1" class="form-control">
+                                            <input type="number" v-model="product.quantity" @input="validateQuantity(product)" value="1" class="form-control">
                                         </td>
                                         <td>
                                             <input type="number" :value="subTotalProduct(product)" class="form-control" readonly>
@@ -181,6 +185,7 @@
             selectedProducts: [],
             check: [],
             errors: [],
+            url: null,
             // bad_stock: '',
             loading: false,
         },
@@ -273,6 +278,18 @@
             },
             handleFileUpload: function() {
                 this.image = this.$refs.image.files[0];
+            },
+            validateQuantity: function(product) {
+                // console.log(product.quantity);
+                if (product.quantity > product.bad_stock) {
+                    // console.log("lebih besar")
+                    product.quantity = product.bad_stock;
+                }
+            },
+            onFileChange(e) {
+                this.image = this.$refs.image.files[0];
+                const file = e.target.files[0];
+                this.url = URL.createObjectURL(file);
             },
         },
     })

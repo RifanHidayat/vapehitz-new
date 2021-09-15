@@ -37,7 +37,7 @@ class SupplierController extends Controller
     public function create()
     {
         $permission = json_decode(Auth::user()->group->permission);
-        if (!in_array("create_supplier", $permission)) {
+        if (!in_array("add_supplier", $permission)) {
             return redirect("/dashboard");
         }
         $maxid = DB::table('suppliers')->max('id');

@@ -264,6 +264,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/', [UserController::class, 'store']);
         Route::get('/edit/{id}', [UserController::class, 'edit']);
         Route::patch('/{id}', [UserController::class, 'update']);
+        Route::patch('/change/{id}', [UserController::class, 'change']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
     });
 });
