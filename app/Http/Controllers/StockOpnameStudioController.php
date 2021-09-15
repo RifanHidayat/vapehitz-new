@@ -7,6 +7,7 @@ use App\Models\StockOpnameStudio;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -19,6 +20,10 @@ class StockOpnameStudioController extends Controller
      */
     public function index()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_sop_studio", $permission)) {
+            return redirect("/dashboard");
+        }
         return view('stock-opname-studio.index');
     }
 
@@ -29,6 +34,10 @@ class StockOpnameStudioController extends Controller
      */
     public function create()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("add_sop_studio", $permission)) {
+            return redirect("/dashboard");
+        }
         $maxid = DB::table('stock_opname_studios')->max('id');
         $code = "SOGS/VH/" . date('d-y') . "/" . sprintf('%04d', $maxid + 1);
         return view('stock-opname-studio.create', [
@@ -141,6 +150,10 @@ class StockOpnameStudioController extends Controller
      */
     public function show($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_sop_studio", $permission)) {
+            return redirect("/dashboard");
+        }
         $stockOpnameStudio = StockOpnameStudio::with('products')->findOrFail($id);
         $selectedProducts = collect($stockOpnameStudio->products)->each(function ($product) {
             $product['good_stock'] = $product->pivot->good_stock;
@@ -160,6 +173,10 @@ class StockOpnameStudioController extends Controller
      */
     public function edit($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("edit_sop_studio", $permission)) {
+            return redirect("/dashboard");
+        }
         $stockOpnameStudio = StockOpnameStudio::with('products')->findOrFail($id);
         $selectedProducts = collect($stockOpnameStudio->products)->each(function ($product) {
             $product['good_stock'] = $product->pivot->good_stock;
@@ -270,6 +287,10 @@ class StockOpnameStudioController extends Controller
      */
     public function destroy($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("delete_sop_studio", $permission)) {
+            return redirect("/dashboard");
+        }
         $stockOpnameStudio = StockOpnameStudio::findOrFail($id);
         try {
             $stockOpnameStudio->delete();

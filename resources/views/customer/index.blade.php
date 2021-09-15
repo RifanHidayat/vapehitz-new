@@ -31,6 +31,7 @@
     }
 </style>
 @section('content')
+@php $permission = json_decode(Auth::user()->group->permission);@endphp
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
         <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
@@ -49,7 +50,9 @@
                 </div>
             </div>
         </div> -->
+    @if(in_array("add_customer", $permission))
     <a href="{{url('/customer/create')}}" class="btn btn-outline-success">Tambah Customer</a>
+    @endif
     <p></p>
     <div class="card card-bordered">
         <div class="card-inner overflow-hidden">
@@ -70,8 +73,7 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-
+                    <tbody class="text-center">
                     </tbody>
                 </table>
             </div>

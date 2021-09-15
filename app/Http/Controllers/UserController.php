@@ -6,6 +6,8 @@ use App\Models\Group;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -17,6 +19,10 @@ class UserController extends Controller
      */
     public function index()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_data_user", $permission)) {
+            return redirect("/dashboard");
+        }
         $groups = Group::all();
         $user = User::all();
         return view('user.index', [
@@ -65,12 +71,33 @@ class UserController extends Controller
      */
     public function edit($id)
     {
+        // $permission = json_decode(Auth::user()->group->permission);
+        // if (!in_array("edit_data_user", $permission)) {
+        //     return redirect("/dashboard");
+        // }
         $group = Group::all();
         $user = User::with('group')->findOrFail($id);
         return view('user.edit', [
             'user' => $user,
             'group' => $group,
         ]);
+    }
+
+    public function change(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $user->password = Hash::make($request->password);
+
+        try {
+            $user->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -89,7 +116,7 @@ class UserController extends Controller
 
         try {
             $user->save();
-            return redirect('/user')->with('status', 'Data Berhasil di Simpan');
+            return redirect("/dashboard")->with('status', 'Data Berhasil di Perbarui');
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',

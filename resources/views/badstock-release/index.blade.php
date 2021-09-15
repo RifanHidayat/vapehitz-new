@@ -46,7 +46,7 @@
                 </div> -->
             <div class="table-responsive">
                 <table class="table table-striped" id="badstockRelease">
-                    <thead>
+                    <thead class="text-center">
                         <tr>
                             <th>Nomor Proses</th>
                             <th>Tanggal Proses</th>
@@ -54,7 +54,7 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="text-center">
 
                     </tbody>
                 </table>

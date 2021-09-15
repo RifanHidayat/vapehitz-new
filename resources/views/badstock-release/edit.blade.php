@@ -3,100 +3,93 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
-        <div class="nk-block-head-content">
-            <div class="nk-block-head-sub"><a class="back-to" href="/badstock-release"><em class="icon ni ni-arrow-left"></em><span>Pengeluaran Badstock</span></a></div>
-            <h4 class="nk-block-title fw-normal">Edit Data Pengeluaran Badstock</h4>
-        </div>
+<div class="nk-block-head nk-block-head-lg wide-sm">
+    <div class="nk-block-head-content">
+        <div class="nk-block-head-sub"><a class="back-to" href="/badstock-release"><em class="icon ni ni-arrow-left"></em><span>Pengeluaran Badstock</span></a></div>
+        <h4 class="nk-block-title fw-normal">Edit Data Pengeluaran Badstock</h4>
     </div>
-    <div class="card card-bordered">
-        <div class="card-inner">
-            <form @submit.prevent="submitForm" enctype="multipart/form-data">
-                <div class="col-lg-5">
-                    <div class="form-group">
-                        <label class="form-label" for="full-name-1">Kode</label>
-                        <div class="form-control-wrap">
-                            <input type="text" v-model="code" class="form-control" readonly>
+</div>
+<div class="card card-bordered">
+    <div class="card-inner">
+        <form @submit.prevent="submitForm" enctype="multipart/form-data">
+            <div class="col-lg-5">
+                <div class="form-group">
+                    <label class="form-label" for="full-name-1">Kode</label>
+                    <div class="form-control-wrap">
+                        <input type="text" v-model="code" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+            <p></p>
+            <div class="col-lg-5">
+                <div class="form-group">
+                    <label class="form-label" for="full-name-1">Tanggal Proses</label>
+                    <div class="form-control-wrap">
+                        <input type="date" v-model="date" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <p></p>
+            <div class="col-lg-5">
+                <div class="form-group">
+                    <label class="form-label" for="full-name-1">Upload Gambar</label>
+                    <div class="input-group mb-3">
+                        <div class="custom-file">
+                            <!-- <input type="file" ref="image" v-on:change="handleFileUpload" accept=".jpg, .jpeg, .png" class="form-control form-control-sm"> -->
+                            <input type="file" ref="image" @change="onFileChange" class="form-control" />
                         </div>
                     </div>
                 </div>
-                <p></p>
-                <div class="col-lg-5">
-                    <div class="form-group">
-                        <label class="form-label" for="full-name-1">Tanggal Proses</label>
-                        <div class="form-control-wrap">
-                            <input type="date" v-model="date" class="form-control">
-                        </div>
+            </div>
+            <div id="preview" class="col-lg-5">
+                <a href=""><img v-if="url" :src="url" /></a>
+            </div>
+            <p></p>
+            <div class="col-lg-12">
+                <div class="form-group">
+                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal">
+                        Tambah Barang
+                    </button>
+                </div>
+                <div class="form-group">
+                    <div class="card card-bordered">
+                        <table class="table table-stripped table-bordered">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Kode Barang</th>
+                                    <th>Nama Barang</th>
+                                    <th>Stok Pusat</th>
+                                    <th>Bad Stock</th>
+                                    <th>Qty</th>
+                                    <th>Sisa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
+                                    <td>@{{product.code}}</td>
+                                    <td>@{{product.name}}</td>
+                                    <td>@{{product.central_stock}}</td>
+                                    <td>@{{product.bad_stock}}</td>
+                                    <td>
+                                        <input type="number" v-model="product.quantity" @input="validateQuantity(product)" value="1" class="form-control">
+                                    </td>
+                                    <td>
+                                        <input type="number" :value="subTotalProduct(product)" class="form-control" readonly>
+                                    </td>
+                                    <td>
+                                        <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <p></p>
-                <div class="col-lg-5">
-                    <div class="form-group">
-                        <label class="form-label" for="full-name-1">Upload Gambar</label>
-                        <div class="input-group mb-3">
-                            <div class="custom-file">
-                                <input type="file" ref="image" v-on:change="handleFileUpload" accept=".jpg, .jpeg, .png" class="form-control form-control-sm">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <p></p>
-                <div class="col-lg-5">
-                    <div class="form-group">
-                        <label class="form-label" for="full-name-1">Current Image</label>
-                        <div class="form-control-wrap">
-                            <img src="{{asset($badstock->image)}}">
-                        </div>
-                    </div>
-                </div>
-                <p></p>
-                <div class="col-lg-12">
-                    <div class="form-group">
-                        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal">
-                            Tambah Barang
-                        </button>
-                    </div>
-                    <div class="form-group">
-                        <div class="card card-bordered">
-                            <table class="table table-stripped table-bordered">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th>Kode Barang</th>
-                                        <th>Nama Barang</th>
-                                        <th>Stok Pusat</th>
-                                        <th>Bad Stock</th>
-                                        <th>Qty</th>
-                                        <th>Sisa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
-                                        <td>@{{product.code}}</td>
-                                        <td>@{{product.name}}</td>
-                                        <td>@{{product.central_stock}}</td>
-                                        <td>@{{product.bad_stock}}</td>
-                                        <td>
-                                            <input type="number" v-model="product.quantity" value="1" class="form-control">
-                                        </td>
-                                        <td>
-                                            <input type="number" :value="subTotalProduct(product)" class="form-control" readonly>
-                                        </td>
-                                        <td>
-                                            <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <p></p>
-                <div class="col-md-12 text-right">
-                    <button class="btn btn-primary">Simpan</button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <p></p>
+            <div class="col-md-12 text-right">
+                <button class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
     </div>
 </div>
 <!-- Modal -->
@@ -182,6 +175,7 @@
             productId: '',
             selectedProducts: JSON.parse('{!! $badstock->products !!}'),
             check: [],
+            url: '{{asset($badstock->image)}}',
             quantity: '0',
             // bad_stock: '',
             loading: false,
@@ -266,6 +260,18 @@
             },
             handleFileUpload: function() {
                 this.image = this.$refs.image.files[0];
+            },
+            validateQuantity: function(product) {
+                // console.log(product.quantity);
+                if (product.quantity > product.bad_stock) {
+                    // console.log("lebih besar")
+                    product.quantity = product.bad_stock;
+                }
+            },
+            onFileChange(e) {
+                this.image = this.$refs.image.files[0];
+                const file = e.target.files[0];
+                this.url = URL.createObjectURL(file);
             },
         },
     })

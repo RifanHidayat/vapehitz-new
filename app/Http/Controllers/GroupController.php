@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Group;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class GroupController extends Controller
@@ -16,6 +17,10 @@ class GroupController extends Controller
      */
     public function index()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_data_group", $permission)) {
+            return redirect("/dashboard");
+        }
         $group = Group::all();
         return view('group.index', [
             'group' => $group,
@@ -29,6 +34,10 @@ class GroupController extends Controller
      */
     public function create()
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("add_data_group", $permission)) {
+            return redirect("/dashboard");
+        }
         $group = Group::all();
         return view('group.create', [
             'group' => $group,
@@ -84,6 +93,10 @@ class GroupController extends Controller
      */
     public function edit($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("edit_data_group", $permission)) {
+            return redirect("/dashboard");
+        }
         $group = Group::findOrFail($id);
         return view('group.edit', [
             'group' => $group,
@@ -128,6 +141,10 @@ class GroupController extends Controller
      */
     public function destroy($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("delete_data_group", $permission)) {
+            return redirect("/dashboard");
+        }
         $group = Group::findOrFail($id);
         try {
             $group->delete();

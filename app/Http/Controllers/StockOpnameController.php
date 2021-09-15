@@ -146,6 +146,10 @@ class StockOpnameController extends Controller
      */
     public function show($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_stock_opname", $permission)) {
+            return redirect("/dashboard");
+        }
         $stockOpname = StockOpname::with('products')->findOrFail($id);
         $selectedProducts = collect($stockOpname->products)->each(function ($product) {
             $product['good_stock'] = $product->pivot->good_stock;

@@ -1,4 +1,5 @@
 <!-- sidebar @s -->
+@php $user = Auth::user();@endphp
 @php $permission = json_decode(Auth::user()->group->permission);@endphp
 <div class="nk-sidebar nk-sidebar-fixed is-dark " data-content="sidebarMenu">
     <div class="nk-sidebar-element nk-sidebar-head">
@@ -160,11 +161,11 @@
                                 <a href="{{url('/user')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data User</span></a>
                             </li>
                             @endif
-                            @if(in_array("view_password_change", $permission))
+                            <!-- @if(in_array("view_password_change", $permission))
                             <li class="nk-menu-item">
-                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Ganti Password</span></a>
+                                <a href="{{url('/user/edit/'.$user->id)}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Ganti Password</span></a>
                             </li>
-                            @endif
+                            @endif -->
                         </ul>
                     </li>
                     @endif

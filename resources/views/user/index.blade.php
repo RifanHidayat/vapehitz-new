@@ -52,7 +52,7 @@
         <div class="card-inner">
             <table class="table table-stripped" id="user-table">
                 <thead>
-                    <tr>
+                    <tr class="text-center">
                         <th>Nama</th>
                         <th>Username</th>
                         <th>Email</th>
@@ -60,7 +60,7 @@
                         <th style="width: 10%;">Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-center">
                 </tbody>
             </table>
         </div>
