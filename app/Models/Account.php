@@ -22,6 +22,6 @@ class Account extends Model
 
     public function AccountTransactions()
     {
-        return $this->belongsTo(AccountTransaction::class);
+        return $this->hasMany(AccountTransaction::class);
     }
 }

@@ -91,7 +91,7 @@
                                                         <!-- <em class="icon ni ni-user"></em> -->
                                                         <span>Rp</span>
                                                     </div>
-                                                    <input type="text" v-model="product.purchase_price" v-cleave="cleaveCurrency" class="form-control text-right" placeholder="Harga">
+                                                    <input type="text" v-model="product.purchase_price"  class="form-control text-right" placeholder="Harga" value="product.purchase_price">
                                                 </div>
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
@@ -211,6 +211,7 @@
                                     <label class="form-label" for="full-name-1">Cara Pembayaran</label>
                                     <div class="form-control-wrap">
                                         <select v-model="paymentMethod" class="form-control">
+                                            <option value=""></option>
                                             <option value="transfer">Transfer</option>
                                             <option value="cash">Cash</option>
                                         </select>
@@ -220,6 +221,7 @@
                                     <label class="form-label" for="full-name-1">Akun</label>
                                     <div class="form-control-wrap">
                                         <select v-model="accountId" class="form-control">
+                                            <option value=""></option>
                                             <option v-for="(account, index) in accountOptions" :value="account.id">@{{ account.name }}</option>
                                         </select>
                                     </div>
@@ -398,8 +400,10 @@
                 this.sendData();
             },
             sendData: function() {
+               
                 // console.log('submitted');
                 let vm = this;
+                console.log(vm.selectedProducts)
                 vm.loading = true;
                 axios.post('/central-purchase', {
                         code: vm.code,
@@ -423,7 +427,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/central-purchase';
+                                //window.location.href = '/central-purchase';
                             }
                         })
                         // console.log(response);

@@ -15,9 +15,14 @@ use App\Http\Controllers\PurchaseTransactionController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\BadstockReleaseController;
+use App\Http\Controllers\PurchaseReturController;
+use App\Http\Controllers\PurchaseReturnController;
+use App\Http\Controllers\PurchaseReturnTransactionController;
 use App\Http\Controllers\ReqToRetailController;
 use App\Http\Controllers\ReturSupplierController;
 use App\Http\Controllers\SaleRetailController;
+use App\Models\Account;
+use App\Models\PurchaseTransaction;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -92,6 +97,7 @@ Route::prefix('/customer')->group(function () {
     Route::delete('/{id}', [CustomerController::class, 'destroy']);
 });
 
+
 //RouteSupplier
 Route::prefix('/supplier')->group(function () {
     Route::get('/', [SupplierController::class, 'index']);
@@ -100,6 +106,9 @@ Route::prefix('/supplier')->group(function () {
     Route::get('/edit/{id}', [SupplierController::class, 'edit']);
     Route::patch('/{id}', [SupplierController::class, 'update']);
     Route::delete('/{id}', [SupplierController::class, 'destroy']);
+    Route::get('/pay/{id}', [SupplierController::class, 'pay']);
+    Route::post('/purchase-transactions', [SupplierController::class, 'payment']);
+
 });
 
 //RouteCentralPurchase
@@ -113,6 +122,30 @@ Route::prefix('/central-purchase')->group(function () {
     Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
     Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
     Route::get('/show/{id}', [CentralPurchaseController::class, 'show']);
+});
+
+//RoutePurchasereturn
+Route::prefix('/purchase-return')->group(function () {
+    Route::get('/', [PurchaseReturnController::class, 'index']);
+    Route::get('/create', [PurchaseReturnController::class, 'create']);
+    Route::get('/edit/{id}', [PurchaseReturnController::class, 'edit']);
+    Route::post('/', [PurchaseReturnController::class, 'store']);
+    Route::patch('/{id}', [PurchaseReturnController::class, 'update']);
+    Route::delete('/{id}', [PurchaseReturnController::class, 'destroy']);
+    Route::get('/show/{id}', [PurchaseReturnController::class, 'show']);
+    Route::get('/pay/{id}', [PurchaseReturnController::class, 'pay']);
+});
+
+//RoutePurchasereturn
+Route::prefix('/purchase-return-transaction')->group(function () {
+    Route::get('/', [PurchaseReturnTransactionController::class, 'index']);
+    Route::get('/create', [PurchaseReturnTransactionController::class, 'create']);
+    Route::get('/edit/{id}', [PurchaseReturnTransactionController::class, 'edit']);
+    Route::post('/', [PurchaseReturnTransactionController::class, 'store']);
+    Route::patch('/{id}', [PurchaseReturnTransactionController::class, 'update']);
+    Route::delete('/{id}', [PurchaseReturnTransactionController::class, 'destroy']);
+    Route::get('/show/{id}', [PurchaseReturnTransactionController::class, 'show']);
+    Route::get('/pay/{id}', [PurchaseReturnTransactionController::class, 'pay']);
 });
 
 //RouteCentralSale
@@ -136,6 +169,8 @@ Route::prefix('/purchase-transaction')->group(function () {
     Route::get('/edit/{id}', [PurchaseTransactionController::class, 'edit']);
     Route::patch('/{id}', [PurchaseTransactionController::class, 'update']);
     Route::delete('/{id}', [PurchaseTransactionController::class, 'destroy']);
+    Route::get('/show/{id}', [PurchaseTransactionController::class, 'show']);
+   
 });
 
 //RouteAccount
@@ -146,7 +181,10 @@ Route::prefix('/account')->group(function () {
     Route::get('/edit/{id}', [AccountController::class, 'edit']);
     Route::patch('/{id}', [AccountController::class, 'update']);
     Route::delete('/{id}', [AccountController::class, 'destroy']);
+    Route::delete('/{id}', [AccountController::class, 'show']);
+    Route::get('show/{id}', [AccountController::class, 'show']);
 });
+
 
 //RouteAccountTransaction
 Route::prefix('/account-transaction')->group(function () {
@@ -155,8 +193,9 @@ Route::prefix('/account-transaction')->group(function () {
     Route::post('/', [AccountTransactionController::class, 'store']);
     Route::get('/edit/{id}', [AccountTransactionController::class, 'edit']);
     Route::patch('/{id}', [AccountTransactionController::class, 'update']);
-    Route::delete('/{id}', [AccountTransactionController::class, 'destroy']);
+    Route::get('show/{id}', [AccountTransactionController::class, 'show']);
 });
+
 
 //RouteStockOpname
 Route::prefix('/stock-opname')->group(function () {
@@ -188,15 +227,15 @@ Route::prefix('/shipment')->group(function () {
     Route::delete('/{id}', [ShipmentController::class, 'destroy']);
 });
 
-//RouteReturSupplier
-Route::prefix('/retur-supplier')->group(function () {
-    Route::get('/', [ReturSupplierController::class, 'index']);
-    Route::get('/create', [ReturSupplierController::class, 'create']);
-    Route::post('/', [ReturSupplierController::class, 'store']);
-    Route::get('/edit/{id}', [ReturSupplierController::class, 'edit']);
-    Route::patch('/{id}', [ReturSupplierController::class, 'update']);
-    Route::delete('/{id}', [ReturSupplierController::class, 'destroy']);
-});
+// //RouteReturSupplier
+// Route::prefix('/retur-supplier')->group(function () {
+//     Route::get('/', [ReturSupplierController::class, 'index']);
+//     Route::get('/create', [ReturSupplierController::class, 'create']);
+//     Route::post('/', [ReturSupplierController::class, 'store']);
+//     Route::get('/edit/{id}', [ReturSupplierController::class, 'edit']);
+//     Route::patch('/{id}', [ReturSupplierController::class, 'update']);
+//     Route::delete('/{id}', [ReturSupplierController::class, 'destroy']);
+// });
 
 //RouteReqToRetail
 Route::prefix('/reqtoretail')->group(function () {
@@ -226,6 +265,7 @@ Route::prefix('/datatables')->group(function () {
     });
     Route::prefix('/suppliers')->group(function () {
         Route::get('/', [SupplierController::class, 'datatableSuppliers']);
+        Route::get('/pay/{id}', [SupplierController::class, 'datatableSupplierPayment']);
     });
     Route::prefix('/customers')->group(function () {
         Route::get('/', [CustomerController::class, 'datatableCustomers']);
@@ -245,5 +285,17 @@ Route::prefix('/datatables')->group(function () {
     });
     Route::prefix('/reqtoretail')->group(function () {
         Route::get('/', [ReqToRetailController::class, 'datatableReqtoretail']);
+    });
+    Route::prefix('/purchases-transactions')->group(function () {
+        Route::get('/', [PurchaseTransactionController::class, 'datatablePurchaseTransaction']);
+    });
+    Route::prefix('/purchase-returns')->group(function () {
+        Route::get('/', [PurchaseReturnController::class, 'datatablePurchaseReturn']);
+    });
+    Route::prefix('/purchase-return-transactions')->group(function () {
+        Route::get('/', [PurchaseReturnTransactionController::class, 'datatablePurchaseReturnTransactions']);
+    });
+    Route::prefix('/account-transactions')->group(function () {
+        Route::get('/{id}', [AccountController::class, 'datatableAccountTransactions']);
     });
 });

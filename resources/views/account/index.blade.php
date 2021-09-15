@@ -39,6 +39,7 @@
                                 <select v-model="type" class="form-control">
                                     <option value="cash">Cash</option>
                                     <option value="transfer">Transfer</option>
+                                    <option value="none">None</option>
                                 </select>
                             </div>
                         </div>
@@ -95,6 +96,8 @@
                                     <div class="btn-group" aria-label="Basic example">
                                         <a href="#" @click.prevent="onEditAccount(index)" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
                                         <a href="#" @click.prevent="deleteAccount(account.id)" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
+                                        
+                                        <a href="#" @click.prevent="showAccount(account.id)" class="btn btn-outline-light"><em class="fas fa-eye"></em></a>
                                     </div>
                                 </td>
                             </tr>
@@ -271,6 +274,11 @@
                         })
                     }
                 })
+            },
+            showAccount:function(id){
+                window.location.href = '/account/show/'+id;
+
+
             },
             currencyFormat: function(number) {
                 return Intl.NumberFormat('de-DE').format(number);

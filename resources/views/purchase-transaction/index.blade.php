@@ -7,7 +7,7 @@
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-            <h2 class="nk-block-title fw-normal">Transaksi Pembelian Barang</h2>
+            <h2 class="nk-block-title fw-normal">Transaksi Pembayaran Supplier</h>
             <!-- <div class="nk-block-des">
                 <p class="lead">Manage Supplier</p>
             </div> -->
@@ -22,8 +22,7 @@
                 </div>
             </div>
         </div> -->
-        <a href="{{url('/central-purchase/create')}}" class="btn btn-outline-success">Tambah Pembelian Barang</a>
-        <p></p>
+       
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
                 <!-- <div class="card-head">
@@ -33,13 +32,12 @@
                     <table class="table table-striped" id="centralPurchase">
                         <thead>
                             <tr>
-                                <th>Tanggal Order</th>
-                                <th>Nomor Order</th>
+                                <th>Tanggal Pembayaran</th>
+                                <th>Nomor Transaksi</th>
+                                <!-- <th>Nomor Order</th> -->
                                 <th>Nama Supplier</th>
-                                
-                                <th>Net Total</th>
-                                <th>Jumlah Bayar</th>
-                                <th>Sisa bayar</th>
+                                <th>Amount</th>
+                                <th>Akun</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -61,7 +59,7 @@
             deleteRow: function(id) {
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "The data will be deleted",
+                    text: "The data will be deletedd",
                     icon: 'warning',
                     reverseButtons: true,
                     showCancelButton: true,
@@ -71,7 +69,8 @@
                     cancelButtonText: 'Cancel',
                     showLoaderOnConfirm: true,
                     preConfirm: () => {
-                        return axios.delete('/central-purchase/' + id)
+
+                        return axios.delete('/purchase-transaction/' + id)
                             .then(function(response) {
                                 console.log(response.data);
                             })
@@ -109,37 +108,33 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: '/datatables/central-purchases',
+                url: '/datatables/purchases-transactions',
                 type: 'GET',
                 // length: 2,
             },
             columns: [{
                     data: 'date',
-                    name: 'central_purchases.date'
+                    name: 'purchase_transactions.date'
                 },
                 {
                     data: 'code',
-                    name: 'central_purchases.code'
+                    name: 'purchase_transactions.code'
                 },
+                // {
+                //     data: 'central_purchases.code',
+                //     name: 'central_purchases.code'
+                // },
                 {
                     data: 'supplier_name',
-                    name: 'suppliers.name',
-                },
-               
-                {
-                    data: 'netto',
-                    name: 'netto'
+                    name: 'supplier.name',
                 },
                 {
-                    data: 'payAmount',
-                    name: 'payAmount'
+                    data: 'amount',
+                    name: 'amount'
                 },
-               
-               
-              
                 {
-                    data: 'remainingAmount',
-                    name: 'remainingAmount'
+                    data: 'account',
+                    name: 'account'
                 },
                 {
                     data: 'action',
@@ -154,7 +149,7 @@
             const id = $(this).attr('data-id');
             Swal.fire({
                 title: 'Are you sure?',
-                text: "The data will be deleted",
+                text: "The data will be deletedd",
                 icon: 'warning',
                 reverseButtons: true,
                 showCancelButton: true,
@@ -164,7 +159,7 @@
                 cancelButtonText: 'Cancel',
                 showLoaderOnConfirm: true,
                 preConfirm: () => {
-                    return axios.delete('/central-purchase/' + id)
+                    return axios.delete('/purchase-transaction/' + id)
                         .then(function(response) {
                             console.log(response.data);
                         })

@@ -91,7 +91,7 @@
                                                         <!-- <em class="icon ni ni-user"></em> -->
                                                         <span>Rp</span>
                                                     </div>
-                                                    <input type="text" v-model="product.purchase_price" v-cleave="cleaveCurrency" class="form-control text-right" placeholder="Harga">
+                                                    <input type="text" v-model="product.purchase_price"  class="form-control text-right" placeholder="Harga">
                                                 </div>
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
