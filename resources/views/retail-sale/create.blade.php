@@ -69,16 +69,16 @@
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-10">
                                         <h5 class="card-title">@{{ product.name }}</h5>
-                                        <div class="row justify-content-between">
+                                        <!-- <div class="row justify-content-between">
                                             <p class="col-md-6 mb-0">Kode Barang</p>
                                             <p class="col-md-6 text-right mb-0"><strong>@{{ product.code }}</strong></p>
-                                        </div>
+                                        </div> -->
                                         <div class="row justify-content-between">
-                                            <p class="col-md-6 mb-0">Stok Gudang</p>
-                                            <p class="col-md-6 text-right mb-0"><strong>@{{ product.central_stock }}</strong></p>
+                                            <p class="col-md-6 mb-0">Stok</p>
+                                            <p class="col-md-6 text-right mb-0"><strong>@{{ product.retail_stock }}</strong></p>
                                         </div>
                                         <div class="row justify-content-between align-items-center mt-3">
-                                            <p class="col-md-6 mb-0">Harga Beli</p>
+                                            <p class="col-md-6 mb-0">Harga Jual</p>
                                             <div class="col-md-6">
                                                 <!-- <div class="form-control-wrap">
                                                         <input type="text" class="form-control" id="default-05" placeholder="Input placeholder">
@@ -91,7 +91,7 @@
                                                         <!-- <em class="icon ni ni-user"></em> -->
                                                         <span>Rp</span>
                                                     </div>
-                                                    <input type="text" v-model="product.purchase_price" class="form-control text-right" placeholder="Harga">
+                                                    <input type="text" v-model="product.retail_price" class="form-control text-right" placeholder="Harga">
                                                 </div>
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
@@ -156,21 +156,6 @@
                                     <input type="date" v-model="date" class="form-control">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Nama Supplier</label>
-                                <div class="form-control-wrap">
-                                    <select v-model="suppliersId" class="form-control" id="supplier">
-                                        <option v-for="supplier in suppliers" :value="supplier.id">@{{supplier.name}}</option>
-                                    </select>
-                                    <!-- <div class="input-group mb-3">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                                                <em class="fas fa-question"></em>
-                                            </button>
-                                        </div>
-                                    </div> -->
-                                </div>
-                            </div>
                             <div class="collapse" id="collapseExample">
                                 <div class="card card-body">
                                     Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
@@ -201,17 +186,26 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="form-label" for="full-name-1">Jumlah Bayar</label>
+                                <div class="form-control-wrap">
+                                    <div class="form-icon form-icon-left">
+                                        <!-- <em class="icon ni ni-user"></em> -->
+                                        <span>Rp</span>
+                                    </div>
+                                    <input type="text" v-model="paymentAmount" v-cleave="cleaveCurrency" class=" form-control text-right" placeholder="Biaya Kirim">
+                                </div>
+                            </div>
+                            <!-- <div class="form-group">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" v-model="isPaid" class="custom-control-input" id="customCheck1">
                                     <label class="custom-control-label" for="customCheck1">Bayar Lunas</label>
                                 </div>
-                            </div>
+                            </div> -->
                             <div v-if="isPaid" class="form-row">
                                 <div class="form-group col-lg-6 col-md-12">
                                     <label class="form-label" for="full-name-1">Cara Pembayaran</label>
                                     <div class="form-control-wrap">
                                         <select v-model="paymentMethod" class="form-control">
-                                            <option value=""></option>
                                             <option value="transfer">Transfer</option>
                                             <option value="cash">Cash</option>
                                         </select>
@@ -221,43 +215,41 @@
                                     <label class="form-label" for="full-name-1">Akun</label>
                                     <div class="form-control-wrap">
                                         <select v-model="accountId" class="form-control">
-                                            <option value=""></option>
                                             <option v-for="(account, index) in accountOptions" :value="account.id">@{{ account.name }}</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div class="divider"></div>
-                            <div class="card bg-light">
-                                <!-- <div class="card-header">Header</div> -->
-                                <div class="card-inner">
-                                    <h5 class="card-title">Summary</h5>
-                                    <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
-                                    <div class="row justify-content-between">
-                                        <p class="col-md-6 card-text mb-0">Subtotal</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(subTotal) }}</strong></p>
-                                    </div>
-                                    <div class="row justify-content-between">
-                                        <p class="col-md-6 card-text mb-0">Biaya Kirim</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ shippingCost }}</strong></p>
-                                    </div>
-                                    <div class="row justify-content-between">
-                                        <p class="col-md-6 card-text mb-0">Diskon</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ discount }}</strong></p>
-                                    </div>
-                                    <div class="row justify-content-between">
-                                        <p class="col-md-6 card-text mb-0">Net Total</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(netTotal) }}</strong></p>
-                                    </div>
-                                    <div class="row justify-content-between">
-                                        <p class="col-md-6 card-text mb-0">Jumlah Bayar</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(payment) }}</strong></p>
-                                    </div>
-                                    <div class="row justify-content-between">
-                                        <p class="col-md-6 card-text mb-0">Sisa Pembayaran</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(changePayment) }}</strong></p>
-                                    </div>
-                                </div>
+                            <h5 class="card-title">Summary</h5>
+                            <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
+                            <div class="row justify-content-between">
+                                <p class="col-md-6 text-soft">Subtotal</p>
+                                <p class="col-md-6 text-right"><strong>@{{ currencyFormat(subTotal) }}</strong></p>
+                            </div>
+                            <div class="row justify-content-between">
+                                <p class="col-md-6 text-soft">Biaya Kirim</p>
+                                <p class="col-md-6 text-right"><strong>@{{ shippingCost == '' ? 0 : shippingCost }}</strong></p>
+                            </div>
+                            <div class="row justify-content-between border-bottom">
+                                <p class="col-md-6 text-soft">Diskon</p>
+                                <p class="col-md-6 text-right"><strong>@{{ discount == '' ? 0 : discount }}</strong></p>
+                            </div>
+                            <div class="row justify-content-between py-3 bg-light align-items-center">
+                                <p class="col-md-6 text-soft mb-0">Total</p>
+                                <p class="col-md-6 text-right mb-0" style="font-size: 1.5em;"><strong>@{{ currencyFormat((netTotal)) }}</strong></p>
+                            </div>
+                            <div class="row justify-content-between mt-3">
+                                <p class="col-md-6 text-soft">Jumlah Bayar</p>
+                                <p class="col-md-6 text-right"><strong>@{{ paymentAmount == '' ? 0 : paymentAmount }}</strong></p>
+                            </div>
+                            <!-- <div class="row justify-content-between">
+                                <p class="col-md-6 text-soft">Sisa Pembayaran</p>
+                                <p class="col-md-6 text-right"><strong>@{{ currencyFormat(changePayment) }}</strong></p>
+                            </div> -->
+                            <div class="row justify-content-between">
+                                <p class="col-md-6 text-soft">Kembali</p>
+                                <p class="col-md-6 text-right"><strong>@{{ currencyFormat(changePayment) }}</strong></p>
                             </div>
 
                             <!-- <div class="col-12">
@@ -271,7 +263,7 @@
                         </div>
                     </div>
                     <div class="card-footer border-top bg-white text-right">
-                        <button class="btn btn-primary" type="submit" :disabled="loading">
+                        <button class="btn btn-primary w-100" type="submit" :disabled="loading">
                             <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span>Simpan</span>
                         </button>
@@ -376,10 +368,11 @@
         el: '#app',
         data: {
             code: '{{ $code }}',
-            date: '',
+            date: '{{ date("Y-m-d") }}',
             suppliersId: '',
             shippingCost: 0,
             discount: 0,
+            paymentAmount: 0,
             isPaid: false,
             paymentMethod: '',
             accounts: JSON.parse('{!! $accounts !!}'),
@@ -400,10 +393,8 @@
                 this.sendData();
             },
             sendData: function() {
-
                 // console.log('submitted');
                 let vm = this;
-                console.log(vm.selectedProducts)
                 vm.loading = true;
                 axios.post('/central-purchase', {
                         code: vm.code,
@@ -427,7 +418,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                //window.location.href = '/central-purchase';
+                                window.location.href = '/central-purchase';
                             }
                         })
                         // console.log(response);
@@ -486,7 +477,7 @@
         computed: {
             subTotal: function() {
                 const subTotal = this.selectedProducts.map(product => {
-                        const amount = Number(product.quantity) * this.clearCurrencyFormat(product.purchase_price.toString());
+                        const amount = Number(product.quantity) * this.clearCurrencyFormat(product.retail_price.toString());
                         return amount;
                     })
                     .reduce((acc, cur) => {
@@ -509,7 +500,7 @@
                 return 0;
             },
             changePayment: function() {
-                return this.netTotal - this.payment;
+                return Number(this.clearCurrencyFormat(this.paymentAmount)) - this.netTotal;
             },
             accountOptions: function() {
                 let vm = this;

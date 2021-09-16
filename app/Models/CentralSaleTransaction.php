@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Customer extends Model
+class CentralSaleTransaction extends Model
 {
     use HasFactory;
 
     public function centralSales()
     {
-        return $this->hasMany(CentralSale::class);
+        return $this->belongsToMany(CentralSale::class)->withPivot('amount');
     }
 }

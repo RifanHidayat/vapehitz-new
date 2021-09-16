@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
+use App\Models\CentralSale;
 use App\Models\Customer;
 use Exception;
 use Illuminate\Http\Request;
@@ -185,6 +187,57 @@ class CustomerController extends Controller
         }
     }
 
+    public function pay($id)
+    {
+        $customer = Customer::findOrFail($id);
+
+        // $sales = $customer->centralSales;
+        $sales = CentralSale::with(['centralSaleTransactions'])
+            ->where('customer_id', $customer->id)
+            ->orderBy('date', 'DESC')
+            // ->where('paid', 0)
+            ->get()
+            ->each(function ($sale) {
+                $sale['total_payment'] = collect($sale->centralSaleTransactions)
+                    ->map(function ($transaction) {
+                        return $transaction->pivot->amount;
+                    })->sum();
+            })
+            ->filter(function ($sale) {
+                return $sale->total_payment < $sale->net_total;
+            })
+            // ->map(function ($sale) {
+            //     return $sale->total_payment;
+            // })
+            ->values()->all();
+
+        // $sale = CentralSale::with(['customer', 'products'])->findOrFail($id);
+        $accounts = Account::all();
+
+        // return $purchase;
+
+        // foreach($purchase->products)
+        // $selectedProducts = collect($purchase->products)->each(function ($product) {
+        //     $product['quantity'] = $product->pivot->quantity;
+        //     $product['purchase_price'] = $product->pivot->price;
+        // });
+
+        // return $selectedProducts;
+        // $transactions = collect($sale->centralSaleTransactions)->sortBy('date')->values()->all();
+        // $totalPaid = collect($sale->centralSaleTransactions)->sum('amount');
+
+        $sidebarClass = 'compact';
+
+        return view('customer.pay', [
+            // 'sale' => $sale,
+            'accounts' => $accounts,
+            'sales' => $sales,
+            // 'total_paid' => $totalPaid,
+            // 'transactions' => $transactions,
+            'sidebar_class' => $sidebarClass,
+        ]);
+    }
+
     public function datatableCustomers()
     {
         $customers = Customer::all();
@@ -213,7 +266,7 @@ class CustomerController extends Controller
                     <ul class="link-list-opt no-bdr">
                     ' . $edit . '
                     ' . $delete . '
-                        <a href="#"><em class="icon fas fa-check"></em>
+                        <a href="/customer/pay/' . $row->id . '"><em class="icon fas fa-credit-card"></em>
                             <span>Pay</span>
                         </a>
                     </ul>

@@ -27,7 +27,7 @@
                         <div class="col-lg-7">
                             <div class="form-group">
                                 <div class="form-control-wrap">
-                                    <input type="date" v-model="date" class="form-control" required>
+                                    <input type="date" v-model="date" class="form-control">
                                 </div>
                             </div>
                         </div>
@@ -275,7 +275,7 @@
                     <div class="nk-tb-col"><span>Harga Jual <em :class="productPriceLocked ? 'fas fa-lock' : 'fas fa-lock-open'"></em></span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Qty</span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Free</span></div>
-                    <!-- <div class="nk-tb-col"><span class="d-none d-sm-inline">&nbsp;</span></div> -->
+                    <div class="nk-tb-col"><span class="d-none d-sm-inline">&nbsp;</span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Amount</span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">&nbsp;</span></div>
                 </div>
@@ -323,12 +323,12 @@
                             <input type="text" v-model="product.free" @change="onChangeFree(product)" class="form-control text-right" placeholder="Free">
                         </div>
                     </div>
-                    <!-- <div class="nk-tb-col">
+                    <div class="nk-tb-col">
                         <div class="custom-control custom-control-sm custom-checkbox">
                             <input type="checkbox" @change="calculateProductSubtotal(product)" v-model="product.editable" class="custom-control-input" :id="'customCheck' + product.id">
                             <label class="custom-control-label" :for="'customCheck' + product.id"></label>
                         </div>
-                    </div> -->
+                    </div>
                     <div class="nk-tb-col">
                         <div class="form-control-wrap">
                             <div class="form-icon form-icon-left">
@@ -460,7 +460,7 @@
                                 </div>
                                 <div class="form-group col-md-6">
                                     <div class="form-control-wrap">
-                                        <select v-model="receipt_1" class="form-control" :required="receive_1 !== '' && receive_1 !== null">
+                                        <select v-model="receipt_1" class="form-control">
                                             <option v-for="(account, index) in accounts" :value="account.id">@{{ account.name }}</option>
                                         </select>
                                     </div>
@@ -487,20 +487,27 @@
                                 </div>
                                 <div class="form-group col-md-6">
                                     <div class="form-control-wrap">
-                                        <select v-model="receipt_2" class="form-control" :required="receive_2 !== '' && receive_2 !== null">
+                                        <select v-model="receipt_2" class="form-control">
                                             <option v-for="(account, index) in accounts" :value="account.id">@{{ account.name }}</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-                            <p v-if="totalPayment > netTotal" class="text-soft"><em class="icon ni ni-info text-warning align-middle" style="font-size: 1.2em;"></em> Total penerimaan lebih besar dari net total</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <button class="btn btn-primary" type="submit" :disabled="loading || totalPayment > netTotal">
-                            <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <span>Simpan</span>
+                        <button type="button" @click="reject" class="btn btn-danger" :disabled="loadingReject || loading">
+                            <span v-if="loadingReject" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span>Reject</span>
                         </button>
+                        <button type="submit" class="btn btn-success" :disabled="loading || loadingReject">
+                            <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span>Approve</span>
+                        </button>
+                        <!-- <button class="btn btn-primary" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span> Loading... </span>
+                        </button> -->
                     </div>
                 </div>
             </div>
@@ -625,7 +632,7 @@
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#checkModal">
                         <div class="d-flex align-items-center">
-                            <em class="icon ni ni-cart"></em>&nbsp;<span v-if="check.length > 0" class="badge badge-pill badge-light">@{{ check.length }}</span>
+                            <strong>Data Dipilih</strong>&nbsp;<span v-if="check.length > 0" class="badge badge-pill badge-light">@{{ check.length }}</span>
                         </div>
                     </button>
                 </div>
@@ -717,26 +724,26 @@
     let app = new Vue({
         el: '#app',
         data: {
-            shipmentId: '',
-            customerId: '',
-            code: '{{ $code }}',
-            date: '',
-            debt: '',
-            discount: '',
-            shipping_cost: '',
-            other_cost: '',
-            detail_other_cost: '',
-            deposit_customer: '',
-            receipt_1: '',
-            receive_1: '',
-            receipt_2: '',
-            receive_2: '',
-            recipient: '',
-            address_recipient: '',
-            detail: '',
-            discount_type: 'nominal',
-            customers: JSON.parse('{!! $customer !!}'),
-            shipments: JSON.parse('{!! $shipment !!}'),
+            shipmentId: '{{ $central_sale->shipment_id }}',
+            customerId: '{{ $central_sale->customer_id }}',
+            code: '{{ $central_sale->code }}',
+            date: '{{ date_format(date_create($central_sale->date), "Y-m-d") }}',
+            debt: '{{ $central_sale->debt }}',
+            discount: '{{ $central_sale->discount }}',
+            shipping_cost: '{{ $central_sale->shipping_cost }}',
+            other_cost: '{{ $central_sale->other_cost }}',
+            detail_other_cost: '{{ $central_sale->detail_other_cost }}',
+            deposit_customer: '{{ $central_sale->deposit_customer }}',
+            receipt_1: '{{ $central_sale->receipt_1 }}',
+            receive_1: '{{ $central_sale->receive_1 }}',
+            receipt_2: '{{ $central_sale->receipt_2 }}',
+            receive_2: '{{ $central_sale->receive_2 }}',
+            recipient: '{{ $central_sale->recipient }}',
+            address_recipient: '{{ $central_sale->address_recipient }}',
+            detail: '{{ $central_sale->detail }}',
+            discount_type: '{{ $central_sale->discount_type }}',
+            customers: JSON.parse('{!! $customers !!}'),
+            shipments: JSON.parse('{!! $shipments !!}'),
             accounts: JSON.parse('{!! $accounts !!}'),
             shipment: {
                 name: '',
@@ -746,23 +753,37 @@
             shipment_edit_index: null,
             is_edit_shipment: false,
             prefix: '',
-            selectedProducts: [],
+            selectedProducts: JSON.parse(String.raw `{!! $selected_products !!}`),
             check: [],
             productPriceLocked: true,
             priceAuthProductIndex: null,
             isAuthorizedProductPrice: false,
             isStockUnsufficient: false,
             loading: false,
+            loadingReject: false,
         },
         methods: {
             submitForm: function() {
-                this.sendData();
+                Swal.fire({
+                    title: 'Apakah anda yakin?',
+                    text: "Penjualan akan disetujui",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Batalkan',
+                    reverseButtons: true,
+                }).then((result) => {
+                    this.sendData();
+                })
             },
             sendData: function() {
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/central-sale', {
+                vm.loadingReject = true;
+                axios.post('/central-sale/approval/{{ $central_sale->id }}/approve', {
                         shipment_id: vm.shipmentId,
                         customer_id: vm.customerId,
                         code: vm.code,
@@ -794,6 +815,7 @@
                     })
                     .then(function(response) {
                         vm.loading = false;
+                        vm.loadingReject = false;
                         Swal.fire({
                             title: 'Success',
                             text: 'Data has been saved',
@@ -808,6 +830,7 @@
                     })
                     .catch(function(error) {
                         vm.loading = false;
+                        vm.loadingReject = false;
                         if (error.response.data.error_type == 'unsufficient_stock') {
                             Swal.fire(
                                 'Oops!',
@@ -825,6 +848,61 @@
                             )
                         }
                     });
+            },
+            reject: function() {
+                // console.log('rejected');
+                // return true;
+                let vm = this;
+                Swal.fire({
+                    title: 'Apakah anda yakin?',
+                    text: "Penjualan akan ditolak",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Batalkan',
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Swal.fire(
+                        //     'Deleted!',
+                        //     'Your file has been deleted.',
+                        //     'success'
+                        // )
+                        // console.log('rejected');
+                        // return;
+                        vm.loadingReject = true;
+                        vm.loading = true;
+                        axios.post('/central-sale/approval/{{ $central_sale->id }}/reject')
+                            .then(function(response) {
+                                vm.loadingReject = false;
+                                vm.loading = false;
+                                Swal.fire({
+                                    title: 'Success',
+                                    text: 'Data has been saved',
+                                    icon: 'success',
+                                    allowOutsideClick: false,
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = '/central-sale';
+                                    }
+                                })
+                            })
+                            .catch(function(error) {
+                                vm.loadingReject = false;
+                                vm.loading = false;
+                                console.log(error);
+                                Swal.fire(
+                                    'Oops!',
+                                    'Something wrong',
+                                    'error'
+                                )
+
+                            });
+                    }
+                })
+
             },
             addShipment: function() {
                 // console.log('submitted');

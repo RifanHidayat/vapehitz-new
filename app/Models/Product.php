@@ -39,9 +39,9 @@ class Product extends Model
         return $this->belongsToMany(StockOpnameStudio::class);
     }
 
-    public function centralSale()
+    public function centralSales()
     {
-        return $this->belongsToMany(CentralSale::class);
+        return $this->belongsToMany(CentralSale::class)->withPivot('stock', 'booked', 'price', 'quantity', 'free', 'amount', 'editable');;
     }
 
     public function badstockRelease()
@@ -52,5 +52,10 @@ class Product extends Model
     public function reqtoRetail()
     {
         return $this->belongsToMany(ReqToRetail::class);
+    }
+
+    public function centralSaleReturns()
+    {
+        return $this->belongsToMany(CentralSaleReturn::class)->withPivot('quantity', 'cause');
     }
 }
