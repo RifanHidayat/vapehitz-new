@@ -24,7 +24,7 @@
     </div> -->
     <div class="row g-gs align-items-start">
         <div class="col-lg-7 col-md-12">
-            <div class="card card-bordered h-100">
+           <div class="card card-bordered h-100">
                 <div class="card-inner-group">
                     <div class="card-inner card-inner-md">
                         <div class="card-title-group">
@@ -88,7 +88,7 @@
                                                 </div>
                                                 <div class="row justify-content-between">
                                                     <p class="col-md-6 mb-0">Stok Gudang</p>
-                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ product.pivot.stock }}</strong></p>
+                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ product.central_stock }}</strong></p>
                                                 </div>
                                                 <div class="row justify-content-between">
                                                     <p class="col-md-6 mb-0">Harga</p>
@@ -98,7 +98,7 @@
                                             <div class="col-lg-6 col-md-12">
                                                 <div class="row justify-content-between">
                                                     <p class="col-md-6 mb-0">Quantity</p>
-                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ currencyFormat(product.pivot.quantity) }}</strong></p>
+                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ currencyFormat(product.pivot.quantity-product.pivot.return_quantity) }}</strong></p>
                                                 </div>
                                                 <div class="row justify-content-between">
                                                     <p class="col-md-6 mb-0">Amount</p>
@@ -114,7 +114,7 @@
                                                     <div class="form-control-wrap number-spinner-wrap">
                                                         <button type="button" @click="reduceProductQuantity(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-minus" :disabled="product.return_quantity === 1"><em class="icon ni ni-minus"></em></button>
                                                         <input type="number" v-model="product.return_quantity" @input="validateReturnQuantity(product)" class="form-control number-spinner" value="0">
-                                                        <button type="button" @click="increaseProductQuantity(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-plus" :disabled="product.return_quantity == product.pivot.quantity"><em class="icon ni ni-plus"></em></button>
+                                                        <button type="button" @click="increaseProductQuantity(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-plus" :disabled="product.return_quantity == (product.pivot.quantity)-product.pivot.return_quantity"><em class="icon ni ni-plus"></em></button>
                                                     </div>
                                                 </div>
                                                 <div class="form-group col-lg-6 col-md-12">
@@ -136,42 +136,7 @@
                                 <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
                             </div>
                         </div>
-                        <!-- Summary -->
-                        <div class="card bg-light">
-                            <!-- <div class="card-header">Header</div> -->
-                            <div class="card-inner">
-                                <h5 class="card-title">Summary Pembelian</h5>
-                                <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Supplier</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong><a href="/supplier/detail/{{ $purchase->supplier->id }}" target="_blank">{{ $purchase->supplier->name }}</a></strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Subtotal</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->total) }}</strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Biaya Kirim</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->shipping_cost) }}</strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Diskon</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->discount) }}</strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Net Total</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->netto) }}</strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Jumlah Bayar</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->pay_amount) }}</strong></p>
-                                </div>
-                                <!-- <div class="row justify-content-between">
-                                        <p class="col-md-6 card-text mb-0">Sisa Pembayaran</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(changePayment) }}</strong></p>
-                                    </div> -->
-                            </div>
-                        </div>
+             
                         <!-- End:Summary -->
                     </div><!-- .card-inner -->
                 </div><!-- .card-inner-group -->
@@ -191,7 +156,7 @@
                                 <em class="icon ni ni-layers mr-2" style="font-size: 2em;"></em>
                                 <div class="info">
                                     <span class="title">Quantity Retur</span>
-                                    <p class="amount"><strong>@{{ currencyFormat(totalReturnQuantity) }}</strong></p>
+                                    <p class="amount" ><strong>@{{ currencyFormat(totalReturnQuantity) }}</strong></p>
                                 </div>
                             </div>
                         </div>
@@ -250,13 +215,14 @@
                                         <select v-model="paymentMethod" class="form-control" required>
                                             <option value="transfer">Transfer</option>
                                             <option value="cash">Cash</option>
+                                            <option value="debt" v-if="remainingPay>0">Hutang</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group col-lg-6 col-md-12">
                                     <label class="form-label" for="full-name-1">Akun</label>
                                     <div class="form-control-wrap">
-                                        <select v-model="accountId" class="form-control" required>
+                                        <select v-model="accountId" class="form-control" >
                                             <option v-for="(account, index) in accountOptions" :value="account.id">@{{ account.name }}</option>
                                         </select>
                                     </div>
@@ -268,6 +234,47 @@
                                     <textarea v-model="note" class="form-control" rows="3" style="min-height: auto;"></textarea>
                                 </div>
                             </div>
+                            <hr>
+                                             <!-- Summary -->
+                        <div class="card bg-light">
+                            <!-- <div class="card-header">Header</div> -->
+                            <div class="card-inner">
+                                <h5 class="card-title">Summary Pembelian</h5>
+                                <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Supplier</p>
+                                    <p class="col-md-6 text-right card-text mb-0"><strong><a href="/supplier/detail/{{ $purchase->supplier->id }}" target="_blank">{{ $purchase->supplier->name }}</a></strong></p>
+                                </div>
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Subtotal</p>
+                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->total) }}</strong></p>
+                                </div>
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Biaya Kirim</p>
+                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->shipping_cost) }}</strong></p>
+                                </div>
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Diskon</p>
+                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->discount) }}</strong></p>
+                                </div>
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Net Total</p>
+                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->netto) }}</strong></p>
+                                </div>
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Jumlah Bayar</p>
+                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($payAmountPurchase) }}</strong></p>
+                                </div>
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Sisa bayar</p>
+                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format(($purchase->netto-$payAmountPurchase)) }}</strong></p>
+                                </div>
+                                <!-- <div class="row justify-content-between">
+                                        <p class="col-md-6 card-text mb-0">Sisa Pembayaran</p>
+                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(changePayment) }}</strong></p>
+                                    </div> -->
+                            </div>
+                        </div>
                             <!-- <div class="col-12">
                             <div class="form-group">
                                 <button class="btn btn-primary" type="submit" :disabled="loading">
@@ -286,6 +293,7 @@
                     </div>
                 </div>
             </form>
+
         </div>
     </div><!-- .nk-block -->
 
@@ -324,10 +332,13 @@
                 accountId: '',
                 purchaseId: '{{ $purchase->id }}',
                 netto: '{{ $purchase->netto }}',
+                remainingPay: '{{ $purchase->netto-$purchase->pay_amount }}',
+                
                 suppliers: [],
                 cart: [],
                 note: '',
                 products: JSON.parse(String.raw `{!! $selected_products !!}`),
+               
                 checkedProducts: [],
                 loading: false,
                 cleaveCurrency: {
@@ -344,15 +355,23 @@
                 sendData: function() {
                     // console.log('submitted');
                     let vm = this;
+                
+                   console.log('{{ $purchase->netto-$purchase->pay_amount }}')
                     vm.loading = true;
-                    axios.post('/purchase-transaction', {
+                    axios.post('/purchase-return', {
                             date: vm.date,
                             supplier_id: vm.suppliersId,
-                            account_id: vm.accountId,
+                            account_id: vm.paymentMethod=='debt'?"3":vm.accountId,
                             purchase_id: vm.purchaseId,
                             payment_method: vm.paymentMethod,
                             amount: vm.payAmount,
                             note: vm.note,
+                            total_return_quantity:vm.totalReturnQuantity,
+                            total_return_amount:vm.totalReturnNominal,
+                            products:vm.products,
+                            remaining_pay:vm.remainingPay,
+                            
+
                         })
                         .then(function(response) {
                             vm.loading = false;
@@ -363,7 +382,7 @@
                                 allowOutsideClick: false,
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    window.location.href = '/central-purchase';
+                                    //window.location.href = '/central-purchase';
                                 }
                             })
                             // console.log(response);

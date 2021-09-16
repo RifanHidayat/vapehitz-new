@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\AccountTransaction;
 use App\Models\CentralPurchase;
 use App\Models\PurchaseTransaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class PurchaseTransactionController extends Controller
 {
+    
     public function index()
     {
         return view('purchase-transaction.index');
@@ -23,6 +26,10 @@ class PurchaseTransactionController extends Controller
     private function formatDate($date = "", $format = "Y-m-d")
     {
         return date_format(date_create($date), $format);
+    }
+    private function clearThousandFormat($number = 0)
+    {
+        return str_replace(".", "", $number);
     }
 
     public function store(Request $request)
@@ -43,22 +50,79 @@ class PurchaseTransactionController extends Controller
         $transaction->payment_method = $request->payment_method;
         $transaction->note = $request->note;
 
+        //Transaction account debt
+        $accountTransactionDebt=new AccountTransaction;
+        $accountTransactionDebt->account_out="3";
+        $accountTransactionDebt->amount=str_replace(".", "", $request->amount);
+        $accountTransactionDebt->type="out";
+        $accountTransactionDebt->note="Pembayaran hutang pembelian barang  dengan No.Transaksi ".$transactionNumber;
+        $accountTransactionDebt->date=$request->date;
+
+       //Transaction account
+       $accountTransaction=new AccountTransaction;
+       $accountTransaction->account_out=$request->account_id;
+       $accountTransaction->amount=str_replace(".", "", $request->amount);
+       $accountTransaction->type="out";
+       $accountTransaction->note=$transactionNumber.' | '.$request->note;
+       $accountTransaction->date=$request->date;
+
+       //update amount central purchase
+       try{
+        $centralPurchase = CentralPurchase::find($purchaseId);
+        $centralPurchase->pay_amount=$centralPurchase->pay_amount + (str_replace(".", "", $request->amount)) ;
+        $centralPurchase->save();
+
+       }catch(Exception $e){
+        return response()->json([
+            'message' => 'Internal error',
+            'code' => 500,
+            'error' => true,
+            'table'=>'Central Purchase',
+            'errors' => $e,
+           
+        ], 500);
+
+       }
+
         try {
             $transaction->save();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $transaction,
-            // ]);
+
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
                 'error' => true,
+               
                 'errors' => $e,
             ], 500);
         }
+
+        if ($request->amount>=1){
+            try{
+                $accountTransactionDebt->save();
+            }catch(Exception $e){
+                return response()->json([
+                    'message' => 'Internal error',
+                     'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                    ], 500);
+                          
+                      }
+    
+                      try{
+                        $accountTransaction->save();
+                    }catch(Exception $e){
+                        return response()->json([
+                            'message' => 'Internal error',
+                             'code' => 500,
+                            'error' => true,
+                            'errors' => $e,
+                            ], 500);
+                                  
+                              }
+    
+        }   
 
         // $keyedQuotations = collect($quotations)->mapWithKeys(function ($item) {
         //     return [
@@ -93,10 +157,82 @@ class PurchaseTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
+
+     
     }
 
-    private function clearThousandFormat($number = 0)
+    public function show($id)
     {
-        return str_replace(".", "", $number);
+        $purchaseTransaction = PurchaseTransaction::with(['supplier','account', 'centralPurchases.products'])->findOrFail($id);
+       
+        return view('purchase-transaction.show', [
+            'purchaseTransaction' => $purchaseTransaction,
+        ]);
+    }
+    public function destroy($id)
+    {
+        // return response()->json([
+        //     'message' => 'Data has been deleted',
+        //     'code' => 200,
+        //     'error' => false,
+        //     'data' => null,
+        // ]);
+        $PurchaseTransaction = PurchaseTransaction::findOrFail($id);
+
+        try {
+            $PurchaseTransaction->delete();
+            return response()->json([
+                'message' => 'Data has been deleted',
+                'code' => 200,
+                'error' => false,
+                'data' => null,
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+
+  
+
+    public function datatablePurchaseTransaction()
+    {
+        $PurchaseTransaction = PurchaseTransaction::with(['supplier','account', 'centralPurchases'])->select('purchase_transactions.*');
+        return DataTables::eloquent($PurchaseTransaction)
+            ->addIndexColumn()
+            ->addColumn('supplier_name', function ($row) {
+                return ($row->supplier ? $row->supplier->name : "");
+            })
+            ->addColumn('account', function ($row) {
+                return ($row->payment_method." (".$row->account->name.")");
+            })
+            ->addColumn('amount', function ($row) {
+                return (number_format($row->amount));
+            })
+            ->addColumn('action', function ($row) {
+                $button = '
+            <div class="drodown">
+            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <ul class="link-list-opt no-bdr">
+                  
+                    <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                    <span>Delete</span>
+                    </a>
+                    <a href="/purchase-transaction/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                        <span>Detail</span>
+                    </a>
+                   
+                </ul>
+            </div>
+            </div>';
+                return $button;
+            })
+            ->make(true);
     }
 }

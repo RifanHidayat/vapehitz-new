@@ -6,16 +6,17 @@
 <div class="nk-block-head nk-block-head-sm">
     <div class="nk-block-between g-3">
         <div class="nk-block-head-content">
-            <h3 class="nk-block-title page-title">Detail Transaksi Pembelian</h3>
+            <h3 class="nk-block-title page-title">Transaksi Pembelian</h3>
             <div class="nk-block-des text-soft">
                 <ul class="list-inline">
-                    <li>Nomor Order: <span class="text-base">{{$centralPurchase->code}}</span></li>
-                    <li>Created At: <span class="text-base">{{$centralPurchase->created_at}}</span></li>
+                    <li>Nomor Transaksi: <span class="text-base">{{$purchaseTransaction->code}}</span></li>
+                    <li>Created At: <span class="text-base">{{$purchaseTransaction->created_at}}</span></li>
+                   
                 </ul>
             </div>
         </div>
         <div class="nk-block-head-content">
-            <a href="/central-purchase" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
+            <a href="/purchase-transaction" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
         </div>
     </div>
 </div>
@@ -24,34 +25,34 @@
         <div class="col-lg-7">
             <div class="nk-block-head">
                 <div class="nk-block-head-content">
-                    <h4 class="nk-block-title title">Detail Produk</h4>
+                    <h4 class="nk-block-title title">Detail pembelian</h4>
                 </div>
             </div>
             <div v-for="product in selectedProducts" class="card card-bordered">
             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th style="width: 15%;" align="left">Nomor Produk</th>
-                                        <th style="width: 20%;" align="left">Nama Produk</th>
-                                        <th style="width: 15%;" align="left">Harga</th>
-                                        <th style="width: 15%;" align="left">Quantity</th>
+                                        <th>Tanggal</th>
+                                        <th>Nomor Order</th>
+                                        <th align="right" ><center>Jumlah Bayar</center></th>
                                         
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  
-                                    @foreach($centralPurchase->products as $product)
+                                    @php $subTotal = 0; @endphp
+                                    @foreach($purchaseTransaction->centralPurchases as $transaction)
                                     <tr>
-                                        <td class="text-left">{{ $product->code}}</td>
-                                        <td class="text-left">{{ $product->name}}</td>
-                                        <td class="text-right">{{ number_format($product->pivot->price)}}</td>
-                                        <td class="text-right">{{ $product->pivot->quantity}}</td>
+                                        <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
+                                        <td><a href="/central-purchase/show/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
+                                        <td align="right" class="text-right">{{ number_format($transaction->pivot->amount) }}</td>
                                     </tr>
-                                   
+                                    @php $subTotal += $transaction->pivot->amount; @endphp
                                     @endforeach
                                 </tbody>
                                
+                               
                             </table>
+                
             </div>
             <div class="nk-block-head">
                 <div class="nk-block-head-content">
@@ -60,44 +61,21 @@
             </div>
             <div class="card card-bordered">
                 <ul class="data-list is-compact">
-                    <li class="data-item">
-                        <div class="data-col">
-                            <div class="data-label">Biaya Pengiriman</div>
-                            <div class="data-value">{{ number_format($centralPurchase->shipping_cost) }}</div>
-                        </div>
-                    </li>
-                    <li class="data-item">
-                        <div class="data-col">
-                            <div class="data-label">diskon</div>
-                            <div class="data-value">{{ number_format($centralPurchase->discount) }}</div>
-                        </div>
-                    </li>
-                    <li class="data-item">
-                        <div class="data-col">
-                            <div class="data-label">Net</div>
-                            <div class="data-value">{{ number_format($centralPurchase->netto) }}</div>
-                        </div>
-                    </li>
-
-                    <!-- <li class="data-item">
-                        <div class="data-col">
-                            <div class="data-label">Total</div>
-                            <div class="data-value">{{ number_format($centralPurchase->total) }}</div>
-                        </div>
-                    </li> -->
+                    
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Jumlah Bayar</div>
-                            <div class="data-value">{{ number_format($payAmount) }}</div>
+                            <div class="data-value">{{ number_format($purchaseTransaction->amount) }}</div>
+                       
                         </div>
                     </li>
-                   
                     <li class="data-item">
                         <div class="data-col">
-                            <div class="data-label">Sisa</div>
-                            <div class="data-value">{{ number_format($centralPurchase->netto-$payAmount)}}</div>
+                            <div class="data-label">Akun Pembayaran</div>
+                            <div class="data-value">{{ $purchaseTransaction->payment_method }} ({{ $purchaseTransaction->account->name }})</div>
                         </div>
                     </li>
+                    
                 </ul>
             </div>
         </div><!-- .col -->
@@ -112,13 +90,13 @@
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Nama Supplier</div>
-                            <div class="data-value text-right">{{$centralPurchase->supplier->name}}</div>
+                            <div class="data-value text-right">{{$purchaseTransaction->supplier->name}}</div>
                         </div>
                     </li>
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Kode Supplier</div>
-                            <div class="data-value">{{$centralPurchase->supplier->code}}</div>
+                            <div class="data-value">{{$purchaseTransaction->supplier->code}}</div>
                         </div>
                     </li>
             </div><!-- .card -->
@@ -132,13 +110,13 @@
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Kode Transaksi</div>
-                            <div class="data-value">{{$centralPurchase->code}}</div>
+                            <div class="data-value">{{$purchaseTransaction->code}}</div>
                         </div>
                     </li>
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Tanggal Transaksi</div>
-                            <div class="data-value">{{ $centralPurchase->date }}</div>
+                            <div class="data-value">{{ $purchaseTransaction->date }}</div>
                         </div>
                     </li>
                 </ul>
@@ -152,7 +130,7 @@
     let app = new Vue({
         el: '#app',
         data: {
-            selectedProducts: JSON.parse('{!! $centralPurchase->products !!}'),
+            selectedProducts: JSON.parse('{!! $purchaseTransaction->products !!}'),
             loading: false,
         },
     })

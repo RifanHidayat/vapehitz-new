@@ -9,8 +9,9 @@ class AccountTransaction extends Model
 {
     use HasFactory;
 
-    public function accounts()
+    public function account()
     {
-        return $this->hasMany(Account::class);
+        return $this->belongsTo(Account::class);
     }
+
 }

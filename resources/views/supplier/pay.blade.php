@@ -10,7 +10,7 @@
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
         <div class="nk-block-head-sub"><a class="back-to" href="/central-purchase"><em class="icon ni ni-arrow-left"></em><span>Pembelian Barang</span></a></div>
-        <h2 class="nk-block-title fw-normal">Pembayaran Pembelian Barang</h2>
+        <h2 class="nk-block-title fw-normal">Pembayaran Supplier</h2>
     </div>
 </div><!-- .nk-block -->
 <div class="nk-block nk-block-lg">
@@ -24,55 +24,7 @@
     </div> -->
     <div class="row g-gs align-items-start">
         <div class="col-lg-7 col-md-12">
-            <div class="card card-bordered h-100">
-                <div class="card-inner-group">
-                    <div class="card-inner card-inner-md">
-                        <div class="card-title-group">
-                            <div class="card-title">
-                                <h6 class="title">Riwayat Pembayaran</h6>
-                            </div>
-                        </div>
-                    </div><!-- .card-inner -->
-                    <div class="card-inner">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Tanggal</th>
-                                        <th>Kode Transaksi</th>
-                                        <th class="text-right">Jumlah Pembayaran</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php $subTotal = 0; @endphp
-                                    @foreach($transactions as $transaction)
-                                    <tr>
-                                        <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
-                                        <td><a href="/purchase-transaction/detail/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
-                                        <td class="text-right">{{ number_format($transaction->pivot->amount) }}</td>
-                                    </tr>
-                                    @php $subTotal += $transaction->pivot->amount; @endphp
-                                    @endforeach
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="2">Subtotal</td>
-                                        <td class="text-right">{{ number_format($subTotal) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" style="border-top: none;">Total Pembelian</td>
-                                        <td class="text-right" style="border-top: none;">{{ number_format($purchase->netto) }}</td>
-                                    </tr>
-                                    <tr style="font-weight: bold;">
-                                        <td colspan="2">Sisa Hutang</td>
-                                        <td class="text-right">{{ number_format(abs($subTotal - $purchase->netto)) }}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div><!-- .card-inner -->
-                </div><!-- .card-inner-group -->
-            </div>
+            
 
             <div class="card card-bordered h-100">
                 <div class="card-inner-group">
@@ -106,41 +58,7 @@
                                 <em class="icon ni ni-alert-circle"></em> Informasi yang tercantum merupakan informasi ketika pembelian
                             </div>
                         </div>
-                        <div class="card bg-light">
-                            <!-- <div class="card-header">Header</div> -->
-                            <div class="card-inner">
-                                <h5 class="card-title">Summary</h5>
-                                <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Supplier</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong><a href="/supplier/detail/{{ $purchase->supplier->id }}" target="_blank">{{ $purchase->supplier->name }}</a></strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Subtotal</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->total) }}</strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Biaya Kirim</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->shipping_cost) }}</strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Diskon</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->discount) }}</strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Net Total</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->netto) }}</strong></p>
-                                </div>
-                                <div class="row justify-content-between">
-                                    <p class="col-md-6 card-text mb-0">Jumlah Bayar</p>
-                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($purchase->pay_amount) }}</strong></p>
-                                </div>
-                                <!-- <div class="row justify-content-between">
-                                        <p class="col-md-6 card-text mb-0">Sisa Pembayaran</p>
-                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(changePayment) }}</strong></p>
-                                    </div> -->
-                            </div>
-                        </div>
+                 
                         <!-- <div class="nk-wg-action">
                                 <div class="nk-wg-action-content">
                                     <em class="icon ni ni-cc-alt-fill"></em>
@@ -149,49 +67,35 @@
                                 </div>
                                 <a href="#" class="btn btn-icon btn-trigger mr-n2"><em class="icon ni ni-trash"></em></a>
                             </div> -->
-                        <div v-if="selectedProducts.length === 0" class="text-center text-soft">
-                            <em class="fas fa-dolly fa-4x"></em>
-                            <p class="mt-3">Tidak ada barang</p>
-                        </div>
-                        <div v-for="(product, index) in selectedProducts" :key="index" class="card card-bordered">
+                            <div class="card bg-light">
+                            <!-- <div class="card-header">Header</div> -->
                             <div class="card-inner">
-                                <div class="row justify-content-between align-items-center">
-                                    <div class="col-md-12">
-                                        <h5 class="card-title">@{{ product.name }}</h5>
-                                        <div class="row">
-                                            <div class="col-lg-6 col-md-12">
-                                                <div class="row justify-content-between">
-                                                    <p class="col-md-6 mb-0">Kode Barang</p>
-                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ product.code }}</strong></p>
-                                                </div>
-                                                <div class="row justify-content-between">
-                                                    <p class="col-md-6 mb-0">Stok Gudang</p>
-                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ product.pivot.stock }}</strong></p>
-                                                </div>
-                                                <div class="row justify-content-between">
-                                                    <p class="col-md-6 mb-0">Harga</p>
-                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ currencyFormat(product.pivot.price) }}</strong></p>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-12">
-                                                <div class="row justify-content-between">
-                                                    <p class="col-md-6 mb-0">Quantity</p>
-                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ currencyFormat(product.pivot.quantity) }}</strong></p>
-                                                </div>
-                                                <div class="row justify-content-between">
-                                                    <p class="col-md-6 mb-0">Amount</p>
-                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ currencyFormat(product.pivot.quantity * product.pivot.price) }}</strong></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- <div class="col-md-2 text-right">
-                                        <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
-                                    </div> -->
+                                <h5 class="card-title">Summary</h5>
+                              
+
+                               
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Subtotal</p>
+                                    <p class="col-md-6 text-right card-text mb-0" id="checkedPayAmount" ><strong>0</strong></p>
                                 </div>
-                                <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Jumlah Bayar</p>
+                                    <p class="col-md-6 text-right card-text mb-0"><strong>@{{payAmount}}</strong></p>
+                                </div>
+                                <hr>
+                                
+                                <div class="row justify-content-between">
+                                    <p class="col-md-6 card-text mb-0">Sisa Pembayaran</p>
+                                    <p class="col-md-6 text-right card-text mb-0"><strong>{{ number_format($payRemaining) }}</strong></p>
+                                </div>
+                               
+                                <!-- <div class="row justify-content-between">
+                                        <p class="col-md-6 card-text mb-0">Sisa Pembayaran</p>
+                                        <p class="col-md-6 text-right card-text mb-0"><strong>@{{ currencyFormat(changePayment) }}</strong></p>
+                                    </div> -->
                             </div>
                         </div>
+                    
                     </div><!-- .card-inner -->
                 </div><!-- .card-inner-group -->
             </div>
@@ -278,16 +182,45 @@
                         </div>
                     </div>
                     <div class="card-footer border-top bg-white text-right">
-                        <button v-if="totalPayments < netto" class="btn btn-primary" type="submit" :disabled="loading">
+                        <button  class="btn btn-primary" type="submit" :disabled="loading">
                             <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span>Simpan</span>
                         </button>
-                        <span v-else class="badge badge-sm badge-dim badge-outline-success d-none d-md-inline-flex">Lunas</span>
+                       
                     </div>
                 </div>
             </form>
         </div>
+        
     </div><!-- .nk-block -->
+    <br>
+    <br>
+    <div class="card card-bordered">
+            <div class="card-inner overflow-hidden">
+                <!-- <div class="card-head">
+                    <h5 class="card-title">Form</h5>
+                </div> -->
+                <div class="table-responsive">
+                    <table class="table table-striped" id="supplierCentralPurchases">
+                        <thead>
+                            <tr >
+                                <th >Id</th>
+                                <th>Tanggal Order</th>
+                                <th>Nomor Order</th>
+                                <th>Net Total</th>
+                                <th>Jumlah Bayar</th>
+                                <th>Sisa bayar</th>
+                                <th></th>
+                               
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
     @endsection
     @section('script')
@@ -295,6 +228,11 @@
     @endsection
     @section('pagescript')
     <script>
+    //varible global
+    var centralPurchase;
+    var centralPurchaseSelected;
+    var checkedPayAmount;
+
         Vue.directive('cleave', {
             inserted: (el, binding) => {
                 el.cleave = new Cleave(el, binding.value || {})
@@ -312,23 +250,24 @@
         let app = new Vue({
             el: '#app',
             data: {
-                // code: '{{ $purchase->code }}',
+               
                 date: '{{ date("Y-m-d") }}',
                 payAmount: 0,
-                suppliersId: '{{ $purchase->supplier->id }}',
-                shippingCost: '{{ $purchase->shipping_cost }}',
-                discount: '{{ $purchase->discount }}',
+                suppliersId:   '{{ $supplier_id }}',
+                shippingCost: '',
+                discount: '',
                 isPaid: false,
-                paymentMethod: '{{ $purchase->payment_method }}',
+                paymentMethod: '',
                 accounts: JSON.parse('{!! $accounts !!}'),
                 accountId: '',
-                purchaseId: '{{ $purchase->id }}',
-                netto: '{{ $purchase->netto }}',
+                purchaseId: '',
+                netto: '',
                 suppliers: [],
                 cart: [],
                 note: '',
-                selectedProducts: JSON.parse(String.raw `{!! $purchase->products !!}`),
-                transactions: JSON.parse(String.raw `{!! json_encode($transactions) !!}`),
+                selectedProducts: '',
+                transactions: '',
+                centralPurchaseSelected:centralPurchase,
                 loading: false,
                 cleaveCurrency: {
                     delimiter: '.',
@@ -339,13 +278,14 @@
             },
             methods: {
                 submitForm: function() {
-                    this.sendData();
+
+                  this.payCalculated();
                 },
                 sendData: function() {
                     // console.log('submitted');
                     let vm = this;
                     vm.loading = true;
-                    axios.post('/purchase-transaction', {
+                    axios.post('/supplier/purchase-transactions', {
                             date: vm.date,
                             supplier_id: vm.suppliersId,
                             account_id: vm.accountId,
@@ -353,6 +293,7 @@
                             payment_method: vm.paymentMethod,
                             amount: vm.payAmount,
                             note: vm.note,
+                            central_purchase_selected:centralPurchaseSelected
                         })
                         .then(function(response) {
                             vm.loading = false;
@@ -363,7 +304,7 @@
                                 allowOutsideClick: false,
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    window.location.href = '/central-purchase';
+                                   // window.location.href = '/central-purchase';
                                 }
                             })
                             // console.log(response);
@@ -381,14 +322,48 @@
                 currencyFormat: function(number) {
                     return Intl.NumberFormat('de-DE').format(number);
                 },
+                // totalpayAmount:function(){
+                   
+                // },
                 validatePayAmount: function() {
-                    
+                   
                     const payAmount = this.payAmount.replaceAll(".", "");
-                    const netto = Number(this.netto);
-                    if (payAmount > netto) {
-                        this.payAmount = netto - this.totalPayments;
+                    const checkedPayAmount=$('#checkedPayAmount').text().replaceAll(".", "");
+                    
+                    if (payAmount > Number(checkedPayAmount)) {
+                        this.payAmount = checkedPayAmount;
                     }
                 },
+
+                payCalculated:function(){
+                    let vm=this;
+                    var payAmount=vm.payAmount.replaceAll(".", "");
+                    centralPurchaseSelected=[];
+
+                    console.log(payAmount);
+                    centralPurchase.map((value,index)=>{ 
+                    if (payAmount>0){
+                        if (Number(payAmount) > Number(value.payRemaining)){
+                          
+                        var data={id:value.id,amount:Number(value.payRemaining)}
+                        payAmount=payAmount-Number(value.payRemaining);
+                        centralPurchaseSelected.push(data);
+                    }else if (Number(payAmount) <= Number(value.payRemaining)){
+                        var data={id:value.id,amount:payAmount}
+                        payAmount=0;
+                        centralPurchaseSelected.push(data);
+                    }
+
+                    }
+                    if (index+1>=centralPurchase.length){
+                        this.sendData()
+                    }      
+                    
+                
+
+                    })
+
+                }
             },
             computed: {
                 // subTotal: function() {
@@ -423,14 +398,89 @@
 
                     return this.accounts;
                 },
-                totalPayments: function() {
-                    return this.transactions.map(transaction => Number(transaction.pivot.amount)).reduce((acc, cur) => {
-                        return acc + cur;
-                    }, 0);
-                    // return this.transactions;
-                    // return totalPayments;
-                }
+                // totalPayments: function() {
+                //     return this.transactions.map(transaction => Number(transaction.pivot.amount)).reduce((acc, cur) => {
+                //         return acc + cur;
+                //     }, 0);
+                //     // return this.transactions;
+                //     // return totalPayments;
+                // }
             }
         })
     </script>
-    @endsection
+
+
+<script>
+//global variable
+
+
+    $(function() {
+        var supplierTable = $('#supplierCentralPurchases').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '/datatables/suppliers/pay/'+<?php echo $supplier_id ?>,
+                type: 'GET',
+                // length: 2,
+            },
+            columns: [
+                {
+                data: 'id',
+                    name: 'id'
+                },
+                {
+                data: 'date',
+                    name: 'date'
+                },
+                {
+                    data: 'code',
+                    name: 'code'
+                },
+                {
+                    data: 'netto',
+                    name: 'netto'
+                },
+                {
+                    data: 'payAmount',
+                    name: 'payAmount'
+                },
+                {
+                    data: 'remainingAmount',
+                    name: 'remainingAmount'
+                },
+                {
+                    data: 'action',
+                    name: 'action'
+                },
+                
+               
+
+            ]
+        });
+        $('#supplierCentralPurchases').on('click', 'tr .checked-central-purchase', function(e) {
+        // e.preventDefault();
+
+        
+        var subtotal=0;
+        checkedPayAmount=0;
+        centralPurchase=[];
+        $('#supplierCentralPurchases tr').each(function(){
+            var checked = $(this).find('td:nth-child(7) input:checked').val();
+            var id = $(this).find('td:nth-child(1)').text();
+            var netto = $(this).find('td:nth-child(4)').text().replace(/[^\w\s]/gi, '');
+            var payTotal = $(this).find('td:nth-child(5)').text().replace(/[^\w\s]/gi, '');
+            var payRemaining = $(this).find('td:nth-child(6)').text().replace(/[^\w\s]/gi, '');
+    
+            if (checked=="true"){
+                subtotal=Number(subtotal)+Number(payRemaining); 
+                checkedPayAmount=Number(subtotal)+Number(payRemaining);     
+                var data={id:id,netto:netto,payTotal:payTotal,payRemaining:payRemaining}
+                centralPurchase.push(data);
+            }       
+            })
+        $('#checkedPayAmount').text(subtotal.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1."))
+      
+        })
+    });
+</script>
+@endsection

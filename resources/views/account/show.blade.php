@@ -7,7 +7,7 @@
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-            <h2 class="nk-block-title fw-normal">Transaksi Pembelian Barang</h2>
+           
             <!-- <div class="nk-block-des">
                 <p class="lead">Manage Supplier</p>
             </div> -->
@@ -22,25 +22,23 @@
                 </div>
             </div>
         </div> -->
-        <a href="{{url('/central-purchase/create')}}" class="btn btn-outline-success">Tambah Pembelian Barang</a>
-        <p></p>
+       
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
                 <!-- <div class="card-head">
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table class="table table-striped" id="centralPurchase">
+                    <table class="table table-striped" id="accountTransactions">
                         <thead>
                             <tr>
-                                <th>Tanggal Order</th>
-                                <th>Nomor Order</th>
-                                <th>Nama Supplier</th>
-                                
-                                <th>Net Total</th>
-                                <th>Jumlah Bayar</th>
-                                <th>Sisa bayar</th>
-                                <th>Action</th>
+                                <th>Tanggal</th>
+                                <th>Catatan </th>
+                                <!-- <th>Nomor Order</th> -->
+                                <th>Type</th>
+                                <th>In</th>
+                                <th>Out</th>
+                                <th>Saldo</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -61,7 +59,7 @@
             deleteRow: function(id) {
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "The data will be deleted",
+                    text: "The data will be deletedd",
                     icon: 'warning',
                     reverseButtons: true,
                     showCancelButton: true,
@@ -71,7 +69,8 @@
                     cancelButtonText: 'Cancel',
                     showLoaderOnConfirm: true,
                     preConfirm: () => {
-                        return axios.delete('/central-purchase/' + id)
+
+                        return axios.delete('/purchase-transaction/' + id)
                             .then(function(response) {
                                 console.log(response.data);
                             })
@@ -105,45 +104,38 @@
 </script>
 <script>
     var centralPurchaseTable = $(function() {
-        $('#centralPurchase').DataTable({
+        $('#accountTransactions').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: '/datatables/central-purchases',
+                url: '/datatables/account-transactions/'+<?php echo $account_id ?>,
                 type: 'GET',
                 // length: 2,
             },
-            columns: [{
+            columns: [
+                {
                     data: 'date',
-                    name: 'central_purchases.date'
+                    name: 'date'
                 },
                 {
-                    data: 'code',
-                    name: 'central_purchases.code'
+                    data: 'note',
+                    name: 'note'
                 },
                 {
-                    data: 'supplier_name',
-                    name: 'suppliers.name',
-                },
-               
-                {
-                    data: 'netto',
-                    name: 'netto'
+                    data: 'type',
+                    name: 'type'
                 },
                 {
-                    data: 'payAmount',
-                    name: 'payAmount'
-                },
-               
-               
-              
-                {
-                    data: 'remainingAmount',
-                    name: 'remainingAmount'
+                    data: 'in',
+                    name: 'in'
                 },
                 {
-                    data: 'action',
-                    name: 'action'
+                    data: 'out',
+                    name: 'out'
+                },
+                {
+                    data: 'balance',
+                    name: 'balance'
                 },
 
             ]
@@ -154,7 +146,7 @@
             const id = $(this).attr('data-id');
             Swal.fire({
                 title: 'Are you sure?',
-                text: "The data will be deleted",
+                text: "The data will be deletedd",
                 icon: 'warning',
                 reverseButtons: true,
                 showCancelButton: true,
@@ -164,7 +156,7 @@
                 cancelButtonText: 'Cancel',
                 showLoaderOnConfirm: true,
                 preConfirm: () => {
-                    return axios.delete('/central-purchase/' + id)
+                    return axios.delete('/purchase-transaction/' + id)
                         .then(function(response) {
                             console.log(response.data);
                         })

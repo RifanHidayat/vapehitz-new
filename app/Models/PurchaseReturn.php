@@ -9,8 +9,29 @@ class PurchaseReturn extends Model
 {
     use HasFactory;
 
-    public function centralPurchases()
+    public function centralPurchase()
     {
-        return $this->belongsToMany(CentralPurchase::class)->withPivot('quantity', 'cause');
+        return $this->belongsTo(CentralPurchase::class);
     }
+    public function products()
+    {
+        return $this->belongsToMany(Product::class)->withPivot('quantity', 'cause');
+    }
+    
+    public function supplier()
+    {
+
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function purchaseReturnTransactions()
+    {
+
+        return $this->hasMany(PurchaseReturnTransaction::class);
+    }
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
+   
 }

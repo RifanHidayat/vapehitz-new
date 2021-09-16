@@ -18,7 +18,9 @@ class AccountTransactionController extends Controller
     public function index()
     {
         $account = Account::all();
-        $accountTransaction = AccountTransaction::all();
+        $accountTransaction=DB::table('account_transactions')->where('type','=','in out')->get();
+
+        
         $maxid = DB::table('account_transactions')->max('id');
         $number = "IO/VH/" . date('dmy') . "/" . sprintf($maxid + 1);
         return view('account-transaction.index', [
@@ -56,6 +58,8 @@ class AccountTransactionController extends Controller
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = $request->amount;
         $accountTransaction->note = $request->note;
+        $accountTransaction->type = "in out";
+
 
         try {
             $accountTransaction->save();
@@ -140,6 +144,7 @@ class AccountTransactionController extends Controller
     public function destroy($id)
     {
         $accountTransaction = AccountTransaction::findOrFail($id);
+        
         try {
             $accountTransaction->delete();
             return response()->json([

@@ -4,7 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Account;
+use App\Models\AccountTransaction;
+use App\Models\PurchaseReturnTransaction;
+use App\Models\PurchaseTransaction;
 use Exception;
+use Yajra\DataTables\Contracts\DataTable;
+use Yajra\DataTables\Facades\DataTables;
 
 class AccountController extends Controller
 {
@@ -74,7 +79,16 @@ class AccountController extends Controller
      */
     public function show($id)
     {
-        //
+
+        // $account = Account::with(['accountTransactions'])->findOrFail($id);
+        // return $account['accountTransactions'];
+        
+        //return $account;
+        return view('account.show', [
+            "account_id"=>$id
+        ]);
+ 
+
     }
 
     /**
@@ -146,5 +160,33 @@ class AccountController extends Controller
                 'errors' => $e,
             ], 500);
         }
+    }
+
+
+    public function datatableAccountTransactions($id)
+    {
+        $account = AccountTransaction::with(['account'])->select('account_transactions.*')->where('account_id','=',$id); 
+
+        return DataTables::eloquent($account)
+            ->addIndexColumn()
+
+            ->addColumn('Type', function ($row) {
+                return ($row->type=="in"?"Deposit":"Expense"); 
+            })
+            ->addColumn('in', function ($row) {
+                return ($row->type=="in"?number_format($row->amount):""); 
+            })
+            ->addColumn('out', function ($row) {
+                return ($row->type=="out"?number_format($row->amount):""); 
+            })
+            ->addColumn('balance', function ($row) {
+                return (number_format($row->amount)); 
+            })
+            ->addColumn('action', function ($row) {
+                $button = '';
+                return $button;
+            }
+            )
+            ->make(true);
     }
 }

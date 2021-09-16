@@ -64,17 +64,22 @@
                             @endif
                             @if(in_array("view_payment_supplier", $permission))
                             <li class="nk-menu-item">
-                                <a href="{{url('/supplier-payment')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
+
+                        
+
+                                <a href="/purchase-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
+
                             </li>
                             @endif
                             @if(in_array("view_return_product_purchase", $permission))
                             <li class="nk-menu-item">
-                                <a href="{{url('/retur-supplier')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
+                                <a href="/purchase-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
+
                             </li>
                             @endif
                             @if(in_array("view_product_payment", $permission))
                             <li class="nk-menu-item">
-                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
+                                <a href="/purchase-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
                             </li>
                             @endif
                             <li class="nk-menu-item">
