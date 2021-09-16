@@ -10,7 +10,7 @@ class CentralSale extends Model
     use HasFactory;
     protected $fillable = ['status'];
 
-    public function customers()
+    public function customer()
     {
         return $this->belongsTo(Customer::class);
     }
@@ -22,11 +22,21 @@ class CentralSale extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class)->withPivot('stock', 'price', 'quantity', 'free');
+        return $this->belongsToMany(Product::class)->withPivot('stock', 'booked', 'price', 'quantity', 'free', 'amount', 'editable');
     }
 
     public function account()
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function centralSaleTransactions()
+    {
+        return $this->belongsToMany(CentralSaleTransaction::class)->withPivot('amount');
+    }
+
+    public function centralSaleReturns()
+    {
+        return $this->hasMany(CentralSaleReturn::class);
     }
 }
