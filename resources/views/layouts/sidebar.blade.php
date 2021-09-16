@@ -1,11 +1,23 @@
 <!-- sidebar @s -->
 @php $user = Auth::user();@endphp
 @php $permission = json_decode(Auth::user()->group->permission);@endphp
-<div class="nk-sidebar nk-sidebar-fixed is-dark " data-content="sidebarMenu">
+
+<?php
+$sidebarClass = '';
+$sidebarMenuClass = '';
+if (isset($sidebar_class)) {
+    if ($sidebar_class == 'compact') {
+        $sidebarClass = 'is-compact';
+        $sidebarMenuClass = 'compact-active';
+    }
+}
+?>
+<div class="nk-sidebar nk-sidebar-fixed is-dark {{ $sidebarClass }}" data-content="sidebarMenu">
     <div class="nk-sidebar-element nk-sidebar-head">
         <div class="nk-menu-trigger">
             <a href="#" class="nk-nav-toggle nk-quick-nav-icon d-xl-none" data-target="sidebarMenu"><em class="icon ni ni-arrow-left"></em></a>
-            <a href="#" class="nk-nav-compact nk-quick-nav-icon d-none d-xl-inline-flex" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
+            <a href="#" class="nk-nav-compact nk-quick-nav-icon d-none d-xl-inline-flex {{ $sidebarMenuClass }}" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
+
         </div>
         <div class="nk-sidebar-brand">
             <a href="{{url('/dashboard')}}" class="logo-link nk-sidebar-logo">
@@ -65,13 +77,16 @@
                             @if(in_array("view_payment_supplier", $permission))
                             <li class="nk-menu-item">
                                 <a href="/purchase-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
-
                             </li>
                             @endif
                             @if(in_array("view_return_product_purchase", $permission))
                             <li class="nk-menu-item">
 
+
                                 <a href="{{url('/retur-supplier')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
+
+
+                                <a href="/purchase-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
 
 
                             </li>
@@ -90,6 +105,16 @@
                             </li>
                             @endif
                             <li class="nk-menu-item">
+                                <a href="/central-sale-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Pelanggan</span></a>
+                            </li>
+                            <li class="nk-menu-item">
+                                <a href="/sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Penjualan</span></a>
+                            </li>
+                            <li class="nk-menu-item">
+                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
+                            </li>
+                            <li class="nk-menu-item">
+
                                 &nbsp;
                             </li>
                             @if(in_array("view_stock_opname",$permission))
