@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/dashlite.css?ver=2.4.0') }}">
     <link id="skin-default" rel="stylesheet" href="{{ asset('assets/css/theme.css?ver=2.4.0') }}">
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" type="text/css" href="./assets/css/libs/fontawesome-icons.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/libs/fontawesome-icons.css') }}">
     @yield('head')
     @yield('pagestyle')
 </head>

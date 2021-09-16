@@ -53,6 +53,7 @@
                 <div id="preview" class="col-lg-5">
                     <a href=""><img v-if="url" :src="url" /></a>
                 </div>
+                <p></p>
                 <div class="col-lg-12">
                     <div class="form-group">
                         <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal">
@@ -281,7 +282,7 @@
             },
             validateQuantity: function(product) {
                 // console.log(product.quantity);
-                if (product.quantity > product.bad_stock) {
+                if (Number(product.quantity) > Number(product.bad_stock)) {
                     // console.log("lebih besar")
                     product.quantity = product.bad_stock;
                 }

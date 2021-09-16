@@ -31,13 +31,16 @@
     }
 </style>
 @section('content')
+@php $permission = json_decode(Auth::user()->group->permission);@endphp
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
         <h4 class="nk-block-title fw-normal">Pengeluaran Barang Bad Stock</h4>
     </div>
 </div>
 <div class="nk-block nk-block-lg">
+    @if(in_array("add_badstock_release", $permission))
     <a href="{{url('/badstock-release/create')}}" class="btn btn-primary"><em class="fas fa-plus"></em>&nbsp;Buat Baru</a>
+    @endif
     <p></p>
     <div class="card card-bordered">
         <div class="card-inner overflow-hidden">
