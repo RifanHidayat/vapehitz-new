@@ -444,22 +444,129 @@ class BadstockReleaseController extends Controller
         }
     }
 
+    public function rejected(Request $request, $id)
+    {
+        $request->validate([
+            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
+        ]);
+        $badstockRelease = BadstockRelease::findOrFail($id);
+        $badstockRelease->code = $request->code;
+        $badstockRelease->date = $request->date;
+
+        $file = $request->file('image');
+        if ($request->hasFile('image')) {
+            $originalName = $file->getClientOriginalName();
+            $newFileName = time() . '-' . $originalName;
+            $path = $file->move(public_path('images'), $newFileName);
+            $badstockRelease->image = 'images/' . $newFileName;
+        }
+
+        $badstockRelease->status = "rejected";
+        $products = $request->selected_products;
+
+        try {
+            $badstockRelease->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'bad_stock' => $item['bad_stock'],
+                    'quantity' => $item['quantity'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $badstockRelease->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $badstockRelease,
+            // ]);
+        } catch (Exception $e) {
+            $badstockRelease->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            $badstockRelease->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            $badstockRelease->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                // $productRow->bad_stock = $productRow->bad_stock - $product['quantity'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $badstockRelease,
+            ]);
+        } catch (Exception $e) {
+            $badstockRelease->products()->detach();
+            $badstockRelease->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+
     public function datatableBadstockRelease()
     {
         $badstockRelease = BadstockRelease::all();
         return DataTables::of($badstockRelease)
             ->addIndexColumn()
             ->addColumn('status', function ($row) {
+                $permission = json_decode(Auth::user()->group->permission);
+                $pending = "<a href='/badstock-release/approve/{$row->id}' class='btn btn-outline-warning btn-sm'>
+                <span>Pending</span>
+                </a>";
+                $approved = "<span class='badge badge-outline-success text-success'>Approved</span>";
+                $rejected = "<span class='badge badge-outline-danger text-danger'>Rejected</span>";
                 $button = $row->status;
-                if ($button == 'pending') {
-                    return "<a href='/badstock-release/approve/{$row->id}' class='btn btn-outline-warning btn-sm'>
-                    <span>Pending</span>
-                    </a>";
+                if (in_array("approval_badstock_release", $permission)) {
+                    if ($button == 'pending') {
+                        return $pending;
+                    }
                 }
                 if ($button == 'approved') {
-                    return "<span class='badge badge-outline-success text-success'>Approved</span>";
+                    return $approved;
+                }
+                if ($button == 'pending') {
+                    return "<span class='badge badge-outline-warning text-warning'>Pending</span>";
                 } else {
-                    return "<span class='badge badge-outline-danger text-danger'>Rejected</span>";
+                    return $rejected;
                 }
             })
             ->addColumn('action', function ($row) {

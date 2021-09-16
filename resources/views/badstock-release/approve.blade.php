@@ -49,7 +49,7 @@
                 <div class="col-lg-12">
                     <div class="form-group">
                         <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal">
-                            Tambah Barang
+                            <em class="icon ni ni-plus"></em>&nbsp;Tambah Barang
                         </button>
                     </div>
                     <div class="form-group">
@@ -88,7 +88,9 @@
                 </div>
                 <p></p>
                 <div class="col-md-12 text-right">
-                    <button class="btn btn-primary">Simpan</button>
+                    <a href="#" @click.prevent="rejectProduct" class="btn btn-danger">X &nbsp;Reject</a>
+                    <button class="btn btn-success"> <em class="icon ni ni-save"></em>&nbsp;Approve</button>
+                    &nbsp;
                 </div>
             </form>
         </div>
@@ -203,6 +205,40 @@
                 let vm = this;
                 vm.loading = true;
                 axios.patch('/badstock-release/approve/{{$badstockRelease->id}}', {
+                        productId: vm.productId,
+                        code: vm.code,
+                        date: vm.date,
+                        image: vm.image,
+                        selected_products: vm.selectedProducts,
+                    })
+                    .then(function(response) {
+                        vm.loading = false;
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Data has been saved',
+                            icon: 'success',
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/badstock-release';
+                            }
+                        })
+                        // console.log(response);
+                    })
+                    .catch(function(error) {
+                        vm.loading = false;
+                        console.log(error);
+                        Swal.fire(
+                            'Oops!',
+                            'Something wrong',
+                            'error'
+                        )
+                    });
+            },
+            rejectProduct: function() {
+                let vm = this;
+                vm.loading = true;
+                axios.patch('/badstock-release/reject/{{$badstockRelease->id}}', {
                         productId: vm.productId,
                         code: vm.code,
                         date: vm.date,

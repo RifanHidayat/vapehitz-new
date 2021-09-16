@@ -16,31 +16,29 @@
                 <div class="form-group">
                     <label class="form-label" for="full-name-1">Kode</label>
                     <div class="form-control-wrap">
-                        <input type="text" v-model="code" class="form-control" readonly>
+                        {{$badstock->code}}
                     </div>
                 </div>
             </div>
-            <p></p>
-            <div class="col-lg-5">
+            <div class="col-lg-5 mt-3">
                 <div class="form-group">
                     <label class="form-label" for="full-name-1">Tanggal Proses</label>
                     <div class="form-control-wrap">
-                        <input type="date" v-model="date" class="form-control" readonly>
+                        {{$badstock->date}}
                     </div>
                 </div>
             </div>
-            <p></p>
-            <div class="col-lg-5">
+            <div class="col-lg-5 mt-3">
                 <div class="form-group">
                     <label class="form-label" for="full-name-1">Gambar</label>
                     <div class="input-group mb-3">
-                        <div class="custom-file">
-                            <img src="{{asset($badstock->image)}}">
-                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-12">
+            <div id="preview" class="col-lg-5">
+                <a href=""><img v-if="url" :src="url" /></a>
+            </div>
+            <div class="col-lg-12 mt-3">
                 <!-- <div class="form-group">
                         <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal">
                             Tambah Barang
@@ -81,8 +79,7 @@
                     </div>
                 </div>
             </div>
-            <p></p>
-            <div class="col-md-12 text-right">
+            <div class="col-md-12 text-right mt-3">
                 <a href="/badstock-release" class="btn btn-outline-warning">
                     <em class="icon ni ni-arrow-left"></em>
                     <span>Kembali</span>
@@ -102,6 +99,7 @@
             productId: '',
             selectedProducts: JSON.parse('{!! $badstock->products !!}'),
             check: [],
+            url: '{{asset($badstock->image)}}',
             quantity: '0',
             // bad_stock: '',
             loading: false,

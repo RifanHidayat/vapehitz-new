@@ -38,9 +38,9 @@
                                 <div class="form-control-wrap">
                                     <table class="table">
                                         <thead>
-                                            <tr class="text-center">
+                                            <tr>
                                                 <th></th>
-                                                <!-- <th>All</th> -->
+                                                <th>All</th>
                                                 <th>View</th>
                                                 <th>Tambah</th>
                                                 <th>Edit</th>
@@ -56,10 +56,12 @@
                                             </tr>
                                             <tr v-for="(permission, j) in parent.attributes">
                                                 <td class="">@{{permission.subtitle}}</td>
-                                                <!-- <td class="">
-                                                    <input type="checkbox" v-model="selectAll" @click="select()" />
-                                                    <span></span>
-                                                </td> -->
+                                                <td>
+                                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                                        <input type="checkbox" v-model="selectAll" @click="select()" class="custom-control-input" id="All" />
+                                                        <label for="All" class="custom-control-label"></label>
+                                                    </div>
+                                                </td>
                                                 <td v-for="(attribute, k) in permission.attributes" class="text-center">
                                                     <div v-if="attribute !== null" class="custom-control custom-control-sm custom-checkbox">
                                                         <input type="checkbox" v-model="checkedPermissions" :value="attribute" class="custom-control-input" :id="'permission'+i+j+k">
@@ -96,6 +98,8 @@
         el: '#app',
         data: {
             name: '',
+            checkedPermissions: [],
+            selectAll: false,
             permissions: [{
                     title: 'MASTER DATA',
                     attributes: [{
@@ -245,11 +249,25 @@
                     ],
                 },
             ],
-            checkedPermissions: [],
-            selectAll: false,
             loading: false,
         },
         methods: {
+            select: function() {
+                this.selectAll = !this.selectAll;
+                this.checkedPermissions = [];
+                if (this.selectAll) {
+                    for (var i in this.permissions.attributes.attributes) {
+                        this.checkedPermissions.push(this.permission.attributes.attributes[i]);
+                    }
+                }
+            },
+            updateCheckall: function() {
+                if (this.checkedPermissions.length == this.permission.length) {
+                    this.selectAll = true;
+                } else {
+                    this.selectAll = false;
+                }
+            },
             submitForm: function() {
                 this.sendData();
             },
@@ -288,21 +306,6 @@
             selectAllSection: function(subAttribute) {
 
             },
-            select() {
-                this.checkedPermissions = [];
-                if (!this.selectAll) {
-                    for (let i in this.permissions.attributes) {
-                        this.checkedPermissions.push(this.permissions.attributes[i]);
-                    }
-                }
-            },
-            updateCheckall: function() {
-                if (this.permissions.attributes.length == this.checkedPermissions.length) {
-                    this.selectAll = true;
-                } else {
-                    this.selectAll = false;
-                }
-            }
         },
         // computed: {
         //     checkAll: {
