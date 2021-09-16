@@ -215,7 +215,7 @@
                                         <select v-model="paymentMethod" class="form-control" required>
                                             <option value="transfer">Transfer</option>
                                             <option value="cash">Cash</option>
-                                            <option value="debt" v-if="remainingPay>0">Hutang</option>
+                                            <option value="hutang" v-if="remainingPay>0">Hutang</option>
                                         </select>
                                     </div>
                                 </div>
@@ -361,7 +361,7 @@
                     axios.post('/purchase-return', {
                             date: vm.date,
                             supplier_id: vm.suppliersId,
-                            account_id: vm.paymentMethod=='debt'?"3":vm.accountId,
+                            account_id: vm.paymentMethod=='hutang'?"3":vm.accountId,
                             purchase_id: vm.purchaseId,
                             payment_method: vm.paymentMethod,
                             amount: vm.payAmount,
@@ -382,7 +382,7 @@
                                 allowOutsideClick: false,
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    //window.location.href = '/central-purchase';
+                                    window.location.href = '/central-purchase';
                                 }
                             })
                             // console.log(response);
@@ -398,11 +398,11 @@
                         });
                 },
                 increaseProductQuantity: function(product) {
-                    product.return_quantity = product.return_quantity + 1;
+                    product.return_quantity = Number(product.return_quantity) + 1;
                 },
                 reduceProductQuantity: function(product) {
                     if (product.return_quantity > 1) {
-                        product.return_quantity = product.return_quantity - 1;
+                        product.return_quantity = Number(product.return_quantity )- 1;
                     }
                 },
                 currencyFormat: function(number) {

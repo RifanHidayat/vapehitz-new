@@ -427,7 +427,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                //window.location.href = '/central-purchase';
+                                window.location.href = '/central-purchase';
                             }
                         })
                         // console.log(response);

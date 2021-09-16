@@ -22,6 +22,64 @@
                 </div>
             </div>
         </div> -->
+        <div class="col-lg-6 col-md-6" valign="right">
+
+<div class="card card-bordered">
+    <div class="card-inner-group">
+        <div class="card-inner card-inner-md">
+            <div class="card-title-group">
+                <div class="card-title">
+                    <h6 class="title">Info Akun</h6>
+                </div>
+     
+            </div>
+        </div><!-- .card-inner -->
+        <div class="card-inner">
+        <div class="card card-bordered">
+        <ul class="data-list is-compact">
+        <li class="data-item">
+        <div class="data-col">
+            <div class="data-label">Nama Akun</div>
+            <div class="data-label">{{$account->name}}</div>
+            
+        </div>
+        </li>
+        <li class="data-item">
+            <div class="data-col">
+                <div class="data-label">Nomor AKun</div>
+                <div class="data-label">{{$account->number}}</div>
+            </div>
+        </li>
+        <li class="data-item">
+            <div class="data-col">
+                <div class="data-label">In</div>
+                <div class="data-label">{{number_format($cash_in)}}</div>
+            </div>
+        </li>
+        <li class="data-item">
+            <div class="data-col">
+                <div class="data-label">Out</div>
+                <div class="data-label">{{number_format($cash_out)}}</div>
+            </div>
+        </li>
+        <li class="data-item">
+            <div class="data-col">
+                <div class="data-label">Saldo</div>
+                <div class="data-label">{{number_format($balance)}}</div>
+            
+            </div>
+        </li>
+
+
+    
+    </ul>
+    </div>
+       
+        </div>
+    </div>
+</div>
+<br>
+</div>
        
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
@@ -102,7 +160,20 @@
         }
     })
 </script>
+
 <script>
+//  $('#accountTransactions').DataTable({
+//         processing: true,
+//         serverSide: true,
+//         ajax: '/datatables/account-transactions/'+<?php echo $account_id ?>,
+//         columns: [
+//             {data: 'id', name: 'id'},
+//             {data: 'name', name: 'name'},
+//             {data: 'email', name: 'email'},
+//             {data: 'created_at', name: 'created_at'},
+//             {data: 'updated_at', name: 'updated_at'}
+//         ]
+//     });
     var centralPurchaseTable = $(function() {
         $('#accountTransactions').DataTable({
             processing: true,
@@ -113,32 +184,13 @@
                 // length: 2,
             },
             columns: [
-                {
-                    data: 'date',
-                    name: 'date'
-                },
-                {
-                    data: 'note',
-                    name: 'note'
-                },
-                {
-                    data: 'type',
-                    name: 'type'
-                },
-                {
-                    data: 'in',
-                    name: 'in'
-                },
-                {
-                    data: 'out',
-                    name: 'out'
-                },
-                {
-                    data: 'balance',
-                    name: 'balance'
-                },
-
-            ]
+            {data: 'date', name: 'date'},
+            {data: 'note', name: 'note'},
+            {data: 'type', name: 'type'},   
+            {data: 'in', name: 'in'},
+            {data: 'out', name: 'out'},
+            {data: 'balance', name: 'balance'},
+        ]
         });
         $('#centralPurchase').on('click', 'tr .btn-delete', function(e) {
             e.preventDefault();

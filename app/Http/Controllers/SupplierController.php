@@ -190,7 +190,7 @@ class SupplierController extends Controller
         //account transaction
         try{
             $accountTransaction=new AccountTransaction;
-            $accountTransaction->account_out=$request->account_id;
+            $accountTransaction->account_id=$request->account_id;
             $accountTransaction->amount=$amount;
             $accountTransaction->type="out";
             $accountTransaction->note=$transactionNumber.' | '.$request->note;

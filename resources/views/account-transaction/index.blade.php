@@ -109,12 +109,12 @@
                     </thead>
                     <tbody>
                         <tr v-for="(accountTransaction, index) in accountTransactions" class="text-center">
-                            <td>@{{accountTransaction.number}}</td>
-                            <td>@{{accountTransaction.date}}</td>
-                            <td>@{{accountTransaction.account_in}}</td>
-                            <td>@{{accountTransaction.account_out}}</td>
-                            <td>@{{accountTransaction.amount}}</td>
-                            <td>@{{accountTransaction.note}}</td>
+                            <td>@{{accountTransaction[0]['number']}}</td>
+                            <td>@{{accountTransaction[0]['date']}}</td>
+                            <td>@{{accountTransaction[0]['account']!=null?accountTransaction[0]['account']['name']:""}}</td>
+                            <td>@{{accountTransaction[0]['account']!=null?accountTransaction[1]['account']['name']:""}}</td>
+                            <td>@{{accountTransaction[0]['amount']}}</td>
+                            <td>@{{accountTransaction[0]['note']}}</td>
                             <td>
                                 <div class="btn-group" aria-label="Basic example">
                                     <a href="#" @click.prevent="onEditAccountTransaction(index)" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>

@@ -53,7 +53,7 @@ class PurchaseReturnTransactionController extends Controller
     {
         $date = $request->date;
         $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
-        $transactionNumber = 'PR/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+        $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
 
         $purchaseId = $request->purchase_id;
         $amount = $this->clearThousandFormat($request->amount);
@@ -87,7 +87,7 @@ class PurchaseReturnTransactionController extends Controller
 
         //account Transaction
         try{
-            $accountTransaction->account_out=$request->account_id;
+            $accountTransaction->account_id=$request->account_id;
             $accountTransaction->amount=$amount;
             $accountTransaction->type="in";
             $accountTransaction->note=$request->note;

@@ -67,7 +67,7 @@
 
                         
 
-                                <a href="/purchase-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
+                                <a href="/purchase-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Pembelian</span></a>
 
                             </li>
                             @endif
@@ -79,7 +79,7 @@
                             @endif
                             @if(in_array("view_product_payment", $permission))
                             <li class="nk-menu-item">
-                                <a href="/purchase-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
+                                <a href="/purchase-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Retur</span></a>
                             </li>
                             @endif
                             <li class="nk-menu-item">

@@ -95,7 +95,7 @@ class PurchaseReturnController extends Controller
             if ($total_return_amount>$remaining_pay){
                 //Transaction account debt             
                 try{
-                    $accountTransaction->account_out="3";
+                    $accountTransaction->account_id="3";
                     $accountTransaction->amount=$remaining_pay;
                     $accountTransaction->type="out";
 
@@ -109,7 +109,7 @@ class PurchaseReturnController extends Controller
                         ], 500);               
                  }
                  //accounts receivable
-                $accountTransaction->account_out="2";
+                $accountTransaction->account_id="2";
                 $accountTransaction->type="out";
                 $accountTransaction->amount=(str_replace(".", "", $request->total_return_amount)-str_replace(".", "", $request->remaining_pay));
 
@@ -127,7 +127,7 @@ class PurchaseReturnController extends Controller
                 // pay purchase return transaction
                  $date = $request->date;
                  $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
-                 $transactionNumber = 'PR/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);               
+                 $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);               
                  $purchaseReturnTransaction = new PurchaseReturnTransaction;
                  $purchaseReturnTransaction ->code = $transactionNumber;
                  $purchaseReturnTransaction ->date = $request->date;
@@ -247,7 +247,7 @@ class PurchaseReturnController extends Controller
                   // pay purchase return transaction
                   $date = $request->date;
                   $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
-                  $transactionNumber = 'PR/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);               
+                  $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);               
                   $purchaseReturnTransaction = new PurchaseReturnTransaction;
                   $purchaseReturnTransaction ->code = $transactionNumber;
                   $purchaseReturnTransaction ->date = $request->date;
@@ -272,7 +272,7 @@ class PurchaseReturnController extends Controller
             }
 
         }else{
-            $accountTransaction->account_out=$request->account_id;
+            $accountTransaction->account_id=$request->account_id;
             $accountTransaction->amount=$total_return_amount;
             $accountTransaction->type="in";
             $accountTransaction->note=$request->note;
@@ -293,7 +293,7 @@ class PurchaseReturnController extends Controller
           // pay purchase return transaction
                 $date = $request->date;
                 $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
-                $transactionNumber = 'PR/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);                    
+                $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);                    
                 $purchaseReturnTransaction = new PurchaseReturnTransaction;
                 $purchaseReturnTransaction ->code = $transactionNumber;
                 $purchaseReturnTransaction ->date = $request->date;

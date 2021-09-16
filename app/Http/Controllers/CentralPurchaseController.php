@@ -97,10 +97,6 @@ class CentralPurchaseController extends Controller
         //account transaction
         $accountTransaction=new AccountTransaction;
 
-     
-    
-
-
         try {
             $centralPurchase->save();
             
@@ -113,20 +109,20 @@ class CentralPurchaseController extends Controller
                 'errors' => $e,
             ], 500);
         }
-        try{
+
             //Transaction account Shipping Cost
-            $accountTransaction->account_in="1";
+            $accountTransaction->account_id="1";
             $accountTransaction->amount=$shipingCost;
             $accountTransaction->type="in";
             $accountTransaction->note="Biaya kirim Pembelian barang dengan No. Order ".$request->code;
             $accountTransaction->date=$request->date;
+        try{
             $accountTransaction->save();
             }catch(Exception $e){
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
                 'error' => true,
-                'source'=>"Transaction Account Shipping Cost",
                 'errors' => $e,
                 ], 500);
                               
@@ -134,7 +130,7 @@ class CentralPurchaseController extends Controller
      
         if ($request->pay_amount==0){
             //Transaction account debt
-            $accountTransaction->account_in="3";
+            $accountTransaction->account_id="3";
             $accountTransaction->amount=$netto;
             $accountTransaction->type="in";
             $accountTransaction->note="Hutang Pembelian barang dengan No. Order ".$request->code;
@@ -153,7 +149,7 @@ class CentralPurchaseController extends Controller
     
            }else{
             //account transaction
-            $accountTransaction->account_out=$request->account_id;
+            $accountTransaction->account_id=$request->account_id;
             $accountTransaction->amount=$request->pay_amount;
             $accountTransaction->type="out";
             $accountTransaction->note="Pembelian barang dengan code ".$request->code;

@@ -52,7 +52,7 @@ class PurchaseTransactionController extends Controller
 
         //Transaction account debt
         $accountTransactionDebt=new AccountTransaction;
-        $accountTransactionDebt->account_out="3";
+        $accountTransactionDebt->account_id="3";
         $accountTransactionDebt->amount=str_replace(".", "", $request->amount);
         $accountTransactionDebt->type="out";
         $accountTransactionDebt->note="Pembayaran hutang pembelian barang  dengan No.Transaksi ".$transactionNumber;
@@ -60,7 +60,7 @@ class PurchaseTransactionController extends Controller
 
        //Transaction account
        $accountTransaction=new AccountTransaction;
-       $accountTransaction->account_out=$request->account_id;
+       $accountTransaction->account_id=$request->account_id;
        $accountTransaction->amount=str_replace(".", "", $request->amount);
        $accountTransaction->type="out";
        $accountTransaction->note=$transactionNumber.' | '.$request->note;

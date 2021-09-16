@@ -7,9 +7,14 @@ use App\Models\Account;
 use App\Models\AccountTransaction;
 use App\Models\PurchaseReturnTransaction;
 use App\Models\PurchaseTransaction;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\Facades\DataTables;
+
+use function GuzzleHttp\Promise\each;
 
 class AccountController extends Controller
 {
@@ -55,6 +60,27 @@ class AccountController extends Controller
         $accounts->type = $request->type;
         try {
             $accounts->save();
+           
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        $accountTransaaction = new AccountTransaction;
+        
+        $accountTransaaction->account_id = $accounts->id;
+        $accountTransaaction->date = $request->date;
+        $accountTransaaction->amount = str_replace(".", "", $request->init_balance);
+        $accountTransaaction->type = "in";
+        $accountTransaaction->note = "Saldo Awal";
+        $accountTransaaction->table_name = "accounts";
+        $accountTransaaction->table_id = $accounts->id;
+
+        try {
+            $accountTransaaction->save();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -79,16 +105,18 @@ class AccountController extends Controller
      */
     public function show($id)
     {
-
-        // $account = Account::with(['accountTransactions'])->findOrFail($id);
-        // return $account['accountTransactions'];
-        
-        //return $account;
+        $account = Account::with(['accountTransactions'])->findOrFail($id);
+        $cashIn=collect($account['accountTransactions'])->where('type','=','in')->sum('amount');
+        $cashOut=collect($account['accountTransactions'])->where('type','=','out')->sum('amount'); 
+        $accountTransactions = DB::table('account_transactions')->where('account_id','=',$id)->get();
+      //  return $accountTransactions;        
         return view('account.show', [
-            "account_id"=>$id
+            "account_id"=>$id,
+            "cash_in"=>$cashIn,
+            "cash_out"=>$cashOut,
+            "balance"=>$cashIn-$cashOut,
+            "account"=>$account
         ]);
- 
-
     }
 
     /**
@@ -165,28 +193,45 @@ class AccountController extends Controller
 
     public function datatableAccountTransactions($id)
     {
-        $account = AccountTransaction::with(['account'])->select('account_transactions.*')->where('account_id','=',$id); 
+        // $accountTransactions = AccountTransaction::with(['account'])->where('account_id','=',$id)->select('account_transactions.*')->get()->each(function($value) use ($balance) {     
+        //     if ($value['type']=='in')
+        //    {
+        //     $balance=$value['amount'];
+        //     $in=$value['amount'];
+        //     $out="";
+        //    }else{
+        //     $balance=$balance-$value['amount'];
+        //     $out=$value['amount'];
+        //     $in="";
+        //     }
+        //     $value['balance']   =$balance;
+        //     $value['in']   =$in;
+        //     $value['out']   =$out;
+        // }); 
 
-        return DataTables::eloquent($account)
-            ->addIndexColumn()
+        $accountTransactionCollection = new Collection();
+        $accountTransactions = AccountTransaction::with(['account'])->where('account_id','=',$id)->select('account_transactions.*')->get();
+        $balance=0;
+        for ($i = 0; $i < count($accountTransactions); $i++) {
+            $accountTransactionCollection->push([
+                'date' => $accountTransactions[$i]['date'],
+                'note' => $accountTransactions[$i]['name'],
+                'type' => $accountTransactions[$i]['type'],
+                'in'   => 
+                    $accountTransactions[$i]['type']=="in"?
+                    number_format($accountTransactions[$i]['amount']):
+                    "",
+                'out' => 
+                    $accountTransactions[$i]['type']=="out"?
+                    number_format($accountTransactions[$i]['amount']):
+                    "",
+                'balance' => 
+                    $accountTransactions[$i]['type']=="in"?
+                    $balance+=$accountTransactions[$i]['amount']:
+                    $balance-=$accountTransactions[$i]['amount'],
+            ]);
+        }
+        return Datatables::of($accountTransactionCollection)->make(true);
 
-            ->addColumn('Type', function ($row) {
-                return ($row->type=="in"?"Deposit":"Expense"); 
-            })
-            ->addColumn('in', function ($row) {
-                return ($row->type=="in"?number_format($row->amount):""); 
-            })
-            ->addColumn('out', function ($row) {
-                return ($row->type=="out"?number_format($row->amount):""); 
-            })
-            ->addColumn('balance', function ($row) {
-                return (number_format($row->amount)); 
-            })
-            ->addColumn('action', function ($row) {
-                $button = '';
-                return $button;
-            }
-            )
-            ->make(true);
     }
 }
