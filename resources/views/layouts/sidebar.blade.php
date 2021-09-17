@@ -132,7 +132,7 @@ if (isset($sidebar_class)) {
                             </li>
                             @if(in_array("view_request_to_retail", $permission))
                             <li class="nk-menu-item">
-                                <a href="{{url('/reqtoretail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Retail</span></a>
+                                <a href="{{url('/request-to-retail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Retail</span></a>
                             </li>
                             @endif
                         </ul><!-- .nk-menu-sub -->
@@ -145,6 +145,11 @@ if (isset($sidebar_class)) {
                             <span class="nk-menu-text">Transaksi Retail</span>
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
+                            @if(in_array("view_request_to_central_retail", $permission))
+                            <li class="nk-menu-item">
+                                <a href="{{url('/approve-retail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan Dari Pusat</span></a>
+                            </li>
+                            @endif
                             @if(in_array("view_retail_sell", $permission))
                             <li class="nk-menu-item">
                                 <a href="{{url('/saleretail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>

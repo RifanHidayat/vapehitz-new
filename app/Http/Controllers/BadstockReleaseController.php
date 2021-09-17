@@ -79,13 +79,7 @@ class BadstockReleaseController extends Controller
         $badstockRelease->code = $request->code;
         $badstockRelease->date = $request->date;
         $badstockRelease->image = 'images/' . $newFileName;
-        // dd($badstockRelease->image);
         $products = json_decode($request->selected_products);
-
-        // return response()->json([
-        //     'status' => 'ok',
-        //     'product' => $products
-        // ]);
 
         try {
             $badstockRelease->save();

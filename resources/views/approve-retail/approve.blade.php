@@ -7,7 +7,7 @@
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <div class="nk-block-head-sub">
-                <a class="back-to" href="/reqtoretail"><em class="icon ni ni-arrow-left"></em>
+                <a class="back-to" href="{{url('/request-to-retail')}}"><em class="icon ni ni-arrow-left"></em>
                     <span>Permintaan Barang ke Gudang Retail</span>
                 </a>
             </div>
@@ -35,7 +35,7 @@
                 </div>
                 <p></p>
                 <div class="col-lg-12">
-                    <div class="form-group">
+                    <div class="form-group mt-3">
                         <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addProduct">
                             Tambah Barang
                         </button>
@@ -58,7 +58,9 @@
                                         <td>@{{product.name}}</td>
                                         <td>@{{product.central_stock}}</td>
                                         <td>@{{product.retail_stock}}</td>
-                                        <td><input type="text" v-model="quantity" class="form-control"></td>
+                                        <td>
+                                            <input type="number" v-model="product.quantity" class="form-control">
+                                        </td>
                                         <td>
                                             <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
                                         </td>
@@ -70,7 +72,8 @@
                 </div>
                 <p></p>
                 <div class="col-md-12 text-right">
-                    <button class="btn btn-primary">Simpan</button>
+                    <a href="" class="btn btn-danger">X&nbsp; Reject</a> &nbsp;
+                    <button class="btn btn-primary"><em class="ni ni-save"></em>&nbsp;Approve</button>
                 </div>
             </form>
         </div>
@@ -153,9 +156,9 @@
     let app = new Vue({
         el: '#app',
         data: {
-            code: '{{$code}}',
-            quantity: '0',
-            selectedProducts: [],
+            code: '{{$approve_retail->code}}',
+            date: '{{$approve_retail->date}}',
+            selectedProducts: JSON.parse('{!! $approve_retail->products !!}'),
             check: [],
             loading: false,
         },
@@ -181,7 +184,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/reqtoretail', {
+                axios.patch('/request-to-retail/{{$approve_retail->id}}', {
                         code: vm.code,
                         date: vm.date,
                         status: vm.status,
@@ -196,7 +199,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/reqtoretail';
+                                window.location.href = '/request-to-retail';
                             }
                         })
                         // console.log(response);
@@ -228,9 +231,9 @@
         const productTable = $('#products-table').DataTable({
             processing: true,
             serverSide: true,
-            "autoWidth": false,
+            autoWidth: false,
             ajax: {
-                url: '/datatables/reqtoretail',
+                url: '/datatables/request-to-retail/products',
                 type: 'GET',
             },
             columns: [{
@@ -257,9 +260,7 @@
             const productIds = check.map(product => product.id);
 
             if (productIds.indexOf(data.id) < 0) {
-                data['good_stock'] = 0;
-                data['bad_stock'] = 0;
-                data['description'] = "";
+                data['quantity'] = 0;
                 check.push(data);
             }
         });

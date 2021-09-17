@@ -51,7 +51,7 @@ class Product extends Model
 
     public function reqtoRetail()
     {
-        return $this->belongsToMany(ReqToRetail::class);
+        return $this->belongsToMany(RequestToRetail::class);
     }
 
     public function centralSaleReturns()

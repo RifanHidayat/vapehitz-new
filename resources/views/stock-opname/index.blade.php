@@ -178,6 +178,7 @@
                 allowOutsideClick: () => !Swal.isLoading()
             }).then((result) => {
                 if (result.isConfirmed) {
+                    stockOpnameTable.ajax.reload();
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',

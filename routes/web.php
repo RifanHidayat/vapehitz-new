@@ -11,6 +11,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountTransactionController;
+use App\Http\Controllers\ApproveRetailController;
 use App\Http\Controllers\PurchaseTransactionController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StockOpnameController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\SaleRetailController;
 use App\Http\Controllers\StockOpnameRetailController;
 use App\Http\Controllers\StockOpnameStudioController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\RequestToRetailController;
 use App\Http\Controllers\UserController;
 use App\Models\Account;
 use App\Models\PurchaseTransaction;
@@ -366,14 +368,26 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/{id}', [ReturSupplierController::class, 'destroy']);
     });
 
-    //RouteReqToRetail
-    Route::prefix('/reqtoretail')->group(function () {
-        Route::get('/', [ReqToRetailController::class, 'index']);
-        Route::get('/create', [ReqToRetailController::class, 'create']);
-        Route::post('/', [ReqToRetailController::class, 'store']);
-        Route::get('/edit/{id}', [ReqToRetailController::class, 'edit']);
-        Route::patch('/{id}', [ReqToRetailController::class, 'update']);
-        Route::delete('/{id}', [ReqToRetailController::class, 'destroy']);
+    //RouteRequestToRetail
+    Route::prefix('/request-to-retail')->group(function () {
+        Route::get('/', [RequestToRetailController::class, 'index']);
+        Route::get('/create', [RequestToRetailController::class, 'create']);
+        Route::post('/', [RequestToRetailController::class, 'store']);
+        Route::get('/edit/{id}', [RequestToRetailController::class, 'edit']);
+        Route::patch('/{id}', [RequestToRetailController::class, 'update']);
+        Route::delete('/{id}', [RequestToRetailController::class, 'destroy']);
+    });
+
+    //RouteApproveRetailFromCentral
+    Route::prefix('/approve-retail')->group(function () {
+        Route::get('/', [ApproveRetailController::class, 'index']);
+        Route::get('/create', [ApproveRetailController::class, 'create']);
+        Route::post('/', [ApproveRetailController::class, 'store']);
+        Route::get('/edit/{id}', [ApproveRetailController::class, 'edit']);
+        Route::get('/show/{id}', [ApproveRetailController::class, 'show']);
+        Route::get('/approve/{id}', [ApproveRetailController::class, 'approve']);
+        Route::patch('/{id}', [ApproveRetailController::class, 'update']);
+        Route::delete('/{id}', [ApproveRetailController::class, 'destroy']);
     });
 
     //RouteSaleRetail
@@ -436,8 +450,13 @@ Route::prefix('/datatables')->group(function () {
     Route::prefix('/badstock-release')->group(function () {
         Route::get('/', [BadstockReleaseController::class, 'datatableBadstockRelease']);
     });
-    Route::prefix('/reqtoretail')->group(function () {
-        Route::get('/', [ReqToRetailController::class, 'datatableReqtoretail']);
+    Route::prefix('/request-to-retail')->group(function () {
+        Route::get('/', [RequestToRetailController::class, 'datatableRequestToRetail']);
+        Route::get('/products', [RequestToRetailController::class, 'datatableProduct']);
+    });
+    Route::prefix('/approve-retail')->group(function () {
+        Route::get('/', [ApproveRetailController::class, 'datatableApproveRetail']);
+        Route::get('/products', [ApproveRetailController::class, 'datatableProducts']);
     });
 
     Route::prefix('/stock-opname-retail')->group(function () {

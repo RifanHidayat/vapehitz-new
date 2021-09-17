@@ -131,59 +131,103 @@
     })
 </script>
 <script>
-    var productTable = $(function() {
-        $('#products').DataTable({
-            processing: true,
-            serverSide: true,
-            autoWidth: false,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: '/datatables/products',
-                type: 'GET',
-                // length: 2,
+    var productTable = $('#products').DataTable({
+        processing: true,
+        serverSide: true,
+        autoWidth: false,
+        dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
+        ajax: {
+            url: '/datatables/products',
+            type: 'GET',
+            // length: 2,
+        },
+        columns: [{
+                data: 'code',
+                name: 'code'
             },
-            columns: [{
-                    data: 'code',
-                    name: 'code'
+            {
+                data: 'product_category.name',
+                name: 'productCategory.name'
+            },
+            {
+                data: 'product_subcategory.name',
+                name: 'productSubcategory.name'
+            },
+            {
+                data: 'name',
+                name: 'name'
+            },
+            {
+                data: 'weight',
+                name: 'weight'
+            },
+            {
+                data: 'purchase_price',
+                name: 'purchase_price'
+            },
+            {
+                data: 'status',
+                name: 'status',
+                render: function(data) {
+                    if (data == '1') {
+                        return '<span class="badge badge-outline-success">Active</span>';
+                    } else {
+                        return '<span class="badge badge-outline-danger">Inactive</span>';
+                    }
                 },
-                {
-                    data: 'product_category.name',
-                    name: 'productCategory.name'
-                },
-                {
-                    data: 'product_subcategory.name',
-                    name: 'productSubcategory.name'
-                },
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-                {
-                    data: 'weight',
-                    name: 'weight'
-                },
-                {
-                    data: 'purchase_price',
-                    name: 'purchase_price'
-                },
-                {
-                    data: 'status',
-                    name: 'status',
-                    render: function(data) {
-                        if (data == '1') {
-                            return '<span class="badge badge-outline-success">Active</span>';
-                        } else {
-                            return '<span class="badge badge-outline-danger">Inactive</span>';
-                        }
-                    },
-                },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
+            },
+            {
+                data: 'action',
+                name: 'action'
+            },
 
-            ]
-        });
+        ]
+    });
+    $('#products').on('click', 'tr .btn-delete', function(e) {
+        e.preventDefault();
+        // alert('click');
+        const id = $(this).attr('data-id');
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "The data will be deleted",
+            icon: 'warning',
+            reverseButtons: true,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return axios.delete('/product/' + id)
+                    .then(function(response) {
+                        console.log(response.data);
+                    })
+                    .catch(function(error) {
+                        console.log(error.data);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: 'Something wrong',
+                        })
+                    });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                productTable.ajax.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Data has been deleted',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // window.location.reload();
+
+                    }
+                })
+            }
+        })
     });
 </script>
 @endsection

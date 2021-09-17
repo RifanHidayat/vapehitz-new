@@ -200,7 +200,7 @@
                 cancelButtonText: 'Cancel',
                 showLoaderOnConfirm: true,
                 preConfirm: () => {
-                    return axios.delete('/supplier/' + id)
+                    return axios.delete('/customer/' + id)
                         .then(function(response) {
                             console.log(response.data);
                         })
@@ -216,7 +216,7 @@
                 allowOutsideClick: () => !Swal.isLoading()
             }).then((result) => {
                 if (result.isConfirmed) {
-                    supplierTable.ajax.reload();
+                    customerTable.ajax.reload();
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',

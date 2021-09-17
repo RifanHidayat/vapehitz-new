@@ -116,81 +116,80 @@
     })
 </script>
 <script>
-    var badstockReleaseTable = $(function() {
-        $('#badstockRelease').DataTable({
-            processing: true,
-            serverSide: true,
-            autoWidth: false,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: '/datatables/badstock-release',
-                type: 'GET',
-                // length: 2,
+    var badstockReleaseTable = $('#badstockRelease').DataTable({
+        processing: true,
+        serverSide: true,
+        autoWidth: false,
+        dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
+        ajax: {
+            url: '/datatables/badstock-release',
+            type: 'GET',
+            // length: 2,
+        },
+        columns: [{
+                data: 'code',
+                name: 'code'
             },
-            columns: [{
-                    data: 'code',
-                    name: 'code'
-                },
-                {
-                    data: 'date',
-                    name: 'date'
-                },
-                {
-                    data: 'status',
-                    name: 'status'
-                },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
+            {
+                data: 'date',
+                name: 'date'
+            },
+            {
+                data: 'status',
+                name: 'status'
+            },
+            {
+                data: 'action',
+                name: 'action'
+            },
 
-            ]
-        });
-        $('#badstockRelease').on('click', 'tr .btn-delete', function(e) {
-            e.preventDefault();
-            // alert('click');
-            const id = $(this).attr('data-id');
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "The data will be deleted",
-                icon: 'warning',
-                reverseButtons: true,
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                showLoaderOnConfirm: true,
-                preConfirm: () => {
-                    return axios.delete('/badstock-release/' + id)
-                        .then(function(response) {
-                            console.log(response.data);
-                        })
-                        .catch(function(error) {
-                            console.log(error.data);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops',
-                                text: 'Something wrong',
-                            })
-                        });
-                },
-                allowOutsideClick: () => !Swal.isLoading()
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: 'Data has been deleted',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.reload();
-
-                        }
+        ]
+    });
+    $('#badstockRelease').on('click', 'tr .btn-delete', function(e) {
+        e.preventDefault();
+        // alert('click');
+        const id = $(this).attr('data-id');
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "The data will be deleted",
+            icon: 'warning',
+            reverseButtons: true,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return axios.delete('/badstock-release/' + id)
+                    .then(function(response) {
+                        console.log(response.data);
                     })
-                }
-            })
-        });
-    })
+                    .catch(function(error) {
+                        console.log(error.data);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: 'Something wrong',
+                        })
+                    });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                badstockReleaseTable.ajax.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Data has been deleted',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // window.location.reload();
+
+                    }
+                })
+            }
+        })
+    });
 </script>
 @endsection
