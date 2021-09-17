@@ -81,14 +81,7 @@ if (isset($sidebar_class)) {
                             @endif
                             @if(in_array("view_return_product_purchase", $permission))
                             <li class="nk-menu-item">
-
-
-                                <a href="{{url('/retur-supplier')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
-
-
                                 <a href="/purchase-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
-
-
                             </li>
                             @endif
                             @if(in_array("view_product_payment", $permission))
@@ -150,6 +143,9 @@ if (isset($sidebar_class)) {
                                 <a href="{{url('/approve-retail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan Dari Pusat</span></a>
                             </li>
                             @endif
+                            <li class="nk-menu-item">
+                                <a href="{{url('/request-retail-to-central')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan Ke Pusat</span></a>
+                            </li>
                             @if(in_array("view_retail_sell", $permission))
                             <li class="nk-menu-item">
                                 <a href="{{url('/saleretail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>

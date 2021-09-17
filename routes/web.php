@@ -386,6 +386,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/edit/{id}', [ApproveRetailController::class, 'edit']);
         Route::get('/show/{id}', [ApproveRetailController::class, 'show']);
         Route::get('/approve/{id}', [ApproveRetailController::class, 'approve']);
+        Route::patch('/approve/{id}', [ApproveRetailController::class, 'approved']);
+        Route::patch('/reject/{id}', [ApproveRetailController::class, 'rejected']);
         Route::patch('/{id}', [ApproveRetailController::class, 'update']);
         Route::delete('/{id}', [ApproveRetailController::class, 'destroy']);
     });

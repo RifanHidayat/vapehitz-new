@@ -59,7 +59,7 @@
                                         <td>@{{product.central_stock}}</td>
                                         <td>@{{product.retail_stock}}</td>
                                         <td>
-                                            <input type="number" v-model="product.quantity" class="form-control">
+                                            <input type="number" v-model="product.quantity" @input="validateQuantity(product)" class="form-control">
                                         </td>
                                         <td>
                                             <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
@@ -72,7 +72,7 @@
                 </div>
                 <p></p>
                 <div class="col-md-12 text-right">
-                    <a href="" class="btn btn-danger">X&nbsp; Reject</a> &nbsp;
+                    <a href="#" @click.prevent="rejectProduct" class="btn btn-danger">X&nbsp; Reject</a> &nbsp;
                     <button class="btn btn-primary"><em class="ni ni-save"></em>&nbsp;Approve</button>
                 </div>
             </form>
@@ -184,7 +184,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.patch('/request-to-retail/{{$approve_retail->id}}', {
+                axios.patch('/approve-retail/approve/{{$approve_retail->id}}', {
                         code: vm.code,
                         date: vm.date,
                         status: vm.status,
@@ -199,7 +199,39 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/request-to-retail';
+                                window.location.href = '/approve-retail';
+                            }
+                        })
+                        // console.log(response);
+                    })
+                    .catch(function(error) {
+                        vm.loading = false;
+                        console.log(error);
+                        Swal.fire(
+                            'Oops!',
+                            'Something wrong',
+                            'error'
+                        )
+                    });
+            },
+            rejectProduct: function() {
+                let vm = this;
+                vm.loading = true;
+                axios.patch('/approve-retail/reject/{{$approve_retail->id}}', {
+                        code: vm.code,
+                        date: vm.date,
+                        selected_products: vm.selectedProducts,
+                    })
+                    .then(function(response) {
+                        vm.loading = false;
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Data has been saved',
+                            icon: 'success',
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/approve-retail';
                             }
                         })
                         // console.log(response);
@@ -222,6 +254,11 @@
             },
             removeFromCheck: function(index) {
                 this.check.splice(index, 1);
+            },
+            validateQuantity: function(product) {
+                if (Number(product.quantity) > Number(product.retail_stock)) {
+                    product.quantity = product.retail_stock;
+                }
             },
         },
     })

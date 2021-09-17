@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\RequestToRetail;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Exception;
 use Yajra\DataTables\Facades\DataTables;
 
 class ApproveRetailController extends Controller
@@ -66,6 +68,180 @@ class ApproveRetailController extends Controller
         return view('approve-retail.approve', [
             'approve_retail' => $approveRetail,
         ]);
+    }
+
+    public function approved(Request $request, $id)
+    {
+        $approveRetail = RequestToRetail::findOrFail($id);
+        $approveRetail->code = $request->code;
+        $approveRetail->date = $request->date;
+        $approveRetail->status = "approved";
+        $products = $request->selected_products;
+
+        try {
+            $approveRetail->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'retail_stock' => $item['retail_stock'],
+                    'quantity' => $item['quantity'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $approveRetail->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $approveRetail,
+            // ]);
+        } catch (Exception $e) {
+            $approveRetail->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            $approveRetail->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            $approveRetail->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $productRow->retail_stock = $productRow->retail_stock - $product['quantity'];
+                $productRow->central_stock = $productRow->central_stock + $product['quantity'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $approveRetail,
+            ]);
+        } catch (Exception $e) {
+            $approveRetail->products()->detach();
+            $approveRetail->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+
+    public function rejected(Request $request, $id)
+    {
+        $approveRetail = RequestToRetail::findOrFail($id);
+        $approveRetail->code = $request->code;
+        $approveRetail->date = $request->date;
+        $approveRetail->status = "rejected";
+        $products = $request->selected_products;
+
+        try {
+            $approveRetail->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'retail_stock' => $item['retail_stock'],
+                    'quantity' => $item['quantity'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $approveRetail->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $approveRetail,
+            // ]);
+        } catch (Exception $e) {
+            $approveRetail->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            $approveRetail->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            $approveRetail->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                // $productRow->retail_stock = $productRow->retail_stock - $product['quantity'];
+                // $productRow->central_stock = $productRow->central_stock + $product['quantity'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $approveRetail,
+            ]);
+        } catch (Exception $e) {
+            $approveRetail->products()->detach();
+            $approveRetail->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
