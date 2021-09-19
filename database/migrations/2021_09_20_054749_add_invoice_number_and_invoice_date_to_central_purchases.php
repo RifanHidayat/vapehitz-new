@@ -15,8 +15,8 @@ class AddInvoiceNumberAndInvoiceDateToCentralPurchases extends Migration
     {
         Schema::table('central_purchases', function (Blueprint $table) {
             //
-            $table->string('invoice_number',100)->after('id');
-            $table->string('username')->after('name');
+            $table->string('invoice_number',100)->after('payment_method')->nullable();
+            $table->date('invoice_date')->after('invoice_number')->nullable();
         });
     }
 

@@ -14,7 +14,7 @@
             <div class="nk-block-des text-soft">
                 <ul class="list-inline">
                     <li>Nomor Retur: <span class="text-base">{{$purchaseReturn->code}}</span></li>
-                    <li>Nomor Order: <span class="text-base">{{$purchaseReturn->centralPurchase->code}}</span></li>
+                    <li>Tanggal Retur: <span class="text-base">{{$purchaseReturn->date}}</span></li>
         
                 </ul>
             </div>
@@ -73,7 +73,7 @@
                         <div class="card-inner card-inner-md">
                             <div class="card-title-group">
                                 <div class="card-title">
-                                    <h6 class="title">Detail retur</h6>
+                                    <h6 class="title">Detail Pembelian</h6>
                                 </div>
                                 <!-- <div class="card-tools mr-n1">
                                 <div class="drodown">
@@ -93,8 +93,8 @@
                 <ul class="data-list is-compact">
                 <li class="data-item">
                         <div class="data-col">
-                            <div class="data-label">Tanggal retur</div>
-                            <div class="data-value">{{ $purchaseReturn->date }}</div>
+                            <div class="data-label">Nomor Order</div>
+                            <div class="data-value">{{$purchaseReturn->centralPurchase->code }}</div>
                         </div>
                     </li>
                     <!-- <li class="data-item">
@@ -111,17 +111,17 @@
                     </li> -->
                     <li class="data-item">
                         <div class="data-col">
-                            <div class="data-label">Nama Suppiler</div>
-                            <div class="data-value">{{ $purchaseReturn->supplier->name }}</div>
+                            <div class="data-label">Tanggal Order</div>
+                            <div class="data-value">{{ $purchaseReturn->centralPurchase->date }}</div>
                         </div>
                     </li>
                 
-                    <li class="data-item">
+                    <!-- <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Sisa Hutang</div>
                             <div class="data-value">{{number_format($purchaseReturn->centralPurchase->netto-$payAmount)}}</div>
                         </div>
-                    </li>
+                    </li> -->
                     
                 </ul>
             </div>

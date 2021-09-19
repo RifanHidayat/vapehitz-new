@@ -344,7 +344,6 @@ class PurchaseReturnController extends Controller
                 $productRow->central_stock = $productRow->central_stock - ($product['return_quantity']) ;
                 $productRow->save();
                 //update purchase product
- 
             }
 
         } catch (Exception $e) {
@@ -369,8 +368,6 @@ class PurchaseReturnController extends Controller
             ]
         ];
     })->all();
-
-
 
     try {
         $purchaseReturn->products()->attach($keyedProducts);

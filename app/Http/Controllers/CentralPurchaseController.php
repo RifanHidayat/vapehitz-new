@@ -116,7 +116,8 @@ class CentralPurchaseController extends Controller
             $accountTransaction->type="in";
             $accountTransaction->note="Biaya kirim Pembelian barang dengan No. Order ".$request->code;
             $accountTransaction->date=$request->date;
-        try{
+        
+            try{
             $accountTransaction->save();
             }catch(Exception $e){
             return response()->json([
@@ -308,6 +309,7 @@ class CentralPurchaseController extends Controller
         $payAmount = collect($centralPurchase->purchaseTransactions)->sum('pivot.amount');
         
         $transactions = collect($centralPurchase->purchaseTransactions)->sortBy('date')->values()->all();
+       // return $centralPurchase;
         
       
         return view('central-purchase.show', [
@@ -371,6 +373,8 @@ class CentralPurchaseController extends Controller
         $centralPurchase->netto = $request->netto;
         $centralPurchase->pay_amount = $request->pay_amount;
         $centralPurchase->payment_method = $request->payment_method;
+        $centralPurchase->invoice_number=$request->invoice_number;
+        $centralPurchase->invoice_date=$request->invoice_date;
         $products = $request->selected_products;
 
         
@@ -489,13 +493,7 @@ class CentralPurchaseController extends Controller
                 $productRow->central_stock = $productRow->central_stock - ($product['pivot']['quantity']) ;
                 $productRow->save();
             }
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'products' => $products,
-            //     'productRow'=>$productRow
-            // ]);
+        
         } catch (Exception $e) {
        
             return response()->json([

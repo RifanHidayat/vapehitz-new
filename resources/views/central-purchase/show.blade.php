@@ -97,7 +97,7 @@
                                         <td class="text-left">{{ $product->code}}</td>
                                         <td class="text-left">{{ $product->name}}</td>
                                         <td class="text-right">{{ number_format($product->pivot->price)}}</td>
-                                        <td class="text-right">{{ $product->pivot->quantity}}</td>
+                                        <td class="text-right">{{ $product->pivot->quantity-$product->pivot->return_quantity}}</td>
                                     </tr>
                                    
                                     @endforeach

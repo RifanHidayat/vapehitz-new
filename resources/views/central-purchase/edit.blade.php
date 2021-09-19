@@ -122,6 +122,73 @@
         </div>
         <div class="col-lg-5 col-md-12">
             <form @submit.prevent="submitForm">
+
+            <div class="card card-bordered">
+                    <div class="card-inner-group">
+                        <div class="card-inner card-inner-md">
+                            <div class="card-title-group">
+                                <div class="card-title">
+                                    <h6 class="title">Invoice Supplier</h6>
+                                </div>
+                                <!-- <div class="card-tools mr-n1">
+                                <div class="drodown">
+                                    <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="false"><em class="icon ni ni-more-h"></em></a>
+                                    <div class="dropdown-menu dropdown-menu-right" style="">
+                                        <ul class="link-list-opt no-bdr">
+                                            <li><a href="#"><em class="icon ni ni-plus"></em><span>Tambah</span></a></li>
+                                            <li><a href="#"><em class="icon ni ni-notify"></em><span>Hapus Semua</span></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div> -->
+                            </div>
+                        </div><!-- .card-inner -->
+                        <div class="card-inner">
+                            <!-- <div class="form-group col-md-12">
+                            <label class="form-label" for="full-name-1">Nomor Order</label>
+                            <div class="form-control-wrap">
+                                <input type="text" v-model="code" class="form-control" readonly>
+                            </div>
+                        </div> -->
+
+                            <div class="form-group">
+                                <label class="form-label" for="full-name-1">Tanggal Invoice</label>
+                                <div class="form-control-wrap">
+                                    <input type="date" v-model="invoiceDate" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group ">
+                                    <label class="form-label" for="full-name-1">Nomor Invoice</label>
+                                    <div class="form-control-wrap">
+                                        
+                                        <input type="text" v-model="invoiceNumber"  class="form-control text-left" >
+                                    </div>
+                                </div>
+                          
+                            <div class="collapse" id="collapseExample">
+                                <div class="card card-body">
+                                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
+                                </div>
+                            </div>
+
+                            
+                          
+                            
+                            
+                          
+
+                            <!-- <div class="col-12">
+                            <div class="form-group">
+                                <button class="btn btn-primary" type="submit" :disabled="loading">
+                                    <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span>Simpan</span>
+                                </button>
+                            </div>
+                        </div> -->
+                        </div>
+                    </div>
+                    
+                </div>
                 <div class="card card-bordered">
                     <div class="card-inner-group">
                         <div class="card-inner card-inner-md">
@@ -384,6 +451,8 @@
             suppliers: JSON.parse('{!! $suppliers !!}'),
             cart: [],
             selectedProducts: JSON.parse('{!! $central_purchases->products !!}'),
+            invoiceNumber:'',
+            invoiceDate:'',
             cleaveCurrency: {
                 delimiter: '.',
                 numeralDecimalMark: ',',
@@ -395,6 +464,8 @@
         methods: {
             submitForm: function() {
                 this.sendData();
+                // console.log(this.invoiceDate);
+                // console.log(this.invoiceNumber);
             },
             sendData: function() {
                 // console.log('submitted');
@@ -412,6 +483,9 @@
                         pay_amount: vm.payment,
                         payment_method: vm.paymentMethod,
                         selected_products: vm.selectedProducts,
+                        invoice_number:vm.invoiceNumber,
+                        invoice_date:vm.invoiceDate
+
                     })
                     .then(function(response) {
                         vm.loading = false;
