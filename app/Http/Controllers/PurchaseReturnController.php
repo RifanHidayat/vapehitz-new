@@ -75,8 +75,6 @@ class PurchaseReturnController extends Controller
         $accountTransaction->note=$request->note;
         $accountTransaction->date=$request->date;
 
-
-
         //save purchase return
           try {
             $purchaseReturn->save();
@@ -89,16 +87,17 @@ class PurchaseReturnController extends Controller
                 'errors' => $e,
             ], 500);
         }
+
         //update amount central purchase
-         $centralPurchase = CentralPurchase::find($request->purchase_id);
-        if ($request->payment_method=='debt'){
+        $centralPurchase = CentralPurchase::find($request->purchase_id);
+        
+        if ($request->payment_method=='hutang'){
             if ($total_return_amount>$remaining_pay){
                 //Transaction account debt             
                 try{
                     $accountTransaction->account_id="3";
                     $accountTransaction->amount=$remaining_pay;
                     $accountTransaction->type="out";
-
                     $accountTransaction->save();
                 }catch(Exception $e){
                     return response()->json([
@@ -253,7 +252,7 @@ class PurchaseReturnController extends Controller
                   $purchaseReturnTransaction ->date = $request->date;
                   $purchaseReturnTransaction ->account_id = $request->account_id;
                   $purchaseReturnTransaction ->supplier_id = $request->supplier_id;
-                  $purchaseReturnTransaction->amount=$total_return_amount                                                                                                                                                                                                                                                          ;
+                  $purchaseReturnTransaction->amount=$total_return_amount ;                                                                                                                                         
                   $purchaseReturnTransaction ->payment_method = $request->payment_method;
                   $purchaseReturnTransaction ->note = $request->note;
                   $purchaseReturnTransaction ->purchase_return_id = $purchaseReturn->id;
@@ -318,10 +317,13 @@ class PurchaseReturnController extends Controller
               //update stock central
               try {
                 foreach ($products as $product) {  
+                if ($product['return_quantity']<=0){
+                    continue;
+                }
                 DB::table('central_purchase_product')
                 ->where('product_id', $product['id'])
                 ->where('central_purchase_id', $product['pivot']['central_purchase_id'])
-                ->update(['return_quantity' => $product['return_quantity']]);
+                ->update(['return_quantity' =>$product['pivot']['return_quantity']+$product['return_quantity']]);
             }
             } catch (Exception $e) {
               return response()->json([
@@ -342,7 +344,6 @@ class PurchaseReturnController extends Controller
                 $productRow->central_stock = $productRow->central_stock - ($product['return_quantity']) ;
                 $productRow->save();
                 //update purchase product
- 
             }
 
         } catch (Exception $e) {
@@ -368,8 +369,6 @@ class PurchaseReturnController extends Controller
         ];
     })->all();
 
-
-
     try {
         $purchaseReturn->products()->attach($keyedProducts);
     } catch (Exception $e) {
@@ -391,7 +390,26 @@ class PurchaseReturnController extends Controller
      */
     public function show($id)
     {
-        //
+        $payAmount=0;
+        $accounts = Account::all();
+        $purchaseReturn = PurchaseReturn::with(['centralPurchase','supplier','account','products'])->findOrFail($id);
+
+        //Purchase Transaction
+        if ($purchaseReturn->centralPurchase->id!=null){
+            $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($purchaseReturn->centralPurchase->id);
+            $payAmount = collect($purchase->purchaseTransactions)->sum('pivot.amount');
+        }
+        
+        $transactions = collect($purchaseReturn->purchaseReturnTransactions)->sortBy('date')->values()->all();
+       // return $purchaseReturn;
+          
+        return view('purchase-return.show', [
+            'purchaseReturn' => $purchaseReturn,
+            'accounts' => $accounts,
+            'payAmount'=>$payAmount,
+            'transactions'=>$transactions
+       
+        ]);
     }
 
     /**
@@ -428,10 +446,26 @@ class PurchaseReturnController extends Controller
     {
 
         $PurchaseReturn= PurchaseReturn::findOrFail($id);
-        $purchaseReturnTransaction= PurchaseReturnTransaction::findOrFail($id);
+        //$purchaseReturnTransaction= PurchaseReturnTransaction::findOrFail($id);
 
         try {
             $PurchaseReturn->delete();
+           
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+                "e"=>'ww'
+            ], 500);
+        }
+
+        
+        try {
+            DB::table("purchase_return_transactions")->where('id', $id)->delete();
+           // $purchaseReturnTransaction->delete();
             return response()->json([
                 'message' => 'Data has been deleted',
                 'code' => 200,
@@ -448,9 +482,9 @@ class PurchaseReturnController extends Controller
             ], 500);
         }
 
-        
         try {
-            $purchaseReturnTransaction->delete();
+            DB::table("product_purchase_return")->where('purchase_return_id', $id)->delete();
+           // $purchaseReturnTransaction->delete();
             return response()->json([
                 'message' => 'Data has been deleted',
                 'code' => 200,
@@ -500,11 +534,15 @@ class PurchaseReturnController extends Controller
     public function datatablePurchaseReturn()
     {
 
-        $PurchaseReturn = PurchaseReturn::with(['supplier'])->select('purchase_returns.*');
+        $PurchaseReturn = PurchaseReturn::with(['supplier','centralPurchase'])->select('purchase_returns.*');
+        //return $row->centralPurchase->code;
         return DataTables::eloquent($PurchaseReturn)
             ->addIndexColumn()
             ->addColumn('supplier_name', function ($row) {
                 return ($row->supplier ? $row->supplier->name : "");
+            })
+            ->addColumn('central_purchase_code', function ($row) {
+                return ($row->centralPurchase->code );
             })
             ->addColumn('payAmount', function ($row) {
                 $purchase = PurchaseReturn::with(['supplier'])->findOrFail($row->id);
@@ -532,6 +570,10 @@ class PurchaseReturnController extends Controller
                     <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                     <span>Delete</span>
                     </a>
+                    <a href="/purchase-return/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                    <span>Detail</span>
+                 
+                </a>
                    
                     <a href="/purchase-return/pay/' . $row->id . '"><em class="icon fas fa-check"></em>
                     <span>Pay</span>

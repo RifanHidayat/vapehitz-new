@@ -48,7 +48,7 @@
                                     @foreach($transactions as $transaction)
                                     <tr>
                                         <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
-                                        <td><a href="/purchase-transaction/detail/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
+                                        <td><a href="/purchase-transaction/show/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
                                         <td class="text-right">{{ number_format($transaction->pivot->amount) }}</td>
                                     </tr>
                                     @php $subTotal += $transaction->pivot->amount; @endphp

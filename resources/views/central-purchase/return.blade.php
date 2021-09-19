@@ -332,7 +332,7 @@
                 accountId: '',
                 purchaseId: '{{ $purchase->id }}',
                 netto: '{{ $purchase->netto }}',
-                remainingPay: '{{ $purchase->netto-$purchase->pay_amount }}',
+                remainingPay: '{{ $purchase->netto-$payAmountPurchase }}',
                 
                 suppliers: [],
                 cart: [],

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AccountTransaction;
 use App\Models\CentralPurchase;
+use App\Models\PurchaseReturn;
 use App\Models\PurchaseReturnTransaction;
 use App\Models\PurchaseTransaction;
 use Exception;
@@ -114,6 +115,17 @@ class PurchaseReturnTransactionController extends Controller
     public function show($id)
     {
         //
+        $purchaseReturnTransaction = PurchaseReturnTransaction::with(['supplier','account'])->findOrFail($id);
+
+        $purchaseReturn=PurchaseReturn::with(['products','centralPurchase'])->findOrFail($purchaseReturnTransaction->purchase_return_id);
+      //  return $purchaseReturn;
+       
+
+        
+        return view('purchase-return-transaction.show', [
+            'purchaseReturnTransaction' => $purchaseReturnTransaction,
+            'purchaseReturn'=>$purchaseReturn
+        ]);
     }
 
     /**
@@ -195,6 +207,10 @@ class PurchaseReturnTransactionController extends Controller
                    
                     <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                     <span>Delete</span>
+                    </a>
+
+                    <a href="/purchase-return-transaction/show/' . $row->id . '" ><em class="icon fas fa-eye"></em>
+                    <span>Detail</span>
                     </a>
                  
                   

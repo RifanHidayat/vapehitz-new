@@ -3,16 +3,25 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between g-3">
         <div class="nk-block-head-content">
-            <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-           
-            <!-- <div class="nk-block-des">
-                <p class="lead">Manage Supplier</p>
-            </div> -->
+            <h3 class="nk-block-title page-title">Akun {{$account->name}} ({{$account->number}})</h3>
+            <div class="nk-block-des text-soft">
+                <ul class="list-inline">
+                    
+                    
+                   
+                </ul>
+            </div>
         </div>
-    </div><!-- .nk-block -->
+        <div class="nk-block-head-content">
+            <a href="/purchase-transaction" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
+        </div>
+    </div>
+</div>
+<div class="components-preview">
+    
     <div class="nk-block nk-block-lg">
         <!-- <div class="nk-block-head">
             <div class="nk-block-head-content">
@@ -22,9 +31,9 @@
                 </div>
             </div>
         </div> -->
-        <div class="col-lg-6 col-md-6" valign="right">
+     
 
-<div class="card card-bordered">
+<!-- <div class="card card-bordered">
     <div class="card-inner-group">
         <div class="card-inner card-inner-md">
             <div class="card-title-group">
@@ -33,7 +42,8 @@
                 </div>
      
             </div>
-        </div><!-- .card-inner -->
+        </div>
+        
         <div class="card-inner">
         <div class="card card-bordered">
         <ul class="data-list is-compact">
@@ -77,9 +87,45 @@
        
         </div>
     </div>
-</div>
+</div> -->
+<div class="col-lg-6 col-md-6">
+        <div class="card card-bordered" >
+                <div class="card-inner">
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
+                                <div class="info">
+                                    <span class="title">Total In</span>
+                                    <p class="amount" ><strong>{{number_format($cash_in)}}</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
+                                <div class="info">
+                                    <span class="title">Total Out</span>
+                                    <p class="amount" ><strong>{{number_format($cash_out)}}</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
+                                <div class="info">
+                                    <span class="title">Balance</span>
+                                    <p class="amount" ><strong>{{number_format($balance)}}</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 <br>
 </div>
+
        
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
@@ -87,7 +133,7 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table class="table table-striped" id="accountTransactions">
+                    <table style="width: 100%;" class="table table-striped" id="accountTransactions">
                         <thead>
                             <tr>
                                 <th>Tanggal</th>
@@ -178,6 +224,7 @@
         $('#accountTransactions').DataTable({
             processing: true,
             serverSide: true,
+            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
                 url: '/datatables/account-transactions/'+<?php echo $account_id ?>,
                 type: 'GET',

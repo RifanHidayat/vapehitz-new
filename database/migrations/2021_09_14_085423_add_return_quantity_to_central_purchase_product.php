@@ -14,7 +14,7 @@ class AddReturnQuantityToCentralPurchaseProduct extends Migration
     public function up()
     {
         Schema::table('central_purchase_product', function (Blueprint $table) {
-            $table->integer('return_quantity')->after('quantity')->nullable();
+            $table->integer('return_quantity')->after('quantity')->default(0)->nullable();
             
         });
     }

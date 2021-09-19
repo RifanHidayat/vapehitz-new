@@ -3,10 +3,10 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="components-preview wide-md mx-auto">
+<div class="components-preview">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
-            <h2 class="nk-block-title fw-normal">History Penyelesain retur</h2>
+            <h2 class="nk-block-title fw-normal">Pembayaran Retur</h2>
         </div>
     </div>
     <div class="nk-block nk-block-lg">
@@ -18,15 +18,12 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table class="table table-striped" id="purchaseReturnTransaction">
+                    <table style="width: 100%;" class="table table-striped" id="purchaseReturnTransaction">
                         <thead>
                             <tr>
                                 <!-- <th>Nomor Order</th> -->
                                 <th>Tanggal retur</th>
-                                <th>Nomor Retur</th>
-                               
-                              
-                               
+                                <th>Nomor Transaksi Retur</th>                    
                                 <th>Nama Supplier</th>
                                 <th>Jumlah bayar</th>
                                 <th>Akun</th>
@@ -50,6 +47,7 @@ var centralPurchaseTable = $(function() {
         $('#purchaseReturnTransaction').DataTable({
             processing: true,
             serverSide: true,
+            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
                 url: '/datatables/purchase-return-transactions',
                 type: 'GET',

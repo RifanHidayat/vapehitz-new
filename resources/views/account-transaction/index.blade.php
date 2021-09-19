@@ -3,7 +3,7 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="nk-block-head nk-block-head-lg wide-lg">
+<div class="nk-block-head ">
     <div class="nk-block-head-content">
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">

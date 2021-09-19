@@ -3,7 +3,7 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="components-preview wide-md mx-auto">
+<div class="components-preview">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
@@ -29,7 +29,7 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table class="table table-striped" id="centralPurchase">
+                    <table style="width: 100%;" class="table table-striped" id="centralPurchase">
                         <thead>
                             <tr>
                                 <th>Tanggal Pembayaran</th>
@@ -107,6 +107,7 @@
         $('#centralPurchase').DataTable({
             processing: true,
             serverSide: true,
+            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
                 url: '/datatables/purchases-transactions',
                 type: 'GET',

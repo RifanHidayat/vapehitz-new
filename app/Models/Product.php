@@ -58,6 +58,11 @@ class Product extends Model
     {
         return $this->belongsToMany(RetailRequestToCentral::class);
     }
+    public function requestToStudio()
+    {
+        return $this->belongsToMany(requestToStudio::class);
+    }
+    
 
     public function centralSaleReturns()
     {
