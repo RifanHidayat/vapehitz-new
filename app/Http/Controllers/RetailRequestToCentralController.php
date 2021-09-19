@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\RequestToRetail;
+use App\Models\RetailRequestToCentral;
 use Exception;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
-class RequestToRetailController extends Controller
+class RetailRequestToCentralController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,9 +19,7 @@ class RequestToRetailController extends Controller
      */
     public function index()
     {
-        return view('request-to-retail.index', [
-            // 'code' => $code,
-        ]);
+        return view('retail-request-to-central.index');
     }
 
     /**
@@ -29,12 +27,11 @@ class RequestToRetailController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
     public function create()
     {
-        $maxid = DB::table('request_to_retails')->max('id');
-        $code = "ROGP/VH/" . date("m-y") . "/" . sprintf('%04d', $maxid + 1);
-        return view('request-to-retail.create', [
+        $maxid = DB::table('retail_request_to_centrals')->max('id');
+        $code = "ROGR/VH/" . date("m-y") . "/" . sprintf('%04d', $maxid + 1);
+        return view('retail-request-to-central.create', [
             'code' => $code,
         ]);
     }
@@ -48,18 +45,17 @@ class RequestToRetailController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'code' => 'required',
             'date' => 'required',
             'selected_products' => 'required',
         ]);
 
-        $requestToRetail = new RequestToRetail();
-        $requestToRetail->code = $request->code;
-        $requestToRetail->date = $request->date;
+        $reqtocentral = new RetailRequestToCentral();
+        $reqtocentral->code = $request->code;
+        $reqtocentral->date = $request->date;
         $products = $request->selected_products;
 
         try {
-            $requestToRetail->save();
+            $reqtocentral->save();
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
@@ -71,8 +67,8 @@ class RequestToRetailController extends Controller
         $keyedProducts = collect($products)->mapWithKeys(function ($item) {
             return [
                 $item['id'] => [
-                    'retail_stock' => $item['retail_stock'],
                     'central_stock' => $item['central_stock'],
+                    'retail_stock' => $item['retail_stock'],
                     'quantity' => $item['quantity'],
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),
@@ -81,15 +77,15 @@ class RequestToRetailController extends Controller
         })->all();
 
         try {
-            $requestToRetail->products()->attach($keyedProducts);
+            $reqtocentral->products()->attach($keyedProducts);
             // return response()->json([
             //     'message' => 'Data has been saved',
             //     'code' => 200,
             //     'error' => false,
-            //     'data' => $requestToRetail,
+            //     'data' => $reqtocentral,
             // ]);
         } catch (Exception $e) {
-            $requestToRetail->delete();
+            $reqtocentral->delete();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -106,19 +102,19 @@ class RequestToRetailController extends Controller
                 }
 
                 // Calculate average purchase price
-                $productRow->retail_stock = $product['retail_stock'];
                 $productRow->central_stock = $product['central_stock'];
+                $productRow->retail_stock = $product['retail_stock'];
                 $productRow->save();
             }
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
                 'error' => false,
-                'data' => $requestToRetail,
+                'data' => $reqtocentral,
             ]);
         } catch (Exception $e) {
-            $requestToRetail->products()->detach();
-            $requestToRetail->delete();
+            $reqtocentral->products()->detach();
+            $reqtocentral->delete();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -147,12 +143,12 @@ class RequestToRetailController extends Controller
      */
     public function edit($id)
     {
-        $requestToRetail = RequestToRetail::with('products')->findOrFail($id);
-        $selectedProducts = collect($requestToRetail->products)->each(function ($product) {
+        $retail_request_to_central = RetailRequestToCentral::with('products')->findOrFail($id);
+        $selectedProducts = collect($retail_request_to_central->products)->each(function ($product) {
             $product['quantity'] = $product->pivot->quantity;
         });
-        return view('request-to-retail.edit', [
-            'request_to_retail' => $requestToRetail,
+        return view('retail-request-to-central.edit', [
+            'retail_request_to_central' => $retail_request_to_central,
         ]);
     }
 
@@ -165,85 +161,7 @@ class RequestToRetailController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $requestToRetail = RequestToRetail::findOrFail($id);
-        $requestToRetail->code = $request->code;
-        $requestToRetail->date = $request->date;
-        $products = $request->selected_products;
-
-        try {
-            $requestToRetail->save();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
-            return [
-                $item['id'] => [
-                    'retail_stock' => $item['retail_stock'],
-                    'quantity' => $item['quantity'],
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'updated_at' => Carbon::now()->toDateTimeString(),
-                ]
-            ];
-        })->all();
-        try {
-            $requestToRetail->products()->detach();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $requestToRetail,
-            // ]);
-        } catch (Exception $e) {
-            $requestToRetail->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-        try {
-            $requestToRetail->products()->attach($keyedProducts);
-        } catch (Exception $e) {
-            $requestToRetail->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-        try {
-            foreach ($products as $product) {
-                $productRow = Product::find($product['id']);
-                if ($productRow == null) {
-                    continue;
-                }
-
-                $productRow->retail_stock = $product['retail_stock'];
-                $productRow->save();
-            }
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $requestToRetail,
-            ]);
-        } catch (Exception $e) {
-            $requestToRetail->products()->detach();
-            $requestToRetail->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
+        //
     }
 
     /**
@@ -254,29 +172,13 @@ class RequestToRetailController extends Controller
      */
     public function destroy($id)
     {
-        $requestToRetail = RequestToRetail::findOrFail($id);
-        try {
-            $requestToRetail->delete();
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $requestToRetail,
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
+        //
     }
 
-    public function datatableRequestToRetail()
+    public function datatableRetailRequestToCentral()
     {
-        $reqtoretail = RequestToRetail::all();
-        return DataTables::of($reqtoretail)
+        $reqtocentral = RetailRequestToCentral::all();
+        return DataTables::of($reqtocentral)
             ->addIndexColumn()
             ->addColumn('status', function ($row) {
                 $pending = "<span class='badge badge-outline-warning text-warning'>Pending</span>";
@@ -294,7 +196,7 @@ class RequestToRetailController extends Controller
             })
             ->addColumn('action', function ($row) {
                 $edit = '
-                <a href="/request-to-retail/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                <a href="/retail-request-to-central/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
                     <span>Edit</span>
                 </a>';
                 $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>

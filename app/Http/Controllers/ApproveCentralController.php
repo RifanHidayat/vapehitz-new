@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\RequestToRetail;
+use App\Models\RetailRequestToCentral;
 use Exception;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use Yajra\DataTables\Facades\DataTables;
 
-class RequestToRetailController extends Controller
+class ApproveCentralController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,9 +18,7 @@ class RequestToRetailController extends Controller
      */
     public function index()
     {
-        return view('request-to-retail.index', [
-            // 'code' => $code,
-        ]);
+        return view('approve-central.index');
     }
 
     /**
@@ -29,14 +26,9 @@ class RequestToRetailController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
     public function create()
     {
-        $maxid = DB::table('request_to_retails')->max('id');
-        $code = "ROGP/VH/" . date("m-y") . "/" . sprintf('%04d', $maxid + 1);
-        return view('request-to-retail.create', [
-            'code' => $code,
-        ]);
+        //
     }
 
     /**
@@ -47,19 +39,47 @@ class RequestToRetailController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'code' => 'required',
-            'date' => 'required',
-            'selected_products' => 'required',
-        ]);
+        //
+    }
 
-        $requestToRetail = new RequestToRetail();
-        $requestToRetail->code = $request->code;
-        $requestToRetail->date = $request->date;
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $approveCentral = RetailRequestToCentral::with('products')->findOrFail($id);
+        $selectedProducts = collect($approveCentral->products)->each(function ($product) {
+            $product['quantity'] = $product->pivot->quantity;
+        });
+        return view('approve-central.show', [
+            'approve_central' => $approveCentral,
+        ]);
+    }
+
+    public function approve($id)
+    {
+        $approveCentral = RetailRequestToCentral::findOrFail($id);
+        $selectedProducts = collect($approveCentral->products)->each(function ($product) {
+            $product['quantity'] = $product->pivot->quantity;
+        });
+        return view('approve-central.approve', [
+            'approve_central' => $approveCentral,
+        ]);
+    }
+
+    public function approved(Request $request, $id)
+    {
+        $approveCentral = RetailRequestToCentral::findOrFail($id);
+        $approveCentral->code = $request->code;
+        $approveCentral->date = $request->date;
+        $approveCentral->status = "approved";
         $products = $request->selected_products;
 
         try {
-            $requestToRetail->save();
+            $approveCentral->save();
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
@@ -68,6 +88,7 @@ class RequestToRetailController extends Controller
                 'errors' => $e,
             ], 500);
         }
+
         $keyedProducts = collect($products)->mapWithKeys(function ($item) {
             return [
                 $item['id'] => [
@@ -81,15 +102,15 @@ class RequestToRetailController extends Controller
         })->all();
 
         try {
-            $requestToRetail->products()->attach($keyedProducts);
+            $approveCentral->products()->detach();
             // return response()->json([
             //     'message' => 'Data has been saved',
             //     'code' => 200,
             //     'error' => false,
-            //     'data' => $requestToRetail,
+            //     'data' => $approveCentral,
             // ]);
         } catch (Exception $e) {
-            $requestToRetail->delete();
+            $approveCentral->delete();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -97,7 +118,17 @@ class RequestToRetailController extends Controller
                 'errors' => $e,
             ], 500);
         }
-
+        try {
+            $approveCentral->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            $approveCentral->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
         try {
             foreach ($products as $product) {
                 $productRow = Product::find($product['id']);
@@ -105,20 +136,19 @@ class RequestToRetailController extends Controller
                     continue;
                 }
 
-                // Calculate average purchase price
-                $productRow->retail_stock = $product['retail_stock'];
-                $productRow->central_stock = $product['central_stock'];
+                $productRow->central_stock = $productRow->central_stock - $product['quantity'];
+                $productRow->retail_stock = $productRow->retail_stock + $product['quantity'];
                 $productRow->save();
             }
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
                 'error' => false,
-                'data' => $requestToRetail,
+                'data' => $approveCentral,
             ]);
         } catch (Exception $e) {
-            $requestToRetail->products()->detach();
-            $requestToRetail->delete();
+            $approveCentral->products()->detach();
+            $approveCentral->delete();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -128,15 +158,92 @@ class RequestToRetailController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function rejected(Request $request, $id)
     {
-        //
+        $approveCentral = RetailRequestToCentral::findOrFail($id);
+        $approveCentral->code = $request->code;
+        $approveCentral->date = $request->date;
+        $approveCentral->status = "rejected";
+        $products = $request->selected_products;
+
+        try {
+            $approveCentral->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'retail_stock' => $item['retail_stock'],
+                    'central_stock' => $item['central_stock'],
+                    'quantity' => $item['quantity'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $approveCentral->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $approveCentral,
+            // ]);
+        } catch (Exception $e) {
+            $approveCentral->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            $approveCentral->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            $approveCentral->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                // $productRow->retail_stock = $productRow->retail_stock - $product['quantity'];
+                // $productRow->central_stock = $productRow->central_stock + $product['quantity'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $approveCentral,
+            ]);
+        } catch (Exception $e) {
+            $approveCentral->products()->detach();
+            $approveCentral->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -147,13 +254,7 @@ class RequestToRetailController extends Controller
      */
     public function edit($id)
     {
-        $requestToRetail = RequestToRetail::with('products')->findOrFail($id);
-        $selectedProducts = collect($requestToRetail->products)->each(function ($product) {
-            $product['quantity'] = $product->pivot->quantity;
-        });
-        return view('request-to-retail.edit', [
-            'request_to_retail' => $requestToRetail,
-        ]);
+        //
     }
 
     /**
@@ -165,85 +266,7 @@ class RequestToRetailController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $requestToRetail = RequestToRetail::findOrFail($id);
-        $requestToRetail->code = $request->code;
-        $requestToRetail->date = $request->date;
-        $products = $request->selected_products;
-
-        try {
-            $requestToRetail->save();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
-            return [
-                $item['id'] => [
-                    'retail_stock' => $item['retail_stock'],
-                    'quantity' => $item['quantity'],
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'updated_at' => Carbon::now()->toDateTimeString(),
-                ]
-            ];
-        })->all();
-        try {
-            $requestToRetail->products()->detach();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $requestToRetail,
-            // ]);
-        } catch (Exception $e) {
-            $requestToRetail->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-        try {
-            $requestToRetail->products()->attach($keyedProducts);
-        } catch (Exception $e) {
-            $requestToRetail->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-        try {
-            foreach ($products as $product) {
-                $productRow = Product::find($product['id']);
-                if ($productRow == null) {
-                    continue;
-                }
-
-                $productRow->retail_stock = $product['retail_stock'];
-                $productRow->save();
-            }
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $requestToRetail,
-            ]);
-        } catch (Exception $e) {
-            $requestToRetail->products()->detach();
-            $requestToRetail->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
+        //
     }
 
     /**
@@ -254,32 +277,18 @@ class RequestToRetailController extends Controller
      */
     public function destroy($id)
     {
-        $requestToRetail = RequestToRetail::findOrFail($id);
-        try {
-            $requestToRetail->delete();
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $requestToRetail,
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
+        //
     }
 
-    public function datatableRequestToRetail()
+    public function datatableApproveCentral()
     {
-        $reqtoretail = RequestToRetail::all();
-        return DataTables::of($reqtoretail)
+        $approveCentral = RetailRequestToCentral::all();
+        return DataTables::of($approveCentral)
             ->addIndexColumn()
             ->addColumn('status', function ($row) {
-                $pending = "<span class='badge badge-outline-warning text-warning'>Pending</span>";
+                $pending = "<a href='/approve-central/approve/{$row->id}' class='btn btn-outline-warning btn-sm'>
+                <span>Pending</span>
+                </a>";
                 $approved = "<span class='badge badge-outline-success text-success'>Approved</span>";
                 $rejected = "<span class='badge badge-outline-danger text-danger'>Rejected</span>";
                 $button = $row->status;
@@ -293,23 +302,10 @@ class RequestToRetailController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $edit = '
-                <a href="/request-to-retail/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
-                    <span>Edit</span>
-                </a>';
-                $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
-                   <span>Delete</span>
-                   </a>';
-                $button = '
-                   <div class="dropdown">
-                   <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
-                   <div class="dropdown-menu dropdown-menu-right">
-                       <ul class="link-list-opt no-bdr">
-                           ' . $edit . '
-                           ' . $delete . '
-                       </ul>
-                   </div>
-                   </div>';
+                $show = '<a href="/approve-central/show/' . $row->id . '" class="btn btn-outline-warning btn-sm"><em class="icon fas fa-eye"></em>
+                <span>Detail</span>
+            </a>';
+                $button = ".$show.";
                 return $button;
             })
             ->rawColumns(['status', 'action'])

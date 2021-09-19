@@ -120,13 +120,14 @@
                 allowOutsideClick: () => !Swal.isLoading()
             }).then((result) => {
                 if (result.isConfirmed) {
+                    groupTable.ajax.reload();
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
                         text: 'Data has been deleted',
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            window.location.reload();
+                            // window.location.reload();
 
                         }
                     })

@@ -93,6 +93,7 @@ class ApproveRetailController extends Controller
             return [
                 $item['id'] => [
                     'retail_stock' => $item['retail_stock'],
+                    'central_stock' => $item['central_stock'],
                     'quantity' => $item['quantity'],
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),
@@ -180,6 +181,7 @@ class ApproveRetailController extends Controller
             return [
                 $item['id'] => [
                     'retail_stock' => $item['retail_stock'],
+                    'central_stock' => $item['central_stock'],
                     'quantity' => $item['quantity'],
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),

@@ -31,6 +31,7 @@
     }
 </style>
 @section('content')
+@php $permission = json_decode(Auth::user()->group->permission);@endphp
 <div class="nk-block nk-block-lg">
     <div class="nk-block-head">
         <div class="nk-block-head-content">
@@ -40,7 +41,9 @@
             </div> -->
         </div>
     </div>
+    @if(in_array("add_sop_retail", $permission))
     <a href="{{url('/retail-stock-opname/create')}}" class="btn btn-primary">Tambah Data</a>
+    @endif
     <p></p>
     <div class="card card-bordered">
         <div class="card-inner overflow-hidden">

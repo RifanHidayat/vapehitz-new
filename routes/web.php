@@ -11,6 +11,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountTransactionController;
+use App\Http\Controllers\ApproveCentralController;
 use App\Http\Controllers\ApproveRetailController;
 use App\Http\Controllers\PurchaseTransactionController;
 use App\Http\Controllers\ShipmentController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\StockOpnameRetailController;
 use App\Http\Controllers\StockOpnameStudioController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\RequestToRetailController;
+use App\Http\Controllers\RetailRequestToCentralController;
 use App\Http\Controllers\UserController;
 use App\Models\Account;
 use App\Models\PurchaseTransaction;
@@ -378,6 +380,30 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/{id}', [RequestToRetailController::class, 'destroy']);
     });
 
+    //RouteRetailRequestToCentral
+    Route::prefix('/retail-request-to-central')->group(function () {
+        Route::get('/', [RetailRequestToCentralController::class, 'index']);
+        Route::get('/create', [RetailRequestToCentralController::class, 'create']);
+        Route::post('/', [RetailRequestToCentralController::class, 'store']);
+        Route::get('/edit/{id}', [RetailRequestToCentralController::class, 'edit']);
+        Route::patch('/{id}', [RetailRequestToCentralController::class, 'update']);
+        Route::delete('/{id}', [RetailRequestToCentralController::class, 'destroy']);
+    });
+
+    //RouteApproveCentralFromRetail
+    Route::prefix('/approve-central')->group(function () {
+        Route::get('/', [ApproveCentralController::class, 'index']);
+        Route::get('/create', [ApproveCentralController::class, 'create']);
+        Route::post('/', [ApproveCentralController::class, 'store']);
+        Route::get('/edit/{id}', [ApproveCentralController::class, 'edit']);
+        Route::get('/show/{id}', [ApproveCentralController::class, 'show']);
+        Route::get('/approve/{id}', [ApproveCentralController::class, 'approve']);
+        Route::patch('/approve/{id}', [ApproveCentralController::class, 'approved']);
+        Route::patch('/reject/{id}', [ApproveCentralController::class, 'rejected']);
+        Route::patch('/{id}', [ApproveCentralController::class, 'update']);
+        Route::delete('/{id}', [ApproveCentralController::class, 'destroy']);
+    });
+
     //RouteApproveRetailFromCentral
     Route::prefix('/approve-retail')->group(function () {
         Route::get('/', [ApproveRetailController::class, 'index']);
@@ -456,11 +482,18 @@ Route::prefix('/datatables')->group(function () {
         Route::get('/', [RequestToRetailController::class, 'datatableRequestToRetail']);
         Route::get('/products', [RequestToRetailController::class, 'datatableProduct']);
     });
+    Route::prefix('/retail-request-to-central')->group(function () {
+        Route::get('/', [RetailRequestToCentralController::class, 'datatableRetailRequestToCentral']);
+        Route::get('/products', [RetailRequestToCentralController::class, 'datatableProduct']);
+    });
     Route::prefix('/approve-retail')->group(function () {
         Route::get('/', [ApproveRetailController::class, 'datatableApproveRetail']);
         Route::get('/products', [ApproveRetailController::class, 'datatableProducts']);
     });
-
+    Route::prefix('/approve-central')->group(function () {
+        Route::get('/', [ApproveCentralController::class, 'datatableApproveCentral']);
+        Route::get('/products', [ApproveCentralController::class, 'datatableProducts']);
+    });
     Route::prefix('/stock-opname-retail')->group(function () {
         Route::get('/', [StockOpnameRetailController::class, 'datatableStockOpnameRetail']);
         Route::get('/products', [StockOpnameRetailController::class, 'datatableProducts']);

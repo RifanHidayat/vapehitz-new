@@ -7,8 +7,8 @@
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <div class="nk-block-head-sub">
-                <a class="back-to" href="{{url('/request-to-retail')}}"><em class="icon ni ni-arrow-left"></em>
-                    <span>Permintaan Barang ke Gudang Retail</span>
+                <a class="back-to" href="{{url('/retail-request-to-central')}}"><em class="icon ni ni-arrow-left"></em>
+                    <span>Permintaan Barang ke Gudang Pusat</span>
                 </a>
             </div>
         </div>
@@ -155,9 +155,9 @@
     let app = new Vue({
         el: '#app',
         data: {
-            code: '{{$request_to_retail->code}}',
-            date: '{{$request_to_retail->date}}',
-            selectedProducts: JSON.parse('{!! $request_to_retail->products !!}'),
+            code: '{{$retail_request_to_central->code}}',
+            date: '{{$retail_request_to_central->date}}',
+            selectedProducts: JSON.parse('{!! $retail_request_to_central->products !!}'),
             check: [],
             loading: false,
         },
@@ -183,7 +183,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.patch('/request-to-retail/{{$request_to_retail->id}}', {
+                axios.patch('/request-to-retail/{{$retail_request_to_central->id}}', {
                         code: vm.code,
                         date: vm.date,
                         status: vm.status,
@@ -198,7 +198,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/request-to-retail';
+                                window.location.href = '/retail-request-to-central';
                             }
                         })
                         // console.log(response);
@@ -232,7 +232,7 @@
             serverSide: true,
             autoWidth: false,
             ajax: {
-                url: '/datatables/request-to-retail/products',
+                url: '/datatables/retail-request-to-central/products',
                 type: 'GET',
             },
             columns: [{

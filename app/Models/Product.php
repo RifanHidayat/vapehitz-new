@@ -54,6 +54,11 @@ class Product extends Model
         return $this->belongsToMany(RequestToRetail::class);
     }
 
+    public function reqRetailToCentral()
+    {
+        return $this->belongsToMany(RetailRequestToCentral::class);
+    }
+
     public function centralSaleReturns()
     {
         return $this->belongsToMany(CentralSaleReturn::class)->withPivot('quantity', 'cause');
