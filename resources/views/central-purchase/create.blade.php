@@ -96,6 +96,26 @@
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
                                         </div>
+                                        <div class="row justify-content-between align-items-center mt-3" hidden>
+                                            <p class="col-md-6 mb-0">Amount</p>
+                                            <div class="col-md-6">
+                                                <!-- <div class="form-control-wrap">
+                                                        <input type="text" class="form-control" id="default-05" placeholder="Input placeholder">
+                                                        <div class="form-text-hint">
+                                                            <span class="overline-title">IDR</span>
+                                                        </div>
+                                                    </div> -->
+                                                <div class="form-control-wrap">
+                                                    <div class="form-icon form-icon-left">
+                                                        <!-- <em class="icon ni ni-user"></em> -->
+                                                        <span>Rp</span>
+                                                    </div>
+                                                    <input readOnly type="text" v-model="amount" class="form-control text-right" placeholder="Harga">
+                                                </div>
+                                            </div>
+                                            <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
+                                        </div>
+                                        
                                         <div class="row justify-content-between align-items-center mt-3">
                                             <p class="col-md-6 mb-0">Quantity</p>
                                             <div class="col-md-6">
@@ -355,6 +375,7 @@
 @endsection
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-cleave-component@2"></script>
 @endsection
 @section('pagescript')
 <script>
@@ -386,6 +407,7 @@
             accountId: '',
             suppliers: JSON.parse('{!! $suppliers !!}'),
             cart: [],
+            amount:'',
             selectedProducts: [],
             cleaveCurrency: {
                 delimiter: '.',

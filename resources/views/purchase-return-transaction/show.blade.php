@@ -6,11 +6,11 @@
 <div class="nk-block-head nk-block-head-sm">
     <div class="nk-block-between g-3">
         <div class="nk-block-head-content">
-            <h3 class="nk-block-title page-title">Transaksi Pembelian</h3>
+            <h3 class="nk-block-title page-title">Transaksi Retur Pembelian</h3>
             <div class="nk-block-des text-soft">
                 <ul class="list-inline">
-                    <li>Nomor Transaksi: <span class="text-base">{{$purchaseTransaction->code}}</span></li>
-                    <li>Tanggal Transaksi: <span class="text-base">{{$purchaseTransaction->date}}</span></li>
+                    <li>Nomor Transaksi: <span class="text-base">{{$purchaseReturnTransaction->code}}</span></li>
+                    <li>Tanggal Transaksi: <span class="text-base">{{$purchaseReturnTransaction->date}}</span></li>
                    
                 </ul>
             </div>
@@ -36,7 +36,7 @@
                                 <i class="icon ni ni-layers mr-2" style="font-size: 2em;"></i>
                                 <div class="info">
                                     <span class="title">Kode</span>
-                                    <p class="amount" ><strong>{{$purchaseTransaction->supplier->code}}</strong></p>
+                                    <p class="amount" ><strong>{{$purchaseReturnTransaction->supplier->code}}</strong></p>
                                 </div>
                             </div>
                         </div>
@@ -45,7 +45,7 @@
                             <em class="far fa-building" style="font-size: 2em;margin-right:10px"></em>
                                 <div class="info">
                                     <span class="title">Nama</span>
-                                    <p class="text-lg"><strong>{{$purchaseTransaction->supplier->code}}</strong></p>
+                                    <p class="text-lg"><strong>{{$purchaseReturnTransaction->supplier->name}}</strong></p>
                                 </div>
                             </div>
                         </div>
@@ -53,13 +53,71 @@
                 </div>
                 
             </div>
+            <div class="card card-bordered">
+                    <div class="card-inner-group">
+                        <div class="card-inner card-inner-md">
+                            <div class="card-title-group">
+                                <div class="card-title">
+                                    <h6 class="title">Detail Transaksi retur</h6>
+                                </div>
+                                <!-- <div class="card-tools mr-n1">
+                                <div class="drodown">
+                                    <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="false"><em class="icon ni ni-more-h"></em></a>
+                                    <div class="dropdown-menu dropdown-menu-right" style="">
+                                        <ul class="link-list-opt no-bdr">
+                                            <li><a href="#"><em class="icon ni ni-plus"></em><span>Tambah</span></a></li>
+                                            <li><a href="#"><em class="icon ni ni-notify"></em><span>Hapus Semua</span></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div> -->
+                            </div>
+                        </div><!-- .card-inner -->
+                        <div class="card-inner">
+                        <div class="card card-bordered">
+                <ul class="data-list is-compact">
+                <li class="data-item">
+                        <div class="data-col">
+                            <div class="data-label">Nomor retur</div>
+                            <div class="data-value">{{ $purchaseReturn->code }}</div>
+                        </div>
+                    </li>
+                    <!-- <li class="data-item">
+                        <div class="data-col">
+                            <div class="data-label">Nomor retur</div>
+                            <div class="data-value"></div>
+                        </div>
+                    </li>
+                    <li class="data-item">
+                        <div class="data-col">
+                            <div class="data-label">Nomor Order</div>
+                            <div class="data-value"></div>
+                        </div>
+                    </li> -->
+                    <li class="data-item">
+                        <div class="data-col">
+                            <div class="data-label">Nomor Order</div>
+                            <div class="data-value">{{ $purchaseReturn->centralPurchase->code  }}</div>
+                        </div>
+                    </li>
+                    
+                
+                   
+                    
+                </ul>
+            </div>
+                       
+                        </div>
+                    </div>
+                    
+                </div>
 
             <div class="card card-bordered h-100">
                 <div class="card-inner-group">
                     <div class="card-inner card-inner-md">
                         <div class="card-title-group">
                             <div class="card-title">
-                                <h6 class="title">Detail Harga</h6>
+                                <h6 class="title">Detail Pembayaran</h6>
                             </div>
                             <!-- <div class="card-tools mr-n1">
                                 <ul class="btn-toolbar gx-1">
@@ -85,14 +143,14 @@
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Jumlah Bayar</div>
-                            <div class="data-value">{{ number_format($purchaseTransaction->amount) }}</div>
+                            <div class="data-value">{{ number_format($purchaseReturnTransaction->amount) }}</div>
                        
                         </div>
                     </li>
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Akun Pembayaran</div>
-                            <div class="data-value">{{ $purchaseTransaction->payment_method }} ({{ $purchaseTransaction->account->name }})</div>
+                            <div class="data-value">{{ $purchaseReturnTransaction->payment_method }} ({{ $purchaseReturnTransaction->account->name }})</div>
                         </div>
                     </li>
                     
@@ -110,7 +168,7 @@
                         <div class="card-inner card-inner-md">
                             <div class="card-title-group">
                                 <div class="card-title">
-                                    <h6 class="title">Detail Pembelian</h6>
+                                    <h6 class="title">Detail Produk</h6>
                                 </div>
                                 <br>
                                 <!-- <div class="card-tools mr-n1">
@@ -130,21 +188,25 @@
                         <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th style="width: 50%;">Tanggal</th>
-                                        <th>Nomor Order</th>
-                                        <td align="right" ><b>Jumlah Bayar</b></td>
+                                        <th >Kode</th>
+                                        <th>Nama Produk</th>
+                                        <td align="right" ><b>Quantity retur</b></td>
+                                        <td align="right" ><b>Amount</b></td>
+                                        <td align="right" ><b>Alasan</b></td>
                                         
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $subTotal = 0; @endphp
-                                    @foreach($purchaseTransaction->centralPurchases as $transaction)
+                                    @php @endphp
+                                    @foreach($purchaseReturn->products as $products)
                                     <tr>
-                                        <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
-                                        <td><a href="/central-purchase/show/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
-                                        <td align="right" class="text-right">{{ number_format($transaction->pivot->amount) }}</td>
+                                        <td>{{ $products->code }}</td>
+                                        <td>{{$products->name}}</td>
+                                        <td align="right" class="text-right">{{ $products->pivot->quantity}}</td>
+                                        <td align="right" class="text-right">{{ $products->purchase_price}}</td>
+                                        <td align="right" class="text-right">{{ $products->pivot->cause}}</td>
                                     </tr>
-                                    @php $subTotal += $transaction->pivot->amount; @endphp
+                                    @php  @endphp
                                     @endforeach
                                 </tbody>
                                
@@ -164,7 +226,7 @@
     let app = new Vue({
         el: '#app',
         data: {
-            selectedProducts: JSON.parse('{!! $purchaseTransaction->products !!}'),
+            selectedProducts: JSON.parse('{!! $purchaseReturnTransaction->products !!}'),
             loading: false,
         },
     })

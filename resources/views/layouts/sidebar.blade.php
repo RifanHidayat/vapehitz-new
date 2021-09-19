@@ -83,7 +83,7 @@ if (isset($sidebar_class)) {
                             <li class="nk-menu-item">
 
 
-                                <a href="{{url('/retur-supplier')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
+                     
 
 
                                 <a href="/purchase-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
@@ -93,7 +93,7 @@ if (isset($sidebar_class)) {
                             @endif
                             @if(in_array("view_product_payment", $permission))
                             <li class="nk-menu-item">
-                                <a href="/purchase-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
+                                <a href="/purchase-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">pembayaran Retur</span></a>
                             </li>
                             @endif
                             <li class="nk-menu-item">
@@ -111,7 +111,7 @@ if (isset($sidebar_class)) {
                                 <a href="/sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Penjualan</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penyelesaian Retur</span></a>
+                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Retur</span></a>
                             </li>
                             <li class="nk-menu-item">
 
@@ -135,6 +135,15 @@ if (isset($sidebar_class)) {
                                 <a href="{{url('/reqtoretail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Retail</span></a>
                             </li>
                             @endif
+                            <li class="nk-menu-item">
+                                <a href="{{url('/request-to-studio')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Studio</span></a>
+                            </li>
+
+                           
+                            
+                           
+                           
+
                         </ul><!-- .nk-menu-sub -->
                     </li>
                     @endif

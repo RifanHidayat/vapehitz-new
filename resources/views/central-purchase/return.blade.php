@@ -332,7 +332,7 @@
                 accountId: '',
                 purchaseId: '{{ $purchase->id }}',
                 netto: '{{ $purchase->netto }}',
-                remainingPay: '{{ $purchase->netto-$purchase->pay_amount }}',
+                remainingPay: '{{ $purchase->netto-$payAmountPurchase }}',
                 
                 suppliers: [],
                 cart: [],
@@ -382,7 +382,7 @@
                                 allowOutsideClick: false,
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    window.location.href = '/central-purchase';
+                                //    window.location.href = '/central-purchase';
                                 }
                             })
                             // console.log(response);

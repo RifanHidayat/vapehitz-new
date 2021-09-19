@@ -28,9 +28,12 @@ use App\Http\Controllers\SaleRetailController;
 use App\Http\Controllers\StockOpnameRetailController;
 use App\Http\Controllers\StockOpnameStudioController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\RequestToStudioController;
 use App\Http\Controllers\UserController;
 use App\Models\Account;
 use App\Models\PurchaseTransaction;
+use App\Models\RequestToStudio;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -375,6 +378,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::patch('/{id}', [ReqToRetailController::class, 'update']);
         Route::delete('/{id}', [ReqToRetailController::class, 'destroy']);
     });
+    //RouteRequestToStudio
+    Route::prefix('/request-to-studio')->group(function () {
+        Route::get('/', [RequestToStudioController::class, 'index']);
+        Route::get('/create', [RequestToStudioController::class, 'create']);
+        Route::post('/', [RequestToStudioController::class, 'store']);
+        Route::get('/edit/{id}', [RequestToStudioController::class, 'edit']);
+        Route::patch('/{id}', [RequestToStudioController::class, 'update']);
+        Route::delete('/{id}', [RequestToStudioController::class, 'destroy']);
+    });
+
 
     //RouteSaleRetail
     Route::prefix('/saleretail')->group(function () {
@@ -438,6 +451,9 @@ Route::prefix('/datatables')->group(function () {
     });
     Route::prefix('/reqtoretail')->group(function () {
         Route::get('/', [ReqToRetailController::class, 'datatableReqtoretail']);
+    });
+    Route::prefix('/request-to-studio')->group(function () {
+        Route::get('/', [RequestToStudioController::class, 'datatableRequestToStudio']);
     });
 
     Route::prefix('/stock-opname-retail')->group(function () {

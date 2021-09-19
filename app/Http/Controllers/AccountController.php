@@ -213,6 +213,11 @@ class AccountController extends Controller
         $accountTransactions = AccountTransaction::with(['account'])->where('account_id','=',$id)->select('account_transactions.*')->get();
         $balance=0;
         for ($i = 0; $i < count($accountTransactions); $i++) {
+            //balance
+            $accountTransactions[$i]['type']=="in"?
+            $balance+=$accountTransactions[$i]['amount']:
+            $balance-=$accountTransactions[$i]['amount'];
+            
             $accountTransactionCollection->push([
                 'date' => $accountTransactions[$i]['date'],
                 'note' => $accountTransactions[$i]['name'],
@@ -225,10 +230,8 @@ class AccountController extends Controller
                     $accountTransactions[$i]['type']=="out"?
                     number_format($accountTransactions[$i]['amount']):
                     "",
-                'balance' => 
-                    $accountTransactions[$i]['type']=="in"?
-                    $balance+=$accountTransactions[$i]['amount']:
-                    $balance-=$accountTransactions[$i]['amount'],
+                'balance' => number_format($balance)
+                    
             ]);
         }
         return Datatables::of($accountTransactionCollection)->make(true);

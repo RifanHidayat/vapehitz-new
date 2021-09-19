@@ -3,14 +3,14 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="components-preview">
+<div class="components-preview wide-md mx-auto">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
-            <h2 class="nk-block-title fw-normal">Pembayaran Retur</h2>
+            <h4 class="nk-block-title fw-normal">Permintaan Barang ke Gudang Studio</h4>
         </div>
     </div>
     <div class="nk-block nk-block-lg">
-        
+        <a href="/request-to-studio/create" class="btn btn-primary"><em class="fas fa-plus"></em>&nbsp;Buat Baru</a>
         <p></p>
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
@@ -18,16 +18,14 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table style="width: 100%;" class="table table-striped" id="purchaseReturnTransaction">
+                    <table class="table table-striped" id="requestToStudio">
                         <thead>
                             <tr>
-                                <!-- <th>Nomor Order</th> -->
-                                <th>Tanggal retur</th>
-                                <th>Nomor Retur</th>                    
-                                <th>Nama Supplier</th>
-                                <th>Jumlah bayar</th>
-                                <th>Akun</th>
+                                <th>Nomor Proses</th>
+                                <th>Tanggal Proses</th>
+                                <th>Status</th>
                                 <th>Action</th>
+                               
                             </tr>
                         </thead>
                         <tbody>
@@ -42,54 +40,38 @@
 @endsection
 @section('pagescript')
 <script>
-
-var centralPurchaseTable = $(function() {
-        $('#purchaseReturnTransaction').DataTable({
+    var centralPurchaseTable = $(function() {
+        $('#requestToStudio').DataTable({
             processing: true,
             serverSide: true,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
-                url: '/datatables/purchase-return-transactions',
+                url: '/datatables/request-to-studio',
                 type: 'GET',
                 // length: 2,
             },
             columns: [
                 {
-                    data: 'date',
-                    name: 'purchase_return_transactions.date'
-                },
-                {
                     data: 'code',
-                    name: 'purchase_return_transactions.code'
-                },
-               
-                
-              
-                
-                {
-                    data: 'supplier_name',
-                    name: 'supplier_name'
-                },
-                // {
-                //     data: 'amount',
-                //     name: 'purchase_returns.amount'
-                // },
-                {
-                    data: 'amount',
-                    name: 'amount'
+                    name: 'code'
                 },
                 {
-                    data: 'account',
-                    name: 'account'
+                    data: 'date',
+                    name: 'date'
+                },
+                {
+                    data: 'status',
+                    name: 'status'
                 },
                 {
                     data: 'action',
                     name: 'action'
                 },
+               
+               
 
             ]
         });
-        $('#purchaseReturnTransaction').on('click', 'tr .btn-delete', function(e) {
+        $('#requestToStudio').on('click', 'tr .btn-delete', function(e) {
             e.preventDefault();
             // alert('click');
             const id = $(this).attr('data-id');
@@ -105,7 +87,7 @@ var centralPurchaseTable = $(function() {
                 cancelButtonText: 'Cancel',
                 showLoaderOnConfirm: true,
                 preConfirm: () => {
-                    return axios.delete('/purchase-return-transaction/' + id)
+                    return axios.delete('/request-to-studio/' + id)
                         .then(function(response) {
                             console.log(response.data);
                         })
@@ -135,6 +117,5 @@ var centralPurchaseTable = $(function() {
             })
         })
     });
-
 </script>
 @endsection

@@ -304,13 +304,16 @@ class CentralPurchaseController extends Controller
         if (!in_array("view_purchase_product", $permission)) {
             return view("dashboard.index");
         }
-        $centralPurchase = CentralPurchase::with(['products'])->findOrFail($id);
-        $payAmount = collect($centralPurchase->purchaseTransactions)->sum('amount');
-
+        $centralPurchase = CentralPurchase::with(['products','supplier'])->findOrFail($id);
+        $payAmount = collect($centralPurchase->purchaseTransactions)->sum('pivot.amount');
+        
+        $transactions = collect($centralPurchase->purchaseTransactions)->sortBy('date')->values()->all();
+        
       
         return view('central-purchase.show', [
             'centralPurchase' => $centralPurchase,
-            'payAmount'=>$payAmount
+            'payAmount'=>$payAmount,
+            'transactions'=>$transactions,
         ]);
       
     }
@@ -445,6 +448,8 @@ class CentralPurchaseController extends Controller
                 $productRow->purchase_price = round($newPrice);
                 $productRow->central_stock = $productRow->central_stock + $product['quantity'];
                 $productRow->save();
+
+                // rumus=(((central stok lama) * (harga lama))+ (quantity lama * harga baru) )/(stok lama * quantity) 
             }
             return response()->json([
                 'message' => 'Data has been saved',
@@ -527,15 +532,6 @@ class CentralPurchaseController extends Controller
         $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
         $accounts = Account::all();
 
-        // return $purchase;
-
-        // foreach($purchase->products)
-        // $selectedProducts = collect($purchase->products)->each(function ($product) {
-        //     $product['quantity'] = $product->pivot->quantity;
-        //     $product['purchase_price'] = $product->pivot->price;
-        // });
-
-        // return $selectedProducts;
         $transactions = collect($purchase->purchaseTransactions)->sortBy('date')->values()->all();
         //return $transactions;
 
@@ -553,7 +549,7 @@ class CentralPurchaseController extends Controller
         $accounts = Account::all();
 
         $selectedProducts = collect($purchase->products)->each(function ($product) {
-            $product['return_quantity'] = 1;
+            $product['return_quantity'] = 0;
             $product['cause'] = 'defective';
         });
 
@@ -602,7 +598,7 @@ class CentralPurchaseController extends Controller
         return DataTables::eloquent($centralPurchase)
             ->addIndexColumn()
             ->addColumn('supplier_name', function ($row) {
-                return ($row->supplier ? $row->supplier->name : "");
+                return ($row->supplier!="" ? $row->supplier->name : "");
             })
             ->addColumn('netto', function ($row) {
             
