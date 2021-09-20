@@ -58,8 +58,8 @@
                                                 <td class="">@{{permission.subtitle}}</td>
                                                 <td>
                                                     <div class="custom-control custom-control-sm custom-checkbox">
-                                                        <input type="checkbox" v-model="selectAll" @click="select()" class="custom-control-input" id="All" />
-                                                        <label for="All" class="custom-control-label"></label>
+                                                        <input type="checkbox" @change="toggleCheckAllSection($event, permission)" class="custom-control-input" :id="'checkAll'+i+j" />
+                                                        <label :for="'checkAll'+i+j" class="custom-control-label"></label>
                                                     </div>
                                                 </td>
                                                 <td v-for="(attribute, k) in permission.attributes" class="text-center">
@@ -303,8 +303,15 @@
                         )
                     });
             },
-            selectAllSection: function(subAttribute) {
+            toggleCheckAllSection: function(e, subAttribute) {
+                // console.log(e);
+                const isChecked = e.target.checked;
+                if (!isChecked) {
 
+                } else {
+                    this.checkedPermissions = this.checkedPermissions.concat(subAttribute.attributes.filter(attribute => attribute !== null));
+                    // this.checkedPermissions = this.checkedPermissions.concat(subAttribute.attributes);
+                }
             },
         },
         // computed: {

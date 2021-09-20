@@ -41,7 +41,17 @@ class Product extends Model
 
     public function centralSales()
     {
-        return $this->belongsToMany(CentralSale::class)->withPivot('stock', 'booked', 'price', 'quantity', 'free', 'amount', 'editable');;
+        return $this->belongsToMany(CentralSale::class)->withPivot('stock', 'booked', 'price', 'quantity', 'free', 'amount', 'editable');
+    }
+
+    public function retailSales()
+    {
+        return $this->belongsToMany(CentralSale::class)->withPivot('stock', 'price', 'quantity', 'free');
+    }
+
+    public function studioSales()
+    {
+        return $this->belongsToMany(CentralSale::class)->withPivot('stock', 'price', 'quantity', 'free');
     }
 
     public function badstockRelease()
@@ -65,6 +75,16 @@ class Product extends Model
     
 
     public function centralSaleReturns()
+    {
+        return $this->belongsToMany(CentralSaleReturn::class)->withPivot('quantity', 'cause');
+    }
+
+    public function retailSaleReturns()
+    {
+        return $this->belongsToMany(CentralSaleReturn::class)->withPivot('quantity', 'cause');
+    }
+
+    public function studioSaleReturns()
     {
         return $this->belongsToMany(CentralSaleReturn::class)->withPivot('quantity', 'cause');
     }

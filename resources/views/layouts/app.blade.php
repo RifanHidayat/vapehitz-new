@@ -1,34 +1,6 @@
 <!DOCTYPE html>
 <html lang="zxx" class="js">
-<style>
-   .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    }
 
-    table tr th {
-        font-size: 15px;
-        color: black;
-    }
-
-    table tr td {
-        font-size: 13px;
-        color: black;
-    }
-
-    .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
-    }
-</style>
 <head>
     <base href="../">
     <meta charset="utf-8">
@@ -45,6 +17,39 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/libs/fontawesome-icons.css') }}">
     @yield('head')
+    <style>
+        /* .dataTables_filter {
+        text-align: right;
+        width: 90%;
+    } */
+
+        /* table tr th {
+        font-size: 15px;
+        color: black;
+    }
+
+    table tr td {
+        font-size: 13px;
+        color: black;
+    } */
+
+        /* .pull-left {
+        float: left !important;
+    }
+
+    .pull-right {
+        float: right !important;
+        margin-bottom: 20px;
+    }
+
+    .bottom {
+        float: right !important;
+    } */
+        .datatable-wrap {
+            border: none;
+            overflow-x: scroll;
+        }
+    </style>
     @yield('pagestyle')
 </head>
 

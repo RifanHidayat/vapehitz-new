@@ -9,8 +9,8 @@ class SaleRetail extends Model
 {
     use HasFactory;
 
-    public function product()
+    public function products()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class)->withPivot('stock', 'price', 'quantity', 'free');
     }
 }

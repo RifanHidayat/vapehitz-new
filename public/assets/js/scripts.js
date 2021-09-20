@@ -502,7 +502,7 @@
         var dom_separate = '<"row justify-between g-2"<"col-7 col-sm-6 text-left"f><"col-5 col-sm-6 text-right"<"datatable-filter"l>>><"my-3"t><"row align-items-center"<"col-7 col-sm-12 col-md-9"p><"col-5 col-sm-12 col-md-3 text-left text-md-right"i>>';
         var dom = $(this).hasClass('is-separate') ? dom_separate : dom_normal;
         var def = {
-          responsive: true,
+          // responsive: true,
           autoWidth: false,
           dom: dom,
           language: {

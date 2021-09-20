@@ -13,4 +13,9 @@ class CentralSaleTransaction extends Model
     {
         return $this->belongsToMany(CentralSale::class)->withPivot('amount');
     }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
 }

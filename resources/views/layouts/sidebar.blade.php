@@ -140,12 +140,6 @@ if (isset($sidebar_class)) {
                             <li class="nk-menu-item">
                                 <a href="{{url('/request-to-studio')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Studio</span></a>
                             </li>
-
-                           
-                            
-                           
-                           
-
                         </ul><!-- .nk-menu-sub -->
                     </li>
                     @endif
@@ -166,9 +160,12 @@ if (isset($sidebar_class)) {
                             </li>
                             @if(in_array("view_retail_sell", $permission))
                             <li class="nk-menu-item">
-                                <a href="{{url('/saleretail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
+                                <a href="/retail-sale" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
                             </li>
                             @endif
+                            <li class="nk-menu-item">
+                                <a href="/retail-sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Penjualan Barang</span></a>
+                            </li>
                             @if(in_array("view_sop_retail", $permission))
                             <li class="nk-menu-item">
                                 <a href="{{url('/retail-stock-opname')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
@@ -183,8 +180,17 @@ if (isset($sidebar_class)) {
                             <span class="nk-menu-icon"><em class="icon ni ni-book"></em></span>
                             <span class="nk-menu-text">Transaksi Studio</span>
                         </a>
+
                         @if(in_array("view_sop_studio", $permission))
                         <ul class="nk-menu-sub" style="display: none;">
+                            @if(in_array("view_studio_sell", $permission))
+                            <li class="nk-menu-item">
+                                <a href="/studio-sale" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
+                            </li>
+                            @endif
+                            <li class="nk-menu-item">
+                                <a href="/studio-sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Penjualan Barang</span></a>
+                            </li>
                             <li class="nk-menu-item">
                                 <a href="{{url('/studio-stock-opname')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
                             </li>
@@ -237,6 +243,12 @@ if (isset($sidebar_class)) {
                         </ul>
                     </li>
                     @endif
+                    <li class="nk-menu-item">
+                        <a href="/report" class="nk-menu-link" data-original-title="" title="">
+                            <span class="nk-menu-icon"><em class="icon ni ni-reports"></em></span>
+                            <span class="nk-menu-text">Laporan</span>
+                        </a>
+                    </li>
                     <!-- <li class="nk-menu-item has-sub">
                         <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
                             <span class="nk-menu-icon"><em class="icon ni ni-tile-thumb"></em></span>

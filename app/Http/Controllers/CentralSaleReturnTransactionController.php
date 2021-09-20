@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountTransaction;
+use App\Models\CentralSaleReturn;
 use App\Models\CentralSaleReturnTransaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class CentralSaleReturnTransactionController extends Controller
 {
@@ -16,7 +19,7 @@ class CentralSaleReturnTransactionController extends Controller
      */
     public function index()
     {
-        //
+        return view('central-sale-return-transaction.index');
     }
 
     /**
@@ -88,12 +91,6 @@ class CentralSaleReturnTransactionController extends Controller
                     'updated_at' => Carbon::now()->toDateTimeString(),
                 ]
             ]);
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $transaction,
-            ]);
         } catch (Exception $e) {
             $transaction->delete();
             return response()->json([
@@ -103,6 +100,39 @@ class CentralSaleReturnTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
+
+        // Account Transaction
+        $saleReturn = CentralSaleReturn::find($saleReturnId);
+        $accountTransaction = new AccountTransaction;
+        $accountTransaction->account_in = $request->account_id;
+        $accountTransaction->amount = $amount;
+        $accountTransaction->type = "in";
+        $accountTransaction->note = "Penyelesaian retur penjualan pusat No. " . $saleReturn->code;
+        $accountTransaction->date = $request->date;
+
+        try {
+            $accountTransaction->save();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $transaction,
+            // ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Data has been saved',
+            'code' => 200,
+            'error' => false,
+            'data' => $transaction,
+        ]);
     }
 
     /**
@@ -147,7 +177,73 @@ class CentralSaleReturnTransactionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $transaction = CentralSaleReturnTransaction::findOrFail($id);
+        try {
+            $transaction->centralSaleReturns()->detach();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error detaching',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            $transaction->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $transaction,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+
+    public function datatableCentralSaleReturnTransactions()
+    {
+        $centralSaleReturnTransactions = CentralSaleReturnTransaction::with(['centralSaleReturns'])->orderBy('date', 'desc')->select('central_sale_return_transactions.*');
+        return DataTables::of($centralSaleReturnTransactions)
+            ->addIndexColumn()
+            ->addColumn('action', function ($row) {
+                $button = '
+            <div class="dropright">
+                <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <ul class="link-list-opt no-bdr">
+                        <a href="/central-sale-return/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                            <span>Edit</span>
+                        </a>
+                        <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                        <span>Delete</span>
+                        </a>
+                        <a href="/central-sale-return/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                            <span>Detail</span>
+                        </a>
+                        ';
+
+
+                //     if ($row->status == 'pending') {
+                //         $button .= '<a href="/central-sale/approval/' . $row->id . '"><em class="icon fas fa-check"></em>
+                //     <span>Approval</span>
+                // </a>';
+                //     }
+
+                $button .= '           
+                    </ul>
+                </div>
+            </div>';
+                return $button;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 
     private function formatDate($date = "", $format = "Y-m-d")

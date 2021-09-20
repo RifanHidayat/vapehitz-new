@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\AccountTransaction;
 use App\Models\Product;
-use App\Models\RetailSale;
-use App\Models\RetailSaleReturn;
+use App\Models\StudioSale;
+use App\Models\StudioSaleReturn;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Exception;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use PDF;
 
-class RetailSaleController extends Controller
+class StudioSaleController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,7 +24,7 @@ class RetailSaleController extends Controller
      */
     public function index()
     {
-        return view('retail-sale.index');
+        return view('studio-sale.index');
     }
 
     /**
@@ -41,14 +41,12 @@ class RetailSaleController extends Controller
 
         $sidebarClass = 'compact';
 
-        return view('retail-sale.create', [
+        return view('studio-sale.create', [
             'code' => $code,
             'accounts' => $accounts,
             'suppliers' => $suppliers,
             'sidebar_class' => $sidebarClass
         ]);
-
-        // return view('retail-sale.create');
     }
 
     /**
@@ -69,33 +67,33 @@ class RetailSaleController extends Controller
 
         $date = $request->date;
 
-        $retailSalesByCurrentDateCount = RetailSale::query()->where('date', $date)->get()->count();
-        $retailSaleNumber = 'RS/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $retailSalesByCurrentDateCount + 1);
+        $salesByCurrentDateCount = StudioSale::query()->where('date', $date)->get()->count();
+        $saleNumber = 'RS/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $salesByCurrentDateCount + 1);
 
-        $retailSale = new RetailSale;
-        $retailSale->code = $retailSaleNumber;
-        $retailSale->date = $request->date . ' ' . date('H:i:s');
-        // $retailSale->due_date = date('Y-m-d', strtotime("+" . $request->debt . " day", strtotime($request->date)));
-        // $retailSale->customer_id = $request->customer_id;
-        // $retailSale->shipment_id = $request->shipment_id;
-        // $retailSale->debt = $request->debt;
-        $retailSale->total_weight = $request->total_weight;
-        // $retailSale->total_cost = $request->total_cost;
-        $retailSale->discount = $this->clearThousandFormat($request->discount);
-        $retailSale->discount_type = $request->discount_type;
-        $retailSale->subtotal = $this->clearThousandFormat($request->subtotal);
-        $retailSale->shipping_cost = $this->clearThousandFormat($request->shipping_cost);
-        $retailSale->other_cost = $this->clearThousandFormat($request->other_cost);
-        $retailSale->detail_other_cost = $request->detail_other_cost;
-        // $retailSale->deposit_customer = $request->deposit_customer;
-        $retailSale->net_total = $this->clearThousandFormat($request->net_total);
-        $retailSale->payment_amount = $this->clearThousandFormat($request->pay_amount);
-        // $retailSale->remaining_payment = $request->remaining_payment;
-        // $retailSale->address_recipient = $request->address_recipient;
-        // $retailSale->detail = $request->detail;
-        $retailSale->payment_method = $request->payment_method;
-        $retailSale->account_id = $request->account_id;
-        // $retailSale->note = $request->note;
+        $sale = new StudioSale;
+        $sale->code = $saleNumber;
+        $sale->date = $request->date . ' ' . date('H:i:s');
+        // $sale->due_date = date('Y-m-d', strtotime("+" . $request->debt . " day", strtotime($request->date)));
+        // $sale->customer_id = $request->customer_id;
+        // $sale->shipment_id = $request->shipment_id;
+        // $sale->debt = $request->debt;
+        $sale->total_weight = $request->total_weight;
+        // $sale->total_cost = $request->total_cost;
+        $sale->discount = $this->clearThousandFormat($request->discount);
+        $sale->discount_type = $request->discount_type;
+        $sale->subtotal = $this->clearThousandFormat($request->subtotal);
+        $sale->shipping_cost = $this->clearThousandFormat($request->shipping_cost);
+        $sale->other_cost = $this->clearThousandFormat($request->other_cost);
+        $sale->detail_other_cost = $request->detail_other_cost;
+        // $sale->deposit_customer = $request->deposit_customer;
+        $sale->net_total = $this->clearThousandFormat($request->net_total);
+        $sale->payment_amount = $this->clearThousandFormat($request->pay_amount);
+        // $sale->remaining_payment = $request->remaining_payment;
+        // $sale->address_recipient = $request->address_recipient;
+        // $sale->detail = $request->detail;
+        $sale->payment_method = $request->payment_method;
+        $sale->account_id = $request->account_id;
+        // $sale->note = $request->note;
         $products = $request->selected_products;
 
         try {
@@ -109,13 +107,13 @@ class RetailSaleController extends Controller
                 }
 
                 $taken = $product['quantity'] + $product['free'];
-                if ($taken > $productRow->retail_stock) {
+                if ($taken > $productRow->studio_stock) {
                     // array_push($unavailableStockProductIds, $productRow);
-                    $product['retail_stock'] = $productRow->retail_stock;
+                    $product['studio_stock'] = $productRow->studio_stock;
                     $product['quantity'] = 1;
                     $product['free'] = 0;
                     // $product['editable'] = 0;
-                    $product['subTotal'] = $product['retail_price'];
+                    $product['subTotal'] = $product['ws_price'];
                     $product['backgroundColor'] = 'bg-warning-dim';
                     array_push($newSelectedProducts, $product);
                     $unavailableStockProductCount++;
@@ -145,12 +143,12 @@ class RetailSaleController extends Controller
         }
 
         try {
-            $retailSale->save();
+            $sale->save();
             // return response()->json([
             //     'message' => 'Data has been saved',
             //     'code' => 200,
             //     'error' => false,
-            //     'data' => $retailSale,
+            //     'data' => $sale,
             // ]);
         } catch (Exception $e) {
             return response()->json([
@@ -164,7 +162,7 @@ class RetailSaleController extends Controller
         $keyedProducts = collect($products)->mapWithKeys(function ($item) {
             return [
                 $item['id'] => [
-                    'stock' => $item['retail_stock'],
+                    'stock' => $item['studio_stock'],
                     // 'booked' => $item['booked'],
                     // 'price' => str_replace(".", "", $item['price']),
                     'price' => $this->clearThousandFormat($item['price']),
@@ -179,15 +177,15 @@ class RetailSaleController extends Controller
         })->all();
 
         try {
-            $retailSale->products()->attach($keyedProducts);
+            $sale->products()->attach($keyedProducts);
             // return response()->json([
             //     'message' => 'Data has been saved',
             //     'code' => 200,
             //     'error' => false,
-            //     'data' => $retailSale,
+            //     'data' => $sale,
             // ]);
         } catch (Exception $e) {
-            $retailSale->delete();
+            $sale->delete();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -202,12 +200,12 @@ class RetailSaleController extends Controller
                 if ($productRow == null) {
                     continue;
                 }
-                $productRow->retail_stock -= ($product['quantity'] + $product['free']);
+                $productRow->studio_stock -= ($product['quantity'] + $product['free']);
                 $productRow->save();
             }
         } catch (Exception $e) {
-            $retailSale->products()->detach();
-            $retailSale->delete();
+            $sale->products()->detach();
+            $sale->delete();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -222,7 +220,7 @@ class RetailSaleController extends Controller
         $accountTransaction->account_in = $request->account_id;
         $accountTransaction->amount = $this->clearThousandFormat($request->net_total);
         $accountTransaction->type = "in";
-        $accountTransaction->note = "Penjualan retail No. " . $retailSaleNumber;
+        $accountTransaction->note = "Penjualan studio No. " . $saleNumber;
         $accountTransaction->date = $request->date;
 
         try {
@@ -246,7 +244,7 @@ class RetailSaleController extends Controller
             'message' => 'Data has been saved',
             'code' => 200,
             'error' => false,
-            'data' => $retailSale,
+            'data' => $sale,
         ]);
     }
 
@@ -292,7 +290,7 @@ class RetailSaleController extends Controller
      */
     public function destroy($id)
     {
-        $sale = RetailSale::findOrFail($id);
+        $sale = StudioSale::findOrFail($id);
         try {
             $sale->products()->detach();
         } catch (Exception $e) {
@@ -326,11 +324,11 @@ class RetailSaleController extends Controller
     {
 
         // return 'asdasd';
-        $sale = RetailSale::with(['products'])->findOrFail($id);
+        $sale = StudioSale::with(['products'])->findOrFail($id);
         $accounts = Account::all();
 
-        $saleReturnProducts = RetailSaleReturn::with(['products'])
-            ->where('retail_sale_id', $sale->id)
+        $saleReturnProducts = StudioSaleReturn::with(['products'])
+            ->where('studio_sale_id', $sale->id)
             ->get()
             ->flatMap(function ($saleReturn) {
                 return $saleReturn->products;
@@ -370,7 +368,7 @@ class RetailSaleController extends Controller
         // return $selectedProducts;
         $sidebarClass = 'compact';
 
-        return view('retail-sale.return', [
+        return view('studio-sale.return', [
             'sale' => $sale,
             'accounts' => $accounts,
             'total_paid' => $totalPaid,
@@ -379,23 +377,24 @@ class RetailSaleController extends Controller
         ]);
     }
 
+
     public function print($id)
     {
         // return view('central-sale.print');
-        $sale = RetailSale::with(['products'])->findOrFail($id);
+        $sale = StudioSale::with(['products'])->findOrFail($id);
 
         $data = [
             'sale' => $sale,
         ];
 
-        $pdf = PDF::loadView('retail-sale.print', $data);
+        $pdf = PDF::loadView('studio-sale.print', $data);
         return $pdf->stream($sale->code . '.pdf');
     }
 
-    public function datatableRetailSale()
+    public function datatableStudioSales()
     {
-        $retailSale = RetailSale::with('products')->orderBy('date', 'desc')->select('retail_sales.*');
-        return DataTables::of($retailSale)
+        $studioSales = StudioSale::with('products')->orderBy('date', 'desc')->select('studio_sales.*');
+        return DataTables::of($studioSales)
             ->addIndexColumn()
             // ->addColumn('shipment_name', function ($row) {
             //     return ($row->shipment ? $row->shipment->name : "");
@@ -406,19 +405,18 @@ class RetailSaleController extends Controller
                 <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <ul class="link-list-opt no-bdr">
-                        <a href="/retail-sale/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                        <a href="/studio-sale/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
                             <span>Edit</span>
                         </a>
                         <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                         <span>Delete</span>
                         </a>
-                        <a href="/retail-sale/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                        <a href="/studio-sale/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
                             <span>Detail</span>
                         </a>';
 
-                $button .= '<a href="/retail-sale/return/' . $row->id . '"><em class="icon fas fa-undo"></em><span>Retur</span></a>';
+                $button .= '<a href="/studio-sale/return/' . $row->id . '"><em class="icon fas fa-undo"></em><span>Retur</span></a>';
                 $button .= '<a href="/retail-sale/print/' . $row->id . '" target="_blank"><em class="icon fas fa-print"></em><span>Cetak</span></a>';
-
 
 
                 $button .= '           

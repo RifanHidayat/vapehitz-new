@@ -27,7 +27,7 @@ class CentralPurchaseController extends Controller
     }
 
 
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -77,11 +77,11 @@ class CentralPurchaseController extends Controller
      */
     public function store(Request $request)
     {
-        
-        $shipingCost=$this->clearThousandFormat($request->shipping_cost);
-        $payAmount=$this->clearThousandFormat($request->pay_amount);
-        $netto=$this->clearThousandFormat($request->netto);
-        
+
+        $shipingCost = $this->clearThousandFormat($request->shipping_cost);
+        $payAmount = $this->clearThousandFormat($request->pay_amount);
+        $netto = $this->clearThousandFormat($request->netto);
+
         $centralPurchase = new CentralPurchase;
         $centralPurchase->code = $request->code;
         $centralPurchase->date = $request->date;
@@ -95,131 +95,125 @@ class CentralPurchaseController extends Controller
         $centralPurchase->payment_method = $request->payment_method;
         $products = $request->selected_products;
         //account transaction
-        $accountTransaction=new AccountTransaction;
+        $accountTransaction = new AccountTransaction;
+
+
 
         try {
             $centralPurchase->save();
-            
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
                 'error' => true,
-             
+
                 'errors' => $e,
             ], 500);
         }
-
+        try {
             //Transaction account Shipping Cost
-            $accountTransaction->account_id="1";
-            $accountTransaction->amount=$shipingCost;
-            $accountTransaction->type="in";
-            $accountTransaction->note="Biaya kirim Pembelian barang dengan No. Order ".$request->code;
-            $accountTransaction->date=$request->date;
-        
-            try{
+            $accountTransaction->account_in = "1";
+            $accountTransaction->amount = $shipingCost;
+            $accountTransaction->type = "in";
+            $accountTransaction->note = "Biaya kirim Pembelian barang dengan No. Order " . $request->code;
+            $accountTransaction->date = $request->date;
             $accountTransaction->save();
-            }catch(Exception $e){
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
                 'error' => true,
+                'source' => "Transaction Account Shipping Cost",
                 'errors' => $e,
-                ], 500);
-                              
-                }
-     
-        if ($request->pay_amount==0){
+            ], 500);
+        }
+
+        if ($request->pay_amount == 0) {
             //Transaction account debt
-            $accountTransaction->account_id="3";
-            $accountTransaction->amount=$netto;
-            $accountTransaction->type="in";
-            $accountTransaction->note="Hutang Pembelian barang dengan No. Order ".$request->code;
-            $accountTransaction->date=$request->date;
-               try{
-                   $accountTransaction->save();
-               }catch(Exception $e){
-                   return response()->json([
-                       'message' => 'Internal error',
-                        'code' => 500,
-                       'error' => true,
-                       'errors' => $e,
-                       ], 500);
-                             
-                }
-    
-           }else{
+            $accountTransaction->account_in = "3";
+            $accountTransaction->amount = $netto;
+            $accountTransaction->type = "in";
+            $accountTransaction->note = "Hutang Pembelian barang dengan No. Order " . $request->code;
+            $accountTransaction->date = $request->date;
+            try {
+                $accountTransaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
+        } else {
             //account transaction
-            $accountTransaction->account_id=$request->account_id;
-            $accountTransaction->amount=$request->pay_amount;
-            $accountTransaction->type="out";
-            $accountTransaction->note="Pembelian barang dengan code ".$request->code;
-            $accountTransaction->date=$request->date;
-               try{
-                   $accountTransaction->save();
-               }catch(Exception $e){
-                   return response()->json([
-                       'message' => 'Internal error',
-                        'code' => 500,
-                       'error' => true,
-                       'errors' => $e,
-                       ], 500);
-                             
-            
-                    }
+            $accountTransaction->account_out = $request->account_id;
+            $accountTransaction->amount = $request->pay_amount;
+            $accountTransaction->type = "out";
+            $accountTransaction->note = "Pembelian barang dengan code " . $request->code;
+            $accountTransaction->date = $request->date;
+            try {
+                $accountTransaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
 
-                    $date = $request->date;
-                    $amount=$this->clearThousandFormat($request->pay_amount);
-                    $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
-                    $transactionNumber = 'PT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+            $date = $request->date;
+            $amount = $this->clearThousandFormat($request->pay_amount);
+            $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
+            $transactionNumber = 'PT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
 
-                    $transaction = new PurchaseTransaction;
-                    $transaction->code = $transactionNumber;
-                    $transaction->date = $request->date;
-                    $transaction->account_id = $request->account_id;
-                    $transaction->supplier_id = $request->supplier_id;
-                    $transaction->amount = $amount;
-                    $transaction->payment_method = $request->payment_method;
-                
+            $transaction = new PurchaseTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $request->date;
+            $transaction->account_id = $request->account_id;
+            $transaction->supplier_id = $request->supplier_id;
+            $transaction->amount = $amount;
+            $transaction->payment_method = $request->payment_method;
 
-                    try {
-                        $transaction->save();
-            
-                    } catch (Exception $e) {
-                        return response()->json([
-                            'message' => 'Internal error',
-                            'code' => 500,
-                            'error' => true,
-                            'table'=>'Account Transaction',
-                            'errors' => $e,
-                        ], 500);
-                    }
 
-                    try {
-                        $transaction->centralPurchases()->attach([
-                            $centralPurchase->id => [
-                                'amount' => $amount,
-                                'created_at' => Carbon::now()->toDateTimeString(),
-                                'updated_at' => Carbon::now()->toDateTimeString(),
-                            ]
-                        ]);
-                            // return response()->json([
-                            //     'message' => 'Data has been saved',
-                            //     'code' => 200,
-                            //     'error' => false,
-                            //     'data' => $transaction,
-                            // ]);
-                    } catch (Exception $e) {
-                        $transaction->delete();
-                        return response()->json([
-                            'message' => 'Internal error',
-                            'code' => 500,
-                            'error' => true,
-                            'errors' => $e,
-                        ], 500);
-                    }
-           }
-        
+            try {
+                $transaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'table' => 'Account Transaction',
+                    'errors' => $e,
+                ], 500);
+            }
+
+            try {
+                $transaction->centralPurchases()->attach([
+                    $centralPurchase->id => [
+                        'amount' => $amount,
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ]);
+                // return response()->json([
+                //     'message' => 'Data has been saved',
+                //     'code' => 200,
+                //     'error' => false,
+                //     'data' => $transaction,
+                // ]);
+            } catch (Exception $e) {
+                $transaction->delete();
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
+        }
+
 
         $keyedProducts = collect($products)->mapWithKeys(function ($item) {
             return [
@@ -257,22 +251,20 @@ class CentralPurchaseController extends Controller
                 // if ($productRow == null) {
                 //     continue;
                 // }
-               
-              $purchase_price= $this->clearThousandFormat($product['purchase_price']);
-               // Calculate average purchase price
-               $newPrice = (($productRow->central_stock * $productRow->purchase_price) + ($product['quantity'] * $purchase_price)) / ($productRow->central_stock + $product['quantity']);
-               $productRow->purchase_price = round($newPrice);
-               $productRow->central_stock =  $productRow->central_stock + $product['quantity'];
-               $productRow->save();
-                
-           
+
+                $purchase_price = $this->clearThousandFormat($product['purchase_price']);
+                // Calculate average purchase price
+                $newPrice = (($productRow->central_stock * $productRow->purchase_price) + ($product['quantity'] * $purchase_price)) / ($productRow->central_stock + $product['quantity']);
+                $productRow->purchase_price = round($newPrice);
+                $productRow->central_stock =  $productRow->central_stock + $product['quantity'];
+                $productRow->save();
             }
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
                 'error' => false,
-                
-                
+
+
                 'data' => $centralPurchase,
             ]);
         } catch (Exception $e) {
@@ -282,15 +274,11 @@ class CentralPurchaseController extends Controller
                 'message' => 'Internal error',
                 'code' => 500,
                 'error' => true,
-                "eeeee"=>$products,
-                
+                "eeeee" => $products,
+
                 'errors' => $e,
             ], 500);
         }
-
-      
-           
-                
     }
 
     /**
@@ -305,23 +293,19 @@ class CentralPurchaseController extends Controller
         if (!in_array("view_purchase_product", $permission)) {
             return view("dashboard.index");
         }
-        $centralPurchase = CentralPurchase::with(['products','supplier'])->findOrFail($id);
-        $payAmount = collect($centralPurchase->purchaseTransactions)->sum('pivot.amount');
-        
-        $transactions = collect($centralPurchase->purchaseTransactions)->sortBy('date')->values()->all();
-       return $centralPurchase;
-        
-      
+        $centralPurchase = CentralPurchase::with(['products'])->findOrFail($id);
+        $payAmount = collect($centralPurchase->purchaseTransactions)->sum('amount');
+
+
         return view('central-purchase.show', [
             'centralPurchase' => $centralPurchase,
-            'payAmount'=>$payAmount,
-            'transactions'=>$transactions,
+            'payAmount' => $payAmount
         ]);
-      
     }
 
-    public function retur($id){
-        return view ('purchase-transaction.retur');
+    public function retur($id)
+    {
+        return view('purchase-transaction.retur');
     }
 
     /**
@@ -373,11 +357,11 @@ class CentralPurchaseController extends Controller
         $centralPurchase->netto = $request->netto;
         $centralPurchase->pay_amount = $request->pay_amount;
         $centralPurchase->payment_method = $request->payment_method;
-        $centralPurchase->invoice_number=$request->invoice_number;
-        $centralPurchase->invoice_date=$request->invoice_date;
+        $centralPurchase->invoice_number = $request->invoice_number;
+        $centralPurchase->invoice_date = $request->invoice_date;
         $products = $request->selected_products;
 
-        
+
 
 
 
@@ -484,24 +468,23 @@ class CentralPurchaseController extends Controller
         $centralPurchase = CentralPurchase::findOrFail($id);
         $products = $centralPurchase->products;
         try {
-            
+
             foreach ($products as $product) {
                 $productRow = Product::find($product['id']);
                 if ($productRow == null) {
                     continue;
                 }
-                $productRow->central_stock = $productRow->central_stock - ($product['pivot']['quantity']) ;
+                $productRow->central_stock = $productRow->central_stock - ($product['pivot']['quantity']);
                 $productRow->save();
             }
-        
         } catch (Exception $e) {
-       
+
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
                 'error' => true,
                 'errors' => $e,
-         
+
             ], 500);
         }
 
@@ -520,7 +503,7 @@ class CentralPurchaseController extends Controller
                 'code' => 500,
                 'error' => true,
                 'errors' => $e,
-            
+
             ], 500);
         }
     }
@@ -554,16 +537,16 @@ class CentralPurchaseController extends Controller
         $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
         $payAmountPurchase = collect($purchase->purchaseTransactions)->sum('pivot.amount');
 
-       // return $selectedProducts;
+        // return $selectedProducts;
 
 
-       
-       // return $selectedProducts;
+
+        // return $selectedProducts;
         return view('central-purchase.return', [
             'purchase' => $purchase,
             'accounts' => $accounts,
             'selected_products' => $selectedProducts,
-            'payAmountPurchase'=>$payAmountPurchase
+            'payAmountPurchase' => $payAmountPurchase
         ]);
     }
 
@@ -589,18 +572,18 @@ class CentralPurchaseController extends Controller
             ->make(true);
     }
 
- 
+
     public function datatableCentralPurchase()
     {
-        $centralPurchase = CentralPurchase::with(['supplier'])->select('central_purchases.*');      
+        $centralPurchase = CentralPurchase::with(['supplier'])->select('central_purchases.*');
         return DataTables::eloquent($centralPurchase)
             ->addIndexColumn()
             ->addColumn('supplier_name', function ($row) {
-                return ($row->supplier!="" ? $row->supplier->name : "");
+                return ($row->supplier != "" ? $row->supplier->name : "");
             })
             ->addColumn('netto', function ($row) {
-            
-                return (number_format($row->netto)); 
+
+                return (number_format($row->netto));
             })
             ->addColumn('payAmount', function ($row) {
                 $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($row->id);
@@ -634,13 +617,13 @@ class CentralPurchaseController extends Controller
                 return $button;
             })
             ->addColumn('remainingAmount', function ($row) {
-                $paidOff='<div><span class="badge badge-sm badge-dim badge-outline-success d-none d-md-inline-flex">Lunas</span></div>';
+                $paidOff = '<div><span class="badge badge-sm badge-dim badge-outline-success d-none d-md-inline-flex">Lunas</span></div>';
                 $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($row->id);
                 $transactions = collect($purchase->purchaseTransactions)->sum('pivot.amount');
                 // return ((($row->netto)-($transactions))==0?
                 // $paidOff:number_format(($row->netto)-($transactions))); 
 
-                return number_format(($row->netto)-($transactions));
+                return number_format(($row->netto) - ($transactions));
             })
             ->make(true);
     }
