@@ -102,10 +102,10 @@ if (isset($sidebar_class)) {
                                 <a href="/central-sale-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Pelanggan</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="/sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Penjualan</span></a>
+                                <a href="/central-sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Penjualan</span></a>
                             </li>
                             <li class="nk-menu-item">
-                                <a href="#" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Retur</span></a>
+                                <a href="/central-sale-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Retur</span></a>
                             </li>
                             <li class="nk-menu-item">
 
