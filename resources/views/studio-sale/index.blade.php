@@ -7,23 +7,25 @@
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-            <h4 class="nk-block-title fw-normal">Transaksi Penjualan Barang</h4>
+            <h4 class="nk-block-title fw-normal">Penjualan Barang Studio</h4>
         </div>
     </div>
     <div class="nk-block nk-block-lg">
+        <div class="mb-3">
+            <a href="/studio-sale/create" class="btn btn-primary">Tambah</a>
+        </div>
         <!-- <a href="/central-sale/create" class="btn btn-primary">Tambah</a> -->
         <!-- <p></p>
         <p></p> -->
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
                 <div class="table-responsive">
-                    <table class="table table-striped" id="centralSaleTransaction">
+                    <table class="table table-striped" id="studioSale">
                         <thead>
                             <tr class="text-center">
-                                <th>No. Transaksi</th>
-                                <th>Tanggal Transaksi</th>
-                                <th>Jumlah</th>
-                                <!-- <th>Akun</th> -->
+                                <th>No.</th>
+                                <th>Tanggal</th>
+                                <th>Total</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -54,7 +56,7 @@
                     cancelButtonText: 'Cancel',
                     showLoaderOnConfirm: true,
                     preConfirm: () => {
-                        return axios.delete('/central-sale-transaction/' + id)
+                        return axios.delete('/studio-sale/' + id)
                             .then(function(response) {
                                 console.log(response.data);
                             })
@@ -88,37 +90,32 @@
 </script>
 <script>
     $(function() {
-        var datatable = $('#centralSaleTransaction').DataTable({
+        var datatable = $('#studioSale').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: '/datatables/central-sale-transactions',
+                url: '/datatables/studio-sales',
                 type: 'GET',
                 // length: 2,
             },
             columns: [{
                     data: 'code',
-                    name: 'central_sale_transactions.code',
+                    name: 'studio_sales.code',
                     className: 'text-center',
                 },
                 {
                     data: 'date',
-                    name: 'central_sale_transactions.date',
+                    name: 'studio_sales.date',
                     className: 'text-center',
                 },
                 {
-                    data: 'amount',
-                    name: 'central_sale_transactions.amount',
+                    data: 'net_total',
+                    name: 'studio_sales.net_total',
                     render: function(data) {
                         return Intl.NumberFormat('de-DE').format(data);
                     },
                     className: 'text-right',
                 },
-                // {
-                //     data: 'account.name',
-                //     name: 'central_sale_transactions.amount',
-                //     className: 'text-center',
-                // },
                 {
                     data: 'action',
                     name: 'action',
@@ -128,7 +125,7 @@
 
             ]
         });
-        $('#centralSaleTransaction').on('click', 'tr .btn-delete', function(e) {
+        $('#studioSale').on('click', 'tr .btn-delete', function(e) {
             e.preventDefault();
             // alert('click');
             const id = $(this).attr('data-id');
@@ -144,7 +141,7 @@
                 cancelButtonText: 'Cancel',
                 showLoaderOnConfirm: true,
                 preConfirm: () => {
-                    return axios.delete('/central-sale-transaction/' + id)
+                    return axios.delete('/studio-sale/' + id)
                         .then(function(response) {
                             console.log(response.data);
                         })

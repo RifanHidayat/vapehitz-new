@@ -775,7 +775,9 @@
                     cancelButtonText: 'Batalkan',
                     reverseButtons: true,
                 }).then((result) => {
-                    this.sendData();
+                    if (result.isConfirmed) {
+                        this.sendData();
+                    }
                 })
             },
             sendData: function() {

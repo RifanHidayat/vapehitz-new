@@ -28,6 +28,10 @@ use App\Http\Controllers\SaleRetailController;
 use App\Http\Controllers\StockOpnameRetailController;
 use App\Http\Controllers\StockOpnameStudioController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RetailSaleReturnController;
+use App\Http\Controllers\StudioSaleController;
+use App\Http\Controllers\StudioSaleReturnController;
 use App\Http\Controllers\UserController;
 use App\Models\Account;
 use App\Models\PurchaseTransaction;
@@ -142,6 +146,16 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     //RouteSupplier
+    Route::prefix('/shipment')->group(function () {
+        Route::get('/', [ShipmentController::class, 'index']);
+        Route::get('/create', [ShipmentController::class, 'create']);
+        Route::get('/edit/{id}', [ShipmentController::class, 'edit']);
+        Route::post('/', [ShipmentController::class, 'store']);
+        Route::patch('/{id}', [ShipmentController::class, 'update']);
+        Route::delete('/{id}', [ShipmentController::class, 'destroy']);
+    });
+
+    //RouteSupplier
     Route::prefix('/supplier')->group(function () {
         Route::get('/', [SupplierController::class, 'index']);
         Route::get('/create', [SupplierController::class, 'create']);
@@ -171,6 +185,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/approval/{id}', [CentralSaleController::class, 'approval']);
         Route::get('/pay/{id}', [CentralSaleController::class, 'pay']);
         Route::get('/return/{id}', [CentralSaleController::class, 'return']);
+        Route::get('/print/{id}', [CentralSaleController::class, 'print']);
         Route::post('/', [CentralSaleController::class, 'store']);
         Route::post('/approval/{id}/approve', [CentralSaleController::class, 'approve']);
         Route::post('/approval/{id}/reject', [CentralSaleController::class, 'reject']);
@@ -215,24 +230,58 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('/retail-sale')->group(function () {
         Route::get('/', [RetailSaleController::class, 'index']);
         Route::get('/create', [RetailSaleController::class, 'create']);
-        Route::post('/', [RetailSaleController::class, 'store']);
         Route::get('/edit/{id}', [RetailSaleController::class, 'edit']);
+        Route::get('/return/{id}', [RetailSaleController::class, 'return']);
+        Route::get('/print/{id}', [RetailSaleController::class, 'print']);
+        Route::post('/', [RetailSaleController::class, 'store']);
         Route::patch('/{id}', [RetailSaleController::class, 'update']);
         Route::delete('/{id}', [RetailSaleController::class, 'destroy']);
     });
 
+    //Route Retail Sale
+    Route::prefix('/retail-sale-return')->group(function () {
+        Route::get('/', [RetailSaleReturnController::class, 'index']);
+        Route::get('/create', [RetailSaleReturnController::class, 'create']);
+        Route::get('/edit/{id}', [RetailSaleReturnController::class, 'edit']);
+        Route::post('/', [RetailSaleReturnController::class, 'store']);
+        Route::patch('/{id}', [RetailSaleReturnController::class, 'update']);
+        Route::delete('/{id}', [RetailSaleReturnController::class, 'destroy']);
+    });
+
+    //Route Studio Sale
+    Route::prefix('/studio-sale')->group(function () {
+        Route::get('/', [StudioSaleController::class, 'index']);
+        Route::get('/create', [StudioSaleController::class, 'create']);
+        Route::get('/edit/{id}', [StudioSaleController::class, 'edit']);
+        Route::get('/return/{id}', [StudioSaleController::class, 'return']);
+        Route::get('/print/{id}', [StudioSaleController::class, 'print']);
+        Route::post('/', [StudioSaleController::class, 'store']);
+        Route::patch('/{id}', [StudioSaleController::class, 'update']);
+        Route::delete('/{id}', [StudioSaleController::class, 'destroy']);
+    });
+
+    //Route Studio Sale Return
+    Route::prefix('/studio-sale-return')->group(function () {
+        Route::get('/', [StudioSaleReturnController::class, 'index']);
+        Route::get('/create', [StudioSaleReturnController::class, 'create']);
+        Route::get('/edit/{id}', [StudioSaleReturnController::class, 'edit']);
+        Route::post('/', [StudioSaleReturnController::class, 'store']);
+        Route::patch('/{id}', [StudioSaleReturnController::class, 'update']);
+        Route::delete('/{id}', [StudioSaleReturnController::class, 'destroy']);
+    });
 
     //RouteCentralSale
     Route::prefix('/central-sale')->group(function () {
         Route::get('/', [CentralSaleController::class, 'index']);
         Route::get('/create', [CentralSaleController::class, 'create']);
-        Route::post('/', [CentralSaleController::class, 'store']);
+        Route::get('/show/{id}', [CentralSaleController::class, 'show']);
         Route::get('/edit/{id}', [CentralSaleController::class, 'edit']);
         Route::get('/approve/{id}', [CentralSaleController::class, 'approve']);
+        Route::post('/', [CentralSaleController::class, 'store']);
+        Route::post('/action/update-print-status/{id}', [CentralSaleController::class, 'updatePrintStatus']);
         Route::patch('/approve/{id}', [CentralSaleController::class, 'approved']);
         Route::patch('/{id}', [CentralSaleController::class, 'update']);
         Route::delete('/{id}', [CentralSaleController::class, 'destroy']);
-        Route::get('/show/{id}', [CentralSaleController::class, 'show']);
     });
 
 
@@ -380,8 +429,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('/saleretail')->group(function () {
         Route::get('/', [SaleRetailController::class, 'index']);
         Route::get('/create', [SaleRetailController::class, 'create']);
-        Route::post('/', [SaleRetailController::class, 'store']);
         Route::get('/edit/{id}', [SaleRetailController::class, 'edit']);
+        Route::get('/print/{id}', [SaleRetailController::class, 'print']);
+        Route::post('/', [SaleRetailController::class, 'store']);
         Route::patch('/{id}', [SaleRetailController::class, 'update']);
         Route::delete('/{id}', [SaleRetailController::class, 'destroy']);
     });
@@ -405,6 +455,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::patch('/{id}', [UserController::class, 'update']);
         Route::patch('/change/{id}', [UserController::class, 'change']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
+    });
+
+    //RouteUser
+    Route::prefix('/report')->group(function () {
+        Route::get('/', [ReportController::class, 'index']);
     });
 });
 
@@ -432,6 +487,27 @@ Route::prefix('/datatables')->group(function () {
     });
     Route::prefix('/central-sale')->group(function () {
         Route::get('/', [CentralSaleController::class, 'datatableCentralSale']);
+    });
+    Route::prefix('/central-sale-transactions')->group(function () {
+        Route::get('/', [CentralSaleTransactionController::class, 'datatableCentralSaleTransactions']);
+    });
+    Route::prefix('/central-sale-returns')->group(function () {
+        Route::get('/', [CentralSaleReturnController::class, 'datatableCentralSaleReturns']);
+    });
+    Route::prefix('/central-sale-return-transactions')->group(function () {
+        Route::get('/', [CentralSaleReturnTransactionController::class, 'datatableCentralSaleReturnTransactions']);
+    });
+    Route::prefix('/retail-sales')->group(function () {
+        Route::get('/', [RetailSaleController::class, 'datatableRetailSale']);
+    });
+    Route::prefix('/retail-sale-returns')->group(function () {
+        Route::get('/', [RetailSaleReturnController::class, 'datatableRetailSaleReturns']);
+    });
+    Route::prefix('/studio-sales')->group(function () {
+        Route::get('/', [StudioSaleController::class, 'datatableStudioSales']);
+    });
+    Route::prefix('/studio-sale-returns')->group(function () {
+        Route::get('/', [StudioSaleReturnController::class, 'datatableStudioSaleReturns']);
     });
     Route::prefix('/badstock-release')->group(function () {
         Route::get('/', [BadstockReleaseController::class, 'datatableBadstockRelease']);

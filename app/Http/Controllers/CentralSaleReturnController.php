@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\AccountTransaction;
 use App\Models\CentralSale;
 use App\Models\CentralSaleReturn;
 use App\Models\CentralSaleReturnTransaction;
@@ -11,6 +12,7 @@ use App\Models\Product;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class CentralSaleReturnController extends Controller
 {
@@ -21,7 +23,7 @@ class CentralSaleReturnController extends Controller
      */
     public function index()
     {
-        //
+        return view('central-sale-return.index');
     }
 
     /**
@@ -212,7 +214,32 @@ class CentralSaleReturnController extends Controller
         }
 
         // Central Sale Transaction
-        if ($request->payment_method == 'hutang') {
+        if ($request->payment_method == 'transfer' || $request->payment_method == 'cash') {
+            // Account Transaction
+            $accountTransaction = new AccountTransaction;
+            $accountTransaction->account_in = $request->account_id;
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "in";
+            $accountTransaction->note = "Retur penjualan pusat No. " . $returnNumber;
+            $accountTransaction->date = $request->date;
+
+            try {
+                $accountTransaction->save();
+                // return response()->json([
+                //     'message' => 'Data has been saved',
+                //     'code' => 200,
+                //     'error' => false,
+                //     'data' => $transaction,
+                // ]);
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
+        } else if ($request->payment_method == 'hutang') {
             $date = $request->date;
             $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
             $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
@@ -259,6 +286,27 @@ class CentralSaleReturnController extends Controller
                     'error' => true,
                     'errors' => $e,
                 ], 500);
+            }
+
+            $piutangAccount = Account::where('type', 'piutang')->first();
+            if ($piutangAccount !== null) {
+                $accountTransaction = new AccountTransaction;
+                $accountTransaction->account_out = $piutangAccount->id;
+                $accountTransaction->amount = $amount;
+                $accountTransaction->type = "out";
+                $accountTransaction->note = "Retur penjualan pusat No. " . $returnNumber;
+                $accountTransaction->date = $request->date;
+
+                try {
+                    $accountTransaction->save();
+                } catch (Exception $e) {
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
             }
         }
 
@@ -313,7 +361,34 @@ class CentralSaleReturnController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $return = CentralSaleReturn::findOrFail($id);
+        try {
+            $return->products()->detach();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error detaching products',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            $return->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $return,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     public function pay($id)
@@ -344,6 +419,48 @@ class CentralSaleReturnController extends Controller
             'transactions' => $transactions,
             'sidebar_class' => $sidebarClass,
         ]);
+    }
+
+    public function datatableCentralSaleReturns()
+    {
+        $centralSaleReturns = CentralSaleReturn::with(['centralSale', 'centralSaleReturnTransactions'])->orderBy('date', 'desc')->select('central_sale_returns.*');
+        return DataTables::of($centralSaleReturns)
+            ->addIndexColumn()
+            ->addColumn('action', function ($row) {
+                $button = '
+            <div class="dropright">
+                <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <ul class="link-list-opt no-bdr">
+                        <a href="/central-sale-return/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
+                            <span>Edit</span>
+                        </a>
+                        <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                        <span>Delete</span>
+                        </a>
+                        <a href="/central-sale-return/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                            <span>Detail</span>
+                        </a>
+                        <a href="/central-sale-return/pay/' . $row->id . '"><em class="icon fas fa-credit-card"></em>
+                            <span>Bayar</span>
+                        </a>
+                        ';
+
+
+                //     if ($row->status == 'pending') {
+                //         $button .= '<a href="/central-sale/approval/' . $row->id . '"><em class="icon fas fa-check"></em>
+                //     <span>Approval</span>
+                // </a>';
+                //     }
+
+                $button .= '           
+                    </ul>
+                </div>
+            </div>';
+                return $button;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 
     private function formatDate($date = "", $format = "Y-m-d")

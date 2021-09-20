@@ -599,7 +599,7 @@
                             <td>
                                 <div class="btn-group" aria-label="Basic example">
                                     <a href="#" @click.prevent="onEditShipment(index)" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
-                                    <a href="#" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
+                                    <a href="#" @click.prevent="deleteShipment(shipment.id)" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
                                 </div>
                             </td>
                         </tr>
@@ -898,6 +898,51 @@
             onCloseEdit: function() {
                 this.is_edit_shipment = false;
                 this.shipment.name = "";
+            },
+            deleteShipment: function(id) {
+                console.log(id)
+                let vm = this;
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "The data will be deleted",
+                    icon: 'warning',
+                    reverseButtons: true,
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return axios.delete('/shipment/' + id)
+                            .then(function(response) {
+                                console.log(response.data);
+                            })
+                            .catch(function(error) {
+                                console.log(error.data);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops',
+                                    text: 'Something wrong',
+                                })
+                            });
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    vm.shipments = vm.shipments.filter(shipment => shipment.id !== id)
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Data has been deleted',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // window.location.reload();
+                                // invoicesTable.ajax.reload();
+                            }
+                        })
+                    }
+                });
             },
             onSelectedProduct: function() {
                 const selectedProductIds = this.selectedProducts.map(product => product.id);

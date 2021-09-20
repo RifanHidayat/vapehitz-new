@@ -24,4 +24,9 @@ class Account extends Model
     {
         return $this->hasMany(AccountTransaction::class);
     }
+
+    public function centralSaleTransactions()
+    {
+        return $this->hasMany(CentralSaleTransaction::class);
+    }
 }

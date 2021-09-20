@@ -75,7 +75,7 @@
                                         </div> -->
                                         <div class="row justify-content-between">
                                             <p class="col-md-6 mb-0">Stok</p>
-                                            <p class="col-md-6 text-right mb-0"><strong>@{{ product.retail_stock }}</strong></p>
+                                            <p class="col-md-6 text-right mb-0"><strong>@{{ product.studio_stock }}</strong></p>
                                         </div>
                                         <div class="row justify-content-between align-items-center mt-3">
                                             <p class="col-md-6 mb-0">Harga Jual</p>
@@ -448,7 +448,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/retail-sale', {
+                axios.post('/studio-sale', {
                         code: vm.code,
                         date: vm.date,
                         total_weight: vm.totalWeight,
@@ -640,7 +640,7 @@
             // If product already in cart or selected products
             if (productIds.indexOf(data.id) < 0) {
                 data['quantity'] = 1;
-                data['price'] = data.retail_price;
+                data['price'] = data.ws_price;
                 data['free'] = 0;
                 cart.push(data);
             }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Shipment;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ShipmentController extends Controller
 {
@@ -116,6 +118,26 @@ class ShipmentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // $permission = json_decode(Auth::user()->group->permission);
+        // if (!in_array("delete_shipment", $permission)) {
+        //     return redirect("/dashboard");
+        // }
+        $shipment = Shipment::findOrFail($id);
+        try {
+            $shipment->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $shipment,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 }
