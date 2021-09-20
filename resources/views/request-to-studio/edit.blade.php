@@ -7,7 +7,7 @@
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <div class="nk-block-head-sub">
-                <a class="back-to" href="/request-to-studio"><em class="icon ni ni-arrow-left"></em>
+                <a class="back-to" href="{{url('/request-to-studio')}}"><em class="icon ni ni-arrow-left"></em>
                     <span>Permintaan Barang ke Gudang Studio</span>
                 </a>
             </div>
@@ -35,7 +35,7 @@
                 </div>
                 <p></p>
                 <div class="col-lg-12">
-                    <div class="form-group">
+                    <div class="form-group mt-3">
                         <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addProduct">
                             Tambah Barang
                         </button>
@@ -48,7 +48,7 @@
                                         <th>Kode Barang</th>
                                         <th>Nama Barang</th>
                                         <th>Stok Pusat</th>
-                                        <th>Stok Studio</th>
+                                        <th>Stok Retail</th>
                                         <th>Qty</th>
                                     </tr>
                                 </thead>
@@ -57,8 +57,10 @@
                                         <td>@{{product.code}}</td>
                                         <td>@{{product.name}}</td>
                                         <td>@{{product.central_stock}}</td>
-                                        <td>@{{product.studio_stock}}</td>
-                                        <td><input type="text" v-model="product.quantity" class="form-control"></td>
+                                        <td>@{{product.retail_stock}}</td>
+                                        <td>
+                                            <input type="number" v-model="product.quantity" class="form-control">
+                                        </td>
                                         <td>
                                             <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
                                         </td>
@@ -153,9 +155,9 @@
     let app = new Vue({
         el: '#app',
         data: {
-            code: '{{$code}}',
-            quantity: '0',
-            selectedProducts: [],
+            code: '{{$request_to_studio->code}}',
+            date: '{{$request_to_studio->date}}',
+            selectedProducts: JSON.parse('{!! $request_to_studio->products !!}'),
             check: [],
             loading: false,
         },
@@ -181,8 +183,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                console.log(vm.selectedProducts)
-                axios.post('/request-to-studio', {
+                axios.patch('/request-to-studio/{{$request_to_studio->id}}', {
                         code: vm.code,
                         date: vm.date,
                         status: vm.status,
@@ -198,7 +199,6 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 window.location.href = '/request-to-studio';
-
                             }
                         })
                         // console.log(response);
