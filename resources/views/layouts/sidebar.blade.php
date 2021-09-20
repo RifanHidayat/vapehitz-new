@@ -87,7 +87,7 @@ if (isset($sidebar_class)) {
                             @endif
                             @if(in_array("view_product_payment", $permission))
                             <li class="nk-menu-item">
-                                <a href="/purchase-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">pembayaran Retur</span></a>
+                                <a href="/purchase-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Retur</span></a>
                             </li>
                             @endif
                             <li class="nk-menu-item">
@@ -141,10 +141,10 @@ if (isset($sidebar_class)) {
                                 <a href="{{url('/request-to-studio')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Studio</span></a>
                             </li>
 
-                           
-                            
-                           
-                           
+
+
+
+
 
                         </ul><!-- .nk-menu-sub -->
                     </li>

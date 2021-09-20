@@ -60,7 +60,6 @@ class AccountController extends Controller
         $accounts->type = $request->type;
         try {
             $accounts->save();
-           
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
@@ -70,7 +69,7 @@ class AccountController extends Controller
             ], 500);
         }
         $accountTransaaction = new AccountTransaction;
-        
+
         $accountTransaaction->account_id = $accounts->id;
         $accountTransaaction->date = $request->date;
         $accountTransaaction->amount = str_replace(".", "", $request->init_balance);
@@ -106,16 +105,16 @@ class AccountController extends Controller
     public function show($id)
     {
         $account = Account::with(['accountTransactions'])->findOrFail($id);
-        $cashIn=collect($account['accountTransactions'])->where('type','=','in')->sum('amount');
-        $cashOut=collect($account['accountTransactions'])->where('type','=','out')->sum('amount'); 
-        $accountTransactions = DB::table('account_transactions')->where('account_id','=',$id)->get();
-      //  return $accountTransactions;        
+        $cashIn = collect($account['accountTransactions'])->where('type', '=', 'in')->sum('amount');
+        $cashOut = collect($account['accountTransactions'])->where('type', '=', 'out')->sum('amount');
+        $accountTransactions = DB::table('account_transactions')->where('account_id', '=', $id)->get();
+        //  return $accountTransactions;        
         return view('account.show', [
-            "account_id"=>$id,
-            "cash_in"=>$cashIn,
-            "cash_out"=>$cashOut,
-            "balance"=>$cashIn-$cashOut,
-            "account"=>$account
+            "account_id" => $id,
+            "cash_in" => $cashIn,
+            "cash_out" => $cashOut,
+            "balance" => $cashIn - $cashOut,
+            "account" => $account
         ]);
     }
 
@@ -210,31 +209,30 @@ class AccountController extends Controller
         // }); 
 
         $accountTransactionCollection = new Collection();
-        $accountTransactions = AccountTransaction::with(['account'])->where('account_id','=',$id)->select('account_transactions.*')->get();
-        $balance=0;
+        $accountTransactions = AccountTransaction::with(['account'])->where('account_id', '=', $id)->select('account_transactions.*')->get();
+        $balance = 0;
         for ($i = 0; $i < count($accountTransactions); $i++) {
             //balance
-            $accountTransactions[$i]['type']=="in"?
-            $balance+=$accountTransactions[$i]['amount']:
-            $balance-=$accountTransactions[$i]['amount'];
-            
+            $accountTransactions[$i]['type'] == "in" ?
+                $balance += $accountTransactions[$i]['amount'] :
+                $balance -= $accountTransactions[$i]['amount'];
+
             $accountTransactionCollection->push([
                 'date' => $accountTransactions[$i]['date'],
                 'note' => $accountTransactions[$i]['name'],
                 'type' => $accountTransactions[$i]['type'],
-                'in'   => 
-                    $accountTransactions[$i]['type']=="in"?
-                    number_format($accountTransactions[$i]['amount']):
+                'in'   =>
+                $accountTransactions[$i]['type'] == "in" ?
+                    number_format($accountTransactions[$i]['amount']) :
                     "",
-                'out' => 
-                    $accountTransactions[$i]['type']=="out"?
-                    number_format($accountTransactions[$i]['amount']):
+                'out' =>
+                $accountTransactions[$i]['type'] == "out" ?
+                    number_format($accountTransactions[$i]['amount']) :
                     "",
                 'balance' => number_format($balance)
-                    
+
             ]);
         }
         return Datatables::of($accountTransactionCollection)->make(true);
-
     }
 }

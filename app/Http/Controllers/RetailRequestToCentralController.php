@@ -161,7 +161,87 @@ class RetailRequestToCentralController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $retailRequestToCentral = RetailRequestToCentral::findOrFail($id);
+        $retailRequestToCentral->code = $request->code;
+        $retailRequestToCentral->date = $request->date;
+        $products = $request->selected_products;
+
+        try {
+            $retailRequestToCentral->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'retail_stock' => $item['retail_stock'],
+                    'central_stock' => $item['central_stock'],
+                    'quantity' => $item['quantity'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+        try {
+            $retailRequestToCentral->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $retailRequestToCentral,
+            // ]);
+        } catch (Exception $e) {
+            $retailRequestToCentral->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            $retailRequestToCentral->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            $retailRequestToCentral->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $productRow->retail_stock = $product['retail_stock'];
+                $productRow->central_stock = $product['central_stock'];
+                $productRow->save();
+            }
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $retailRequestToCentral,
+            ]);
+        } catch (Exception $e) {
+            $retailRequestToCentral->products()->detach();
+            $retailRequestToCentral->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -172,7 +252,39 @@ class RetailRequestToCentralController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $retailRequestToCentral = RetailRequestToCentral::findOrFail($id);
+        try {
+            $retailRequestToCentral->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $retailRequestToCentral,
+            // ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
+            $retailRequestToCentral->delete();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $retailRequestToCentral,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     public function datatableRetailRequestToCentral()

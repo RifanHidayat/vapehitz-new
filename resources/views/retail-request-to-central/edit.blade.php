@@ -183,7 +183,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.patch('/request-to-retail/{{$retail_request_to_central->id}}', {
+                axios.patch('/retail-request-to-central/{{$retail_request_to_central->id}}', {
                         code: vm.code,
                         date: vm.date,
                         status: vm.status,
