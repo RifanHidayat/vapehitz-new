@@ -515,6 +515,8 @@ Route::group(['middleware' => 'auth'], function () {
     //RouteUser
     Route::prefix('/report')->group(function () {
         Route::get('/', [ReportController::class, 'index']);
+        Route::get('/central-sale/detail', [ReportController::class, 'centralSaleDetail']);
+        Route::get('/central-sale/summary', [ReportController::class, 'centralSaleSummary']);
     });
 });
 
@@ -614,5 +616,9 @@ Route::prefix('/datatables')->group(function () {
     });
     Route::prefix('/account-transactions')->group(function () {
         Route::get('/{id}', [AccountController::class, 'datatableAccountTransactions']);
+    });
+    Route::prefix('/reports')->group(function () {
+        Route::get('/central-sale-detail', [ReportController::class, 'centralSaleDetailData']);
+        Route::get('/central-sale-summary', [ReportController::class, 'centralSaleSummaryData']);
     });
 });
