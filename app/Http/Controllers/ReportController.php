@@ -86,22 +86,22 @@ class ReportController extends Controller
         //
     }
 
-    public function centralSaleDetail()
+    public function centralSaleByCustomerDetail()
     {
         $customers = Customer::all();
         $shipments = Shipment::all();
-        return view('report.sales.detail.central-sale', [
+        return view('report.sales.detail.central-sale-by-customer', [
             'customers' => $customers,
             'shipments' => $shipments,
         ]);
     }
 
-    public function centralSaleSummary()
+    public function centralSaleByCustomerSummary()
     {
         return view('report.sales.summary.central-sale');
     }
 
-    public function centralSaleDetailData(Request $request)
+    public function centralSaleByCustomerDetailData(Request $request)
     {
         // $columnSelections = explode(',', $request->query('columns'));
         $startDate = $request->query('start_date');
@@ -171,5 +171,35 @@ class ReportController extends Controller
             })
             ->rawColumns(['status', 'print_status'])
             ->make(true);
+    }
+
+    public function centralSaleByProductDetail()
+    {
+        $customers = Customer::all();
+        $shipments = Shipment::all();
+        return view('report.sales.detail.central-sale-by-product', [
+            'customers' => $customers,
+            'shipments' => $shipments,
+        ]);
+    }
+
+    public function retailSaleDetail()
+    {
+        $customers = Customer::all();
+        $shipments = Shipment::all();
+        return view('report.sales.detail.retail-sale', [
+            'customers' => $customers,
+            'shipments' => $shipments,
+        ]);
+    }
+
+    public function studioSaleDetail()
+    {
+        $customers = Customer::all();
+        $shipments = Shipment::all();
+        return view('report.sales.detail.studio-sale', [
+            'customers' => $customers,
+            'shipments' => $shipments,
+        ]);
     }
 }

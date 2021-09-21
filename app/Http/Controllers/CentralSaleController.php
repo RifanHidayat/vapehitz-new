@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CentralSaleByCustomerDetailExport;
+use App\Exports\CentralSaleByProductDetailExport;
 use App\Models\Account;
 use App\Models\AccountTransaction;
 use App\Models\CentralSale;
@@ -14,6 +16,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
 use PDF;
 
@@ -1258,6 +1261,52 @@ class CentralSaleController extends Controller
                 'errors' => $e,
             ], 500);
         }
+    }
+
+    public function reportByCustomer(Request $request)
+    {
+
+        // return CentralSale::with(['products', 'customer'])->get()->groupBy(function ($item, $key) {
+        //     return $item->customer->name;
+        // })->all();
+
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $reportType = $request->query('report_type');
+
+        if ($reportType == 'detail') {
+            return Excel::download(new CentralSaleByCustomerDetailExport($request->all()), 'Central Sales By Customer Detail ' . $startDate . ' - ' . $endDate . '.xlsx');
+        } else if ($reportType == 'summary') {
+        } else {
+            return response()->json([
+                'msg' => 'Unknown report type'
+            ], 400);
+        }
+
+        return;
+    }
+
+    public function reportByProduct(Request $request)
+    {
+
+        // return Product::with(['productCategory', 'productSubcategory', 'centralSales.customer'])->get();
+
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $reportType = $request->query('report_type');
+
+        if ($reportType == 'detail') {
+            return Excel::download(new CentralSaleByProductDetailExport($request->all()), 'Central Sales By Product Detail ' . $startDate . ' - ' . $endDate . '.xlsx');
+        } else if ($reportType == 'summary') {
+        } else {
+            return response()->json([
+                'msg' => 'Unknown report type'
+            ], 400);
+        }
+
+        return;
     }
 
     public function datatableProducts()

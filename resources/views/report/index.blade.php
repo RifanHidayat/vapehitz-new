@@ -1,11 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-<style>
-    a {
-        color: #526484 !important;
-    }
-</style>
 @section('content')
 @php $permission = json_decode(Auth::user()->group->permission);@endphp
 <div class="nk-block-head nk-block-head-lg wide-sm">
@@ -27,7 +22,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/central-sale/detail">
                                         <p><strong>Central Sales By Customer Detail</strong></p>
                                     </a>
                                 </div>
@@ -84,7 +79,7 @@
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
                                     <a href="">
-                                        <p><strong>Retail Sales By Product Detail</strong></p>
+                                        <p><strong>Retail Sales</strong></p>
                                     </a>
                                 </div>
                                 <div class="col-md-2 text-right">
@@ -98,35 +93,7 @@
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
                                     <a href="">
-                                        <p><strong>Retail Sales By Product Detail</strong></p>
-                                    </a>
-                                </div>
-                                <div class="col-md-2 text-right">
-                                    <a class="btn btn-icon btn-trigger"><em class="icon ni ni-star" style="font-size: 1.4rem;"></em></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-sm-12 mt-3">
-                        <div class="border py-1 px-3 round">
-                            <div class="row align-items-center justify-content-between">
-                                <div class="col-md-9">
-                                    <a href="">
-                                        <p><strong>Studio Sales By Product Detail</strong></p>
-                                    </a>
-                                </div>
-                                <div class="col-md-2 text-right">
-                                    <a class="btn btn-icon btn-trigger"><em class="icon ni ni-star" style="font-size: 1.4rem;"></em></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-sm-12 mt-3">
-                        <div class="border py-1 px-3 round">
-                            <div class="row align-items-center justify-content-between">
-                                <div class="col-md-9">
-                                    <a href="">
-                                        <p><strong>Studio Sales By Product Detail</strong></p>
+                                        <p><strong>Studio Sales</strong></p>
                                     </a>
                                 </div>
                                 <div class="col-md-2 text-right">

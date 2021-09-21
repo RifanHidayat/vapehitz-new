@@ -22,8 +22,8 @@
                             <em class="icon ni ni-download"></em>&nbsp;Export
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="#">.xlsx</a>
-                            <a class="dropdown-item" href="#">.pdf</a>
+                            <a class="dropdown-item" :href="'/central-sale/report-by-customer/sheet' + generatedRequest" target="_blank">.xlsx</a>
+                            <!-- <a class="dropdown-item" href="#" disabled>.pdf</a> -->
                             <!-- <a class="dropdown-item" href="#">Something else here</a> -->
                         </div>
                     </div>
@@ -117,7 +117,7 @@
                         </div>
                         <div class="row mt-3">
                             <div class="col-md-12 text-right">
-                                <button type="button" class="btn btn-primary">Apply</button>
+                                <button type="button" class="btn btn-primary" @click="applyFilter">Apply</button>
                             </div>
                         </div>
                     </div>
@@ -163,6 +163,7 @@
     let app = new Vue({
         el: '#app',
         data: {
+            generatedRequest: {},
             filter: {
                 startDate: '{{ date("Y-m-01") }}',
                 endDate: '{{ date("Y-m-t") }}',
@@ -236,52 +237,36 @@
             }
         },
         mounted() {
-            return console.log(this.filter.columns.map(column => column.id))
+            this.applyFilter();
+            console.log(this.filter.columns.map(column => column.id))
         },
         methods: {
-            deleteRow: function(id) {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "The data will be deleted",
-                    icon: 'warning',
-                    reverseButtons: true,
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Delete',
-                    cancelButtonText: 'Cancel',
-                    showLoaderOnConfirm: true,
-                    preConfirm: () => {
-                        return axios.delete('/central-sale/' + id)
-                            .then(function(response) {
-                                console.log(response.data);
-                            })
-                            .catch(function(error) {
-                                console.log(error.data);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops',
-                                    text: 'Something wrong',
-                                })
-                            });
-                    },
-                    allowOutsideClick: () => !Swal.isLoading()
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: 'Data has been deleted',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.reload();
-                                // invoicesTable.ajax.reload();
-                            }
-                        })
-                    }
-                })
+            applyFilter: function() {
+                this.generatedRequest =
+                    `?start_date=${this.filter.startDate}` +
+                    `&end_date=${this.filter.endDate}` +
+                    `&status=${this.filter.status}` +
+                    `&customer=${this.filter.customer}` +
+                    `&shipment=${this.filter.shipment}` +
+                    `&columns=${this.filter.columnSelections}` +
+                    `&sort_by=${this.filter.sortBy}` +
+                    `&sort_in=${this.filter.sortIn}` +
+                    `&report_type=detail`;
             }
         },
+        computed: {
+            // generatedRequest: function() {
+            //     return `?start_date=${this.filter.startDate}` +
+            //         `&end_date=${this.filter.endDate}` +
+            //         `&status=${this.filter.status}` +
+            //         `&customer=${this.filter.customer}` +
+            //         `&shipment=${this.filter.shipment}` +
+            //         `&columns=${this.filter.columnSelections}` +
+            //         `&sort_by=${this.filter.sortBy}` +
+            //         `&sort_in=${this.filter.sortIn}` +
+            //         `&report_type=detail`;
+            // }
+        }
     })
 </script>
 <script>
@@ -294,7 +279,8 @@
                 `&shipment=${app.$data.filter.shipment}` +
                 `&columns=${app.$data.filter.columnSelections}` +
                 `&sort_by=${app.$data.filter.sortBy}` +
-                `&sort_in=${app.$data.filter.sortIn}`;
+                `&sort_in=${app.$data.filter.sortIn}` +
+                `&report_type=detail`;
         }
 
         NioApp.DataTable.init = function() {
@@ -650,6 +636,7 @@
         $('.start-date').datepicker('update');
 
         $('.end-date').datepicker({
+            format: 'dd/mm/yyyy',
             todayBtn: false,
             clearBtn: true,
             // orientation: "bottom left",
