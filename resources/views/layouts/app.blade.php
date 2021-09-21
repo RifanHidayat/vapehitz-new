@@ -47,8 +47,13 @@
     } */
         .datatable-wrap {
             border: none;
-            overflow-x: scroll;
+            /* overflow-x: scroll; */
         }
+
+        /* 
+        .table-responsive {
+            overflow-x: hidden;
+        } */
     </style>
     @yield('pagestyle')
 </head>

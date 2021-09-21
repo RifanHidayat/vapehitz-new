@@ -1,14 +1,42 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+<style>
+    .dataTables_filter {
+        text-align: right;
+        width: 90%;
+    }
 
+    table tr th {
+        font-size: 15px;
+        /* color: black; */
+    }
+
+    table tr td {
+        font-size: 13px;
+        /* color: black; */
+    }
+
+    .pull-left {
+        float: left !important;
+    }
+
+    .pull-right {
+        float: right !important;
+        margin-bottom: 20px;
+    }
+
+    .bottom {
+        float: right !important;
+    }
+</style>
 @section('content')
 <div class="components-preview wide-md mx-auto">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <div class="nk-block-head-sub">
-                <a class="back-to" href="{{url('/request-to-retail')}}"><em class="icon ni ni-arrow-left"></em>
-                    <span>Permintaan Barang ke Gudang Retail</span>
+                <a class="back-to" href="{{url('/studio-request-to-central')}}"><em class="icon ni ni-arrow-left"></em>
+                    <span>Permintaan Barang ke Gudang Pusat</span>
                 </a>
             </div>
         </div>
@@ -48,7 +76,7 @@
                                         <th>Kode Barang</th>
                                         <th>Nama Barang</th>
                                         <th>Stok Pusat</th>
-                                        <th>Stok Retail</th>
+                                        <th>Stok Studio</th>
                                         <th>Qty</th>
                                     </tr>
                                 </thead>
@@ -57,7 +85,7 @@
                                         <td>@{{product.code}}</td>
                                         <td>@{{product.name}}</td>
                                         <td>@{{product.central_stock}}</td>
-                                        <td>@{{product.retail_stock}}</td>
+                                        <td>@{{product.studio_stock}}</td>
                                         <td>
                                             <input type="number" v-model="product.quantity" @input="validateQuantity(product)" class="form-control">
                                         </td>
@@ -72,8 +100,7 @@
                 </div>
                 <p></p>
                 <div class="col-md-12 text-right">
-                    <a href="#" @click.prevent="rejectProduct" class="btn btn-danger">X&nbsp; Reject</a> &nbsp;
-                    <button class="btn btn-primary"><em class="ni ni-save"></em>&nbsp;Approve</button>
+                    <button class="btn btn-primary">Simpan</button>
                 </div>
             </form>
         </div>
@@ -156,9 +183,8 @@
     let app = new Vue({
         el: '#app',
         data: {
-            code: '{{$approve_central->code}}',
-            date: '{{$approve_central->date}}',
-            selectedProducts: JSON.parse('{!! $approve_central->products !!}'),
+            code: '{{$code}}',
+            selectedProducts: [],
             check: [],
             loading: false,
         },
@@ -184,7 +210,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.patch('/approve-central/approve/{{$approve_central->id}}', {
+                axios.post('/studio-request-to-central', {
                         code: vm.code,
                         date: vm.date,
                         status: vm.status,
@@ -199,39 +225,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/approve-central';
-                            }
-                        })
-                        // console.log(response);
-                    })
-                    .catch(function(error) {
-                        vm.loading = false;
-                        console.log(error);
-                        Swal.fire(
-                            'Oops!',
-                            'Something wrong',
-                            'error'
-                        )
-                    });
-            },
-            rejectProduct: function() {
-                let vm = this;
-                vm.loading = true;
-                axios.patch('/approve-central/reject/{{$approve_central->id}}', {
-                        code: vm.code,
-                        date: vm.date,
-                        selected_products: vm.selectedProducts,
-                    })
-                    .then(function(response) {
-                        vm.loading = false;
-                        Swal.fire({
-                            title: 'Success',
-                            text: 'Data has been saved',
-                            icon: 'success',
-                            allowOutsideClick: false,
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = '/approve-central';
+                                window.location.href = '/studio-request-to-central';
                             }
                         })
                         // console.log(response);
@@ -256,10 +250,10 @@
                 this.check.splice(index, 1);
             },
             validateQuantity: function(product) {
-                if (Number(product.quantity) > Number(product.retail_stock)) {
-                    product.quantity = product.retail_stock;
+                if (Number(product.quantity) > Number(product.studio_stock)) {
+                    product.quantity = product.studio_stock;
                 }
-            },
+            }
         },
     })
 </script>
@@ -269,8 +263,9 @@
             processing: true,
             serverSide: true,
             autoWidth: false,
+            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
-                url: '/datatables/request-to-retail/products',
+                url: '/datatables/studio-request-to-central/products',
                 type: 'GET',
             },
             columns: [{

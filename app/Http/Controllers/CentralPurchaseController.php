@@ -296,10 +296,13 @@ class CentralPurchaseController extends Controller
         $centralPurchase = CentralPurchase::with(['products'])->findOrFail($id);
         $payAmount = collect($centralPurchase->purchaseTransactions)->sum('amount');
 
+        $transaction = collect($centralPurchase->purchaseTransactions)->sortBy('date')->values()->all();
+
 
         return view('central-purchase.show', [
             'centralPurchase' => $centralPurchase,
-            'payAmount' => $payAmount
+            'payAmount' => $payAmount,
+            'transactions' => $transaction,
         ]);
     }
 

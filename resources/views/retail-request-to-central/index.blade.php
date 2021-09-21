@@ -9,12 +9,12 @@
 
     table tr th {
         font-size: 15px;
-        color: black;
+        /* color: black; */
     }
 
     table tr td {
         font-size: 13px;
-        color: black;
+        /* color: black; */
     }
 
     .pull-left {
@@ -124,7 +124,7 @@
             allowOutsideClick: () => !Swal.isLoading()
         }).then((result) => {
             if (result.isConfirmed) {
-                retailRequestToCentralTable.ajax.reload();
+                // retailRequestToCentralTable.ajax.reload();
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',

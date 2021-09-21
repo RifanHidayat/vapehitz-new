@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\RetailRequestToCentral;
+use App\Models\StudioRequestToCentral;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Yajra\DataTables\Facades\DataTables;
 
-class ApproveCentralController extends Controller
+class ApproveCentralStudioController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +18,7 @@ class ApproveCentralController extends Controller
      */
     public function index()
     {
-        return view('approve-central-retail.index');
+        return view('approve-central-studio.index');
     }
 
     /**
@@ -50,29 +50,29 @@ class ApproveCentralController extends Controller
      */
     public function show($id)
     {
-        $approveCentral = RetailRequestToCentral::with('products')->findOrFail($id);
+        $approveCentral = StudioRequestToCentral::with('products')->findOrFail($id);
         $selectedProducts = collect($approveCentral->products)->each(function ($product) {
             $product['quantity'] = $product->pivot->quantity;
         });
-        return view('approve-central-retail.show', [
+        return view('approve-central-studio.show', [
             'approve_central' => $approveCentral,
         ]);
     }
 
     public function approve($id)
     {
-        $approveCentral = RetailRequestToCentral::findOrFail($id);
+        $approveCentral = StudioRequestToCentral::findOrFail($id);
         $selectedProducts = collect($approveCentral->products)->each(function ($product) {
             $product['quantity'] = $product->pivot->quantity;
         });
-        return view('approve-central-retail.approve', [
+        return view('approve-central-studio.approve', [
             'approve_central' => $approveCentral,
         ]);
     }
 
     public function approved(Request $request, $id)
     {
-        $approveCentral = RetailRequestToCentral::findOrFail($id);
+        $approveCentral = StudioRequestToCentral::findOrFail($id);
         $approveCentral->code = $request->code;
         $approveCentral->date = $request->date;
         $approveCentral->status = "approved";
@@ -92,7 +92,7 @@ class ApproveCentralController extends Controller
         $keyedProducts = collect($products)->mapWithKeys(function ($item) {
             return [
                 $item['id'] => [
-                    'retail_stock' => $item['retail_stock'],
+                    'studio_stock' => $item['studio_stock'],
                     'central_stock' => $item['central_stock'],
                     'quantity' => $item['quantity'],
                     'created_at' => Carbon::now()->toDateTimeString(),
@@ -137,7 +137,7 @@ class ApproveCentralController extends Controller
                 }
 
                 $productRow->central_stock = $productRow->central_stock - $product['quantity'];
-                $productRow->retail_stock = $productRow->retail_stock + $product['quantity'];
+                $productRow->studio_stock = $productRow->studio_stock + $product['quantity'];
                 $productRow->save();
             }
             return response()->json([
@@ -160,7 +160,7 @@ class ApproveCentralController extends Controller
 
     public function rejected(Request $request, $id)
     {
-        $approveCentral = RetailRequestToCentral::findOrFail($id);
+        $approveCentral = StudioRequestToCentral::findOrFail($id);
         $approveCentral->code = $request->code;
         $approveCentral->date = $request->date;
         $approveCentral->status = "rejected";
@@ -180,7 +180,7 @@ class ApproveCentralController extends Controller
         $keyedProducts = collect($products)->mapWithKeys(function ($item) {
             return [
                 $item['id'] => [
-                    'retail_stock' => $item['retail_stock'],
+                    'studio_stock' => $item['studio_stock'],
                     'central_stock' => $item['central_stock'],
                     'quantity' => $item['quantity'],
                     'created_at' => Carbon::now()->toDateTimeString(),
@@ -224,7 +224,7 @@ class ApproveCentralController extends Controller
                     continue;
                 }
 
-                // $productRow->retail_stock = $productRow->retail_stock - $product['quantity'];
+                // $productRow->studio_stock = $productRow->studio_stock - $product['quantity'];
                 // $productRow->central_stock = $productRow->central_stock + $product['quantity'];
                 $productRow->save();
             }
@@ -282,11 +282,11 @@ class ApproveCentralController extends Controller
 
     public function datatableApproveCentral()
     {
-        $approveCentral = RetailRequestToCentral::all();
+        $approveCentral = StudioRequestToCentral::all();
         return DataTables::of($approveCentral)
             ->addIndexColumn()
             ->addColumn('status', function ($row) {
-                $pending = "<a href='/approve-central-retail/approve/{$row->id}' class='btn btn-outline-warning btn-sm'>
+                $pending = "<a href='/approve-central-studio/approve/{$row->id}' class='btn btn-outline-warning btn-sm'>
                 <span>Pending</span>
                 </a>";
                 $approved = "<span class='badge badge-outline-success text-success'>Approved</span>";
@@ -302,7 +302,7 @@ class ApproveCentralController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $show = '<a href="/approve-central-retail/show/' . $row->id . '" class="btn btn-outline-warning btn-sm"><em class="icon fas fa-eye"></em>
+                $show = '<a href="/approve-central-studio/show/' . $row->id . '" class="btn btn-outline-warning btn-sm"><em class="icon fas fa-eye"></em>
                 <span>Detail</span>
             </a>';
                 $button = ".$show.";
