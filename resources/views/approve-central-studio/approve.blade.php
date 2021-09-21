@@ -1,158 +1,65 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-<style>
-    .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    }
 
-    table tr th {
-        font-size: 15px;
-        /* color: black; */
-    }
-
-    table tr td {
-        font-size: 13px;
-        /* color: black; */
-    }
-
-    .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
-    }
-</style>
 @section('content')
 <div class="components-preview wide-md mx-auto">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <div class="nk-block-head-sub">
-                <a class="back-to" href="/retail-stock-opname"><em class="icon ni ni-arrow-left"></em>
-                    <span>Data Stok Opname Retail</span>
+                <a class="back-to" href="{{url('/approve-central-studio')}}"><em class="icon ni ni-arrow-left"></em>
+                    <span>Permintaan Barang Dari Retail</span>
                 </a>
             </div>
-            <h3 class="nk-block-title fw-normal">Tambah Data Stok Opname Retail</h3>
         </div>
-    </div>
-    <div v-if="errors.length" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong v-for="error in errors">
-            @{{ error }}
-        </strong>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true"></span>
-        </button>
     </div>
     <div class="card card-bordered">
-        <div class="card-inner-group">
-            <div class="card-inner card-inner-md">
-                <div class="card-title-group">
-                    <div class="card-title">
-                        <h6 class="title">Informasi Pembelian</h6>
-                    </div>
-                </div>
-            </div>
-            <form @submit.prevent="submitForm">
-                <div class="card-inner">
-                    <div class="row">
-                        <div class="col-sm">
-                            <div class=" form-group col-md-12">
-                                <label class="form-label" for="full-name-1">Nomor Stok Opname</label>
-                                <div class="form-control-wrap">
-                                    <input type="text" v-model="code" class="form-control" readonly>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm">
-                            <div class=" form-group col-md-12">
-                                <label class="form-label" for="full-name-1">Tanggal Stok Opname</label>
-                                <div class="form-control-wrap">
-                                    <input type="date" v-model="date" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <p></p>
-                    <div class="form-group col-md-6">
-                        <label class="form-label" for="full-name-1">Keterangan</label>
-                        <div class="form-control-wrap">
-                            <textarea v-model="note" class="form-control" cols="30" rows="5" placeholder="Keterangan"></textarea>
-                        </div>
-                    </div>
-                    <div class="form-group text-right">
-                        <button class="btn btn-primary" type="submit">Simpan</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<p></p>
-<div class="card card-bordered h-100">
-    <div class="card-inner-group">
-        <div class="card-inner card-inner-md">
-            <div class="card-title-group">
-                <div class="card-title">
-                    <h6 class="title">Daftar Produk</h6>
-                </div>
-                <div class="card-tools mr-n1">
-                    <ul class="btn-toolbar gx-1">
-                        <li>
-                            <a class="btn btn-icon btn-trigger" data-toggle="modal" href="#addProduct" data-backdrop="static" data-keyboard="false"><em class="icon ni ni-plus"></em></a>
-                        </li>
-                        <li>
-                            <div class="drodown">
-                                <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="false"><em class="icon ni ni-more-h"></em></a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <ul class="link-list-opt no-bdr">
-                                        <!-- <li><a href="#"><em class="icon ni ni-plus"></em><span>Tambah</span></a></li> -->
-                                        <li><a href="#" @click.prevent="removeAllSelectedProducts"><em class="icon ni ni-notify"></em><span>Hapus Semua</span></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
         <div class="card-inner">
-            <div v-if="selectedProducts.length === 0" class="text-center text-soft">
-                <em class="fas fa-dolly fa-4x"></em>
-                <p class="mt-3">Belum ada barang yang dipilih</p>
-            </div>
-            <div v-else class="card">
-                <div class="row justify-content-between align-items-center">
-                    <div class="col-md-12">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
+            <form @submit.prevent="submitForm">
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label class="form-label" for="full-name-1">Nomor Request</label>
+                        <div class="form-control-wrap">
+                            <input type="text" v-model="code" class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+                <p></p>
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label class="form-label" for="full-name-1">Tanggal Request</label>
+                        <div class="form-control-wrap">
+                            <input type="date" v-model="date" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <p></p>
+                <div class="col-lg-12">
+                    <div class="form-group mt-3">
+                        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addProduct">
+                            Tambah Barang
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <div class="card card-bordered">
+                            <table class="table table-stripped table-bordered">
                                 <thead>
                                     <tr class="text-center">
                                         <th>Kode Barang</th>
                                         <th>Nama Barang</th>
+                                        <th>Stok Pusat</th>
                                         <th>Stok Retail</th>
-                                        <th>Real Stock</th>
-                                        <th>Selisih</th>
-                                        <th>Keterangan</th>
+                                        <th>Qty</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
                                         <td>@{{product.code}}</td>
                                         <td>@{{product.name}}</td>
-                                        <td>@{{product.retail_stock}}</td>
+                                        <td>@{{product.central_stock}}</td>
+                                        <td>@{{product.studio_stock}}</td>
                                         <td>
-                                            <input type="number" v-model="product.good_stock" class="form-control text-right" placeholder="Real Stock">
-                                        </td>
-                                        <td><input type="number" :value="totalDifference(product)" class="form-control" readonly></td>
-                                        <td>
-                                            <input type="text" v-model="product.description" class="form-control text-right" placeholder="Keterangan">
+                                            <input type="number" v-model="product.quantity" @input="validateQuantity(product)" class="form-control">
                                         </td>
                                         <td>
                                             <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
@@ -163,11 +70,16 @@
                         </div>
                     </div>
                 </div>
-            </div>
+                <p></p>
+                <div class="col-md-12 text-right">
+                    <a href="#" @click.prevent="rejectProduct" class="btn btn-danger">X&nbsp; Reject</a> &nbsp;
+                    <button class="btn btn-primary"><em class="ni ni-save"></em>&nbsp;Approve</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-<!-- Product Modal -->
+<!-- Modal -->
 <div class="modal fade" id="addProduct" tabindex="-1" role="dialog" aria-labelledby="addProductLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -212,8 +124,6 @@
         </div>
     </div>
 </div>
-<!-- End Product Modal -->
-<!-- Check Modal -->
 <div class="modal fade" id="checkModal" tabindex="-1" role="dialog" aria-labelledby="checkModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -239,19 +149,18 @@
         </div>
     </div>
 </div>
-<!-- EndCheck Modal -->
+<!-- EndModal -->
 @endsection
 @section('pagescript')
 <script>
     let app = new Vue({
         el: '#app',
         data: {
-            code: '{{$code}}',
-            date: '',
-            note: '',
-            selectedProducts: [],
+            code: '{{$approve_central->code}}',
+            date: '{{$approve_central->date}}',
+            selectedProducts: JSON.parse('{!! $approve_central->products !!}'),
             check: [],
-            errors: [],
+            loading: false,
         },
         methods: {
             onSelectedProduct: function() {
@@ -268,38 +177,17 @@
                 this.selectedProducts = this.selectedProducts.concat(productsInCheck);
                 this.check = [];
             },
-            removeSelectedProduct: function(index) {
-                this.selectedProducts.splice(index, 1);
-            },
-            removeAllSelectedProducts: function() {
-                this.selectedProducts = [];
-            },
-            removeFromCheck: function(index) {
-                this.check.splice(index, 1);
-            },
-            totalDifference: function(product) {
-                return Number(product.retail_stock) - Number(product.good_stock);
-            },
             submitForm: function() {
-                if (this.code && this.date) {
-                    return this.sendData();
-                }
-                this.errors = [];
-                if (!this.code) {
-                    this.errors.push('Kolom Kode Harus di isi');
-                }
-                if (!this.date) {
-                    this.errors.push('Kolom Tanggal Harus di Isi');
-                }
+                this.sendData();
             },
             sendData: function() {
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/retail-stock-opname', {
+                axios.patch('/approve-central-studio/approve/{{$approve_central->id}}', {
                         code: vm.code,
                         date: vm.date,
-                        note: vm.note,
+                        status: vm.status,
                         selected_products: vm.selectedProducts,
                     })
                     .then(function(response) {
@@ -311,7 +199,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/retail-stock-opname';
+                                window.location.href = '/approve-central-studio';
                             }
                         })
                         // console.log(response);
@@ -321,10 +209,56 @@
                         console.log(error);
                         Swal.fire(
                             'Oops!',
-                            'Daftar Produk Tidak Boleh Kosong',
+                            'Something wrong',
                             'error'
                         )
                     });
+            },
+            rejectProduct: function() {
+                let vm = this;
+                vm.loading = true;
+                axios.patch('/approve-central-studio/reject/{{$approve_central->id}}', {
+                        code: vm.code,
+                        date: vm.date,
+                        selected_products: vm.selectedProducts,
+                    })
+                    .then(function(response) {
+                        vm.loading = false;
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Data has been saved',
+                            icon: 'success',
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/approve-central-studio';
+                            }
+                        })
+                        // console.log(response);
+                    })
+                    .catch(function(error) {
+                        vm.loading = false;
+                        console.log(error);
+                        Swal.fire(
+                            'Oops!',
+                            'Something wrong',
+                            'error'
+                        )
+                    });
+            },
+            removeSelectedProduct: function(index) {
+                this.selectedProducts.splice(index, 1);
+            },
+            removeAllSelectedProducts: function() {
+                this.selectedProducts = [];
+            },
+            removeFromCheck: function(index) {
+                this.check.splice(index, 1);
+            },
+            validateQuantity: function(product) {
+                if (Number(product.quantity) > Number(product.studio_stock)) {
+                    product.quantity = product.studio_stock;
+                }
             },
         },
     })
@@ -335,9 +269,8 @@
             processing: true,
             serverSide: true,
             autoWidth: false,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
-                url: '/datatables/stock-opname-retail/products',
+                url: '/datatables/approve-central-studio/products',
                 type: 'GET',
             },
             columns: [{
@@ -364,7 +297,7 @@
             const productIds = check.map(product => product.id);
 
             if (productIds.indexOf(data.id) < 0) {
-                data['good_stock'] = 0;
+                data['quantity'] = 0;
                 check.push(data);
             }
         });

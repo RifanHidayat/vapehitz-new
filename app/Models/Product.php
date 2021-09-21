@@ -70,10 +70,12 @@ class Product extends Model
     }
     public function requestToStudio()
     {
-        return $this->belongsToMany(requestToStudio::class);
+        return $this->belongsToMany(RequestToStudio::class);
     }
-    
-
+    public function reqStudioToCentral()
+    {
+        return $this->belongsToMany(StudioRequestToCentral::class);
+    }
     public function centralSaleReturns()
     {
         return $this->belongsToMany(CentralSaleReturn::class)->withPivot('quantity', 'cause');

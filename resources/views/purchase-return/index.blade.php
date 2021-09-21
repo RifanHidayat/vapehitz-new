@@ -1,7 +1,35 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+<style>
+    .dataTables_filter {
+        text-align: right;
+        width: 90%;
+    }
 
+    table tr th {
+        font-size: 15px;
+        /* color: black; */
+    }
+
+    table tr td {
+        font-size: 13px;
+        /* color: black; */
+    }
+
+    .pull-left {
+        float: left !important;
+    }
+
+    .pull-right {
+        float: right !important;
+        margin-bottom: 20px;
+    }
+
+    .bottom {
+        float: right !important;
+    }
+</style>
 @section('content')
 <div class="components-preview">
     <div class="nk-block-head nk-block-head-lg wide-sm">
@@ -10,15 +38,15 @@
         </div>
     </div>
     <div class="nk-block nk-block-lg">
-        
-        
+
+
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
                 <!-- <div class="card-head">
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table style="width: 100%;"  class="table table-striped" id="purchaseReturn">
+                    <table style="width: 100%;" class="table table-striped" id="purchaseReturn">
                         <thead>
                             <tr>
                                 <!-- <th>Nomor Order</th> -->
@@ -31,8 +59,8 @@
                                 <th>Jumlah Bayar</th>
                                 <th>Sisa bayar</th>
                                 <th>Action</th>
-                                
-                                
+
+
                             </tr>
                         </thead>
                         <tbody>
@@ -47,8 +75,7 @@
 @endsection
 @section('pagescript')
 <script>
-
-var centralPurchaseTable = $(function() {
+    var centralPurchaseTable = $(function() {
         $('#purchaseReturn').DataTable({
             processing: true,
             serverSide: true,
@@ -58,9 +85,8 @@ var centralPurchaseTable = $(function() {
                 type: 'GET',
                 // length: 2,
             },
-           
-            columns: [
-                {
+
+            columns: [{
                     data: 'code',
                     name: 'purchase_returns.code'
                 },
@@ -68,12 +94,12 @@ var centralPurchaseTable = $(function() {
                     data: 'date',
                     name: 'purchase_returns.date'
                 },
-                
+
                 {
                     data: 'central_purchase_code',
                     name: 'central_purchase_code'
                 },
-              
+
                 {
                     data: 'supplier_name',
                     name: 'supplier.name',
@@ -148,6 +174,5 @@ var centralPurchaseTable = $(function() {
             })
         })
     });
-
 </script>
 @endsection

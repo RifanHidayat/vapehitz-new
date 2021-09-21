@@ -1,14 +1,42 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+<style>
+    .dataTables_filter {
+        text-align: right;
+        width: 90%;
+    }
 
+    table tr th {
+        font-size: 15px;
+        /* color: black; */
+    }
+
+    table tr td {
+        font-size: 13px;
+        /* color: black; */
+    }
+
+    .pull-left {
+        float: left !important;
+    }
+
+    .pull-right {
+        float: right !important;
+        margin-bottom: 20px;
+    }
+
+    .bottom {
+        float: right !important;
+    }
+</style>
 @section('content')
 <div class="components-preview">
     <div class="nk-block-head nk-block-head-lg wide-sm">
         <div class="nk-block-head-content">
             <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
             <h2 class="nk-block-title fw-normal">Transaksi Pembayaran Supplier</h>
-            <!-- <div class="nk-block-des">
+                <!-- <div class="nk-block-des">
                 <p class="lead">Manage Supplier</p>
             </div> -->
         </div>
@@ -22,7 +50,7 @@
                 </div>
             </div>
         </div> -->
-       
+
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
                 <!-- <div class="card-head">
