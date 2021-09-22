@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CentralSale;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -98,7 +99,12 @@ class ReportController extends Controller
 
     public function centralSaleByCustomerSummary()
     {
-        return view('report.sales.summary.central-sale');
+        $customers = Customer::all();
+        $shipments = Shipment::all();
+        return view('report.sales.summary.central-sale-by-customer', [
+            'customers' => $customers,
+            'shipments' => $shipments,
+        ]);
     }
 
     public function centralSaleByCustomerDetailData(Request $request)
@@ -183,6 +189,16 @@ class ReportController extends Controller
         ]);
     }
 
+    public function centralSaleByProductSummary()
+    {
+        $customers = Customer::all();
+        $shipments = Shipment::all();
+        return view('report.sales.summary.central-sale-by-product', [
+            'customers' => $customers,
+            'shipments' => $shipments,
+        ]);
+    }
+
     public function retailSaleDetail()
     {
         $customers = Customer::all();
@@ -199,6 +215,46 @@ class ReportController extends Controller
         $shipments = Shipment::all();
         return view('report.sales.detail.studio-sale', [
             'customers' => $customers,
+            'shipments' => $shipments,
+        ]);
+    }
+
+    public function centralPurchaseBySupplierDetail()
+    {
+        $suppliers = Supplier::all();
+        $shipments = Shipment::all();
+        return view('report.purchases.detail.central-purchase-by-supplier', [
+            'suppliers' => $suppliers,
+            'shipments' => $shipments,
+        ]);
+    }
+
+    public function centralPurchaseBySupplierSummary()
+    {
+        $suppliers = Supplier::all();
+        $shipments = Shipment::all();
+        return view('report.purchases.summary.central-purchase-by-supplier', [
+            'suppliers' => $suppliers,
+            'shipments' => $shipments,
+        ]);
+    }
+
+    public function centralPurchaseByProductDetail()
+    {
+        $suppliers = Supplier::all();
+        $shipments = Shipment::all();
+        return view('report.purchases.detail.central-purchase-by-product', [
+            'suppliers' => $suppliers,
+            'shipments' => $shipments,
+        ]);
+    }
+
+    public function centralPurchaseByProductSummary()
+    {
+        $suppliers = Supplier::all();
+        $shipments = Shipment::all();
+        return view('report.purchases.summary.central-purchase-by-product', [
+            'suppliers' => $suppliers,
             'shipments' => $shipments,
         ]);
     }

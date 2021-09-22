@@ -306,13 +306,25 @@
             toggleCheckAllSection: function(e, subAttribute) {
                 // console.log(e);
                 const isChecked = e.target.checked;
+                // If Unchecked
                 if (!isChecked) {
-
-                } else {
-                    this.checkedPermissions = this.checkedPermissions.concat(subAttribute.attributes.filter(attribute => attribute !== null));
-                    // this.checkedPermissions = this.checkedPermissions.concat(subAttribute.attributes);
+                    let unchecked = this.checkedPermissions.filter(checked => {
+                        const included = subAttribute.attributes.includes(checked);
+                        return !included;
+                    });
+                    // console.log(unchecked);
+                    this.checkedPermissions = unchecked;
+                } else { // If Checked
+                    // let unchecked = this.checkedPermissions;
+                    this.checkedPermissions = this.checkedPermissions.filter(checked => {
+                        const included = subAttribute.attributes.includes(checked);
+                        return !included;
+                    }).concat(subAttribute.attributes.filter(attribute => attribute !== null));
                 }
             },
+            // isChecked: function(subAttribute) {
+            //     if()
+            // }
         },
         // computed: {
         //     checkAll: {

@@ -272,7 +272,7 @@
                     <div class="nk-tb-col tb-col-md"><span>Booking</span></div>
                     <div class="nk-tb-col tb-col-lg"><span>Stok</span></div>
                     <!-- <div class="nk-tb-col"><span>&nbsp;</span></div> -->
-                    <div class="nk-tb-col"><span>Harga Jual <em :class="productPriceLocked ? 'fas fa-lock' : 'fas fa-lock-open'"></em></span></div>
+                    <div class="nk-tb-col"><span>Harga Jual <em :class="!isAuthorizedProductPrice ? 'fas fa-lock' : 'fas fa-lock-open'"></em></span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Qty</span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Free</span></div>
                     <!-- <div class="nk-tb-col"><span class="d-none d-sm-inline">&nbsp;</span></div> -->
@@ -565,15 +565,15 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form @submit.prevent="is_edit_shipment ? editShipment(shipment_edit_id,shipment_edit_index):addShipment()">
-                <div class="modal-body">
-                    <div class="form-group col-md-6">
-                        <label class="form-label" for="">Nama Shipment</label>
-                        <input type="text" class="form-control" v-model="shipment.name">
+            <div class="modal-body">
+                <form @submit.prevent="is_edit_shipment ? editShipment(shipment_edit_id,shipment_edit_index):addShipment()">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label class="form-label" for="">Nama Shipment</label>
+                            <input type="text" class="form-control" v-model="shipment.name">
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="form-group text-right">
+                    <div class="mt-2">
                         <button v-if="is_edit_shipment == true" v-on:click="onCloseEdit" type="button" class="btn btn-primary">
                             &times
                         </button>
@@ -582,33 +582,36 @@
                             <span>@{{is_edit_shipment ? "Edit" : "Simpan" }}</span>
                         </button>
                     </div>
+                </form>
+                <div class="divider"></div>
+                <div>
+                    <table class="datatable-init table table-stripped">
+                        <thead>
+                            <tr class="text-center">
+                                <th>Nama</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(shipment, index) in shipments" :value="shipment.id" class="text-center">
+                                <td>@{{shipment.name}}</td>
+                                <td>
+                                    <div class="btn-group" aria-label="Basic example">
+                                        <a href="#" @click.prevent="onEditShipment(index)" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
+                                        <a href="#" @click.prevent="deleteShipment(shipment.id)" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </form>
-            <div class="modal-body">
-                <h5>Data Shipment</h5>
-                <table class="datatable-init table table-stripped">
-                    <thead>
-                        <tr class="text-center">
-                            <th>Nama</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(shipment, index) in shipments" :value="shipment.id" class="text-center">
-                            <td>@{{shipment.name}}</td>
-                            <td>
-                                <div class="btn-group" aria-label="Basic example">
-                                    <a href="#" @click.prevent="onEditShipment(index)" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
-                                    <a href="#" @click.prevent="deleteShipment(shipment.id)" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
+
         </div>
     </div>
 </div>
+
+<!-- <div class="bg-white" style="height: 50px; width: 100%; position: fixed; bottom: 0; left: 0">Cookies</div> -->
 <!-- End Shipment Modal -->
 <!-- Product Modal -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
@@ -691,21 +694,24 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="">
+            <form @submit.prevent="sendAuthProductPrice">
                 <div class="modal-body">
                     <p class="text-muted"><em>Masukkan username dan password user yang memiliki izin untuk melakukan perubahan harga</em></p>
                     <div class="form-group">
                         <label for="">Username</label>
-                        <input type="text" class="form-control">
+                        <input type="text" v-model="authProductPriceModel.username" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="">Password</label>
-                        <input type="password" class="form-control">
+                        <input type="password" v-model="authProductPriceModel.password" class="form-control" required>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-                    <button type="button" class="btn btn-primary">Kirim</button>
+                    <button type="submit" class="btn btn-primary" :disabled="authProductPriceModel.loading">
+                        <span v-if="authProductPriceModel.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span>Kirim</span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -751,6 +757,11 @@
             productPriceLocked: true,
             priceAuthProductIndex: null,
             isAuthorizedProductPrice: false,
+            authProductPriceModel: {
+                username: '',
+                password: '',
+                loading: false,
+            },
             isStockUnsufficient: false,
             loading: false,
         },
@@ -1021,14 +1032,37 @@
             },
             onChangeProductPrice: function(product, index) {
                 let vm = this;
-                if (product.is_changeable !== 1) {
-                    if (product.price < product.agent_price) {
-                        // console.log('price is lower')
-                        $('#authPriceModal').modal('show')
-                        this.priceAuthProductIndex = index;
-                        // this.priceAuthProductPrice = price;
+                if (!vm.isAuthorizedProductPrice) {
+                    if (product.is_changeable !== 1) {
+                        if (product.price < product.agent_price) {
+                            // console.log('price is lower')
+                            $('#authPriceModal').modal('show')
+                            this.priceAuthProductIndex = index;
+                            // this.priceAuthProductPrice = price;
+                        }
                     }
                 }
+            },
+            sendAuthProductPrice: function() {
+                let vm = this;
+                vm.authProductPriceModel.loading = true;
+                axios.post('/central-sale/action/auth-product-price', {
+                        username: vm.authProductPriceModel.username,
+                        password: vm.authProductPriceModel.password,
+                    })
+                    .then(function(response) {
+                        vm.authProductPriceModel.loading = false;
+                        vm.isAuthorizedProductPrice = true;
+                        $('#authPriceModal').modal('hide');
+                    })
+                    .catch(function(error) {
+                        vm.authProductPriceModel.loading = false;
+                        Swal.fire(
+                            'Kesalahan',
+                            error.response.data.message,
+                            'warning'
+                        );
+                    });
             },
             onChangeQuantity: function(product) {
                 const {

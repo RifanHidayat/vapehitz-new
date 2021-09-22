@@ -86,7 +86,8 @@
                                         <tr>
                                             <th>Tanggal</th>
                                             <th>Kode Transaksi</th>
-                                            <th class="text-right">Jumlah Pembayaran</th>
+                                            <th>Metode</th>
+                                            <th class="text-right">Jumlah</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -100,6 +101,7 @@
                                         <tr>
                                             <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
                                             <td><a href="/central-sale-return-transaction/detail/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
+                                            <td class="text-capitalize">{{ $transaction->payment_method }}</td>
                                             <td class="text-right">{{ number_format($transaction->pivot->amount) }}</td>
                                         </tr>
                                         @php $subTotal += $transaction->pivot->amount; @endphp
@@ -108,15 +110,15 @@
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <td colspan="2">Subtotal</td>
+                                            <td colspan="3">Subtotal</td>
                                             <td class="text-right">{{ number_format($subTotal) }}</td>
                                         </tr>
                                         <tr>
-                                            <td colspan="2" style="border-top: none;">Total Retur</td>
+                                            <td colspan="3" style="border-top: none;">Total Retur</td>
                                             <td class="text-right" style="border-top: none;">{{ number_format($sale_return->amount) }}</td>
                                         </tr>
                                         <tr style="font-weight: bold;">
-                                            <td colspan="2">Sisa Hutang</td>
+                                            <td colspan="3">Sisa Hutang</td>
                                             <td class="text-right">{{ number_format(abs($subTotal - $sale_return->amount)) }}</td>
                                         </tr>
                                     </tfoot>

@@ -2,7 +2,7 @@
 
 @section('title', 'Vapehitz')
 <style>
-    .dataTables_filter {
+    /* .dataTables_filter {
         text-align: right;
         width: 90%;
     }
@@ -28,7 +28,7 @@
 
     .bottom {
         float: right !important;
-    }
+    } */
 </style>
 @section('content')
 <div class="components-preview">

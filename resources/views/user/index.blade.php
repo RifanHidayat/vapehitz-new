@@ -2,7 +2,7 @@
 
 @section('title', 'Vapehitz')
 <style>
-    .dataTables_filter {
+    /* .dataTables_filter {
         text-align: right;
         width: 90%;
     }
@@ -28,7 +28,7 @@
 
     .bottom {
         float: right !important;
-    }
+    } */
 </style>
 @section('content')
 <div class="nk-block-head nk-block-head-lg wide-sm">
@@ -57,10 +57,10 @@
                         <th>Username</th>
                         <th>Email</th>
                         <th>Group</th>
-                        <th style="width: 10%;">Action</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody class="text-center">
+                <tbody>
                 </tbody>
             </table>
         </div>
@@ -78,6 +78,7 @@
                     <h5>Tambah User</h5>
                 </div>
                 <div class="card-inner">
+
                     <form action="{{ route('register') }}" method="post">
                         @csrf
                         @if(session('errors'))
@@ -92,26 +93,42 @@
                             </ul>
                         </div>
                         @endif
-                        <div class="col-lg-5">
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Nama Lengkap</label>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="form-label" for="full-name-1">Nama</label>
                                 <div class="form-control-wrap">
                                     <input type="text" name="name" class="form-control">
                                 </div>
                             </div>
-                        </div>
-                        <p></p>
-                        <div class="col-lg-5">
-                            <div class="form-group">
+
+
+                            <div class="form-group col-md-6">
                                 <label class="form-label" for="full-name-1">Username</label>
                                 <div class="form-control-wrap">
                                     <input type="text" name="username" class="form-control">
                                 </div>
                             </div>
                         </div>
-                        <p></p>
-                        <div class="col-lg-5">
-                            <div class="form-group">
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="form-label" for="full-name-1">Password</label>
+                                <div class="form-control-wrap">
+                                    <input type="password" name="password" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="form-label" for="full-name-1">Konfirmasi Password</label>
+                                <div class="form-control-wrap">
+                                    <input type="password" name="password_confirmation" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
                                 <label class="form-label" for="full-name-1">Group</label>
                                 <div class="form-control-wrap">
                                     <select name="group" class="form-control">
@@ -121,39 +138,20 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <p></p>
-                        <div class="col-lg-5">
-                            <div class="form-group">
+
+
+                            <div class="form-group col-md-6">
                                 <label class="form-label" for="full-name-1">Email</label>
                                 <div class="form-control-wrap">
                                     <input type="email" name="email" class="form-control">
                                 </div>
                             </div>
                         </div>
-                        <p></p>
-                        <div class="col-lg-5">
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Password</label>
-                                <div class="form-control-wrap">
-                                    <input type="password" name="password" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                        <p></p>
-                        <div class="col-lg-5">
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Konfirmasi Password</label>
-                                <div class="form-control-wrap">
-                                    <input type="password" name="password_confirmation" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                        <p></p>
-                        <div class="col-md-12 text-right">
+                        <div class="text-right">
                             <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -200,7 +198,8 @@
                 },
                 {
                     data: 'action',
-                    name: 'action'
+                    name: 'action',
+                    className: 'text-center',
                 },
             ]
         });
