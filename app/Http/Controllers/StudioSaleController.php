@@ -12,6 +12,7 @@ use App\Models\Supplier;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
@@ -95,6 +96,7 @@ class StudioSaleController extends Controller
         // $sale->detail = $request->detail;
         $sale->payment_method = $request->payment_method;
         $sale->account_id = $request->account_id;
+        $sale->created_by = Auth::id();
         // $sale->note = $request->note;
         $products = $request->selected_products;
 

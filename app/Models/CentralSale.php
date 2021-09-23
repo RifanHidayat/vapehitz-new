@@ -39,4 +39,9 @@ class CentralSale extends Model
     {
         return $this->hasMany(CentralSaleReturn::class);
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

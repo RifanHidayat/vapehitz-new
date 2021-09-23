@@ -55,7 +55,7 @@ class CentralPurchaseBySupplierDetailExport implements FromView, ShouldAutoSize
         $sortBy = $this->request['sort_by'];
         $sortIn = $this->request['sort_in'];
         // $query = CentralSale::with(['products', 'supplier'])->whereBetween('date', [$startDate, $endDate]);
-        $query = CentralPurchase::with(['products' => function ($q) {
+        $query = CentralPurchase::with(['createdBy', 'products' => function ($q) {
             $q->with(['productCategory', 'productSubcategory']);
         }, 'supplier'])->whereBetween(DB::raw('DATE(date)'), [$startDate, $endDate]);
         if ($supplier !== '' && $supplier !== null) {
