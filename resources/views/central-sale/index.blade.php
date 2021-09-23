@@ -423,6 +423,11 @@
                     //     })
                     // }
                 })
+            } else {
+                let a = document.createElement('a');
+                a.target = '_blank';
+                a.href = '/central-sale/print/' + id;
+                a.click();
             }
         })
     });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StudioSaleDetailExport;
 use App\Models\Account;
 use App\Models\AccountTransaction;
 use App\Models\Product;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use PDF;
 
@@ -389,6 +391,25 @@ class StudioSaleController extends Controller
 
         $pdf = PDF::loadView('studio-sale.print', $data);
         return $pdf->stream($sale->code . '.pdf');
+    }
+
+    public function report(Request $request)
+    {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $reportType = $request->query('report_type');
+
+        if ($reportType == 'detail') {
+            return Excel::download(new StudioSaleDetailExport($request->all()), 'Studio Sales Detail ' . $startDate . ' - ' . $endDate . '.xlsx');
+        } else if ($reportType == 'summary') {
+        } else {
+            return response()->json([
+                'msg' => 'Unknown report type'
+            ], 400);
+        }
+
+        return;
     }
 
     public function datatableStudioSales()

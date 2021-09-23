@@ -243,6 +243,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/edit/{id}', [RetailSaleController::class, 'edit']);
         Route::get('/return/{id}', [RetailSaleController::class, 'return']);
         Route::get('/print/{id}', [RetailSaleController::class, 'print']);
+        Route::get('/report/sheet', [RetailSaleController::class, 'report']);
         Route::post('/', [RetailSaleController::class, 'store']);
         Route::patch('/{id}', [RetailSaleController::class, 'update']);
         Route::delete('/{id}', [RetailSaleController::class, 'destroy']);
@@ -265,6 +266,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/edit/{id}', [StudioSaleController::class, 'edit']);
         Route::get('/return/{id}', [StudioSaleController::class, 'return']);
         Route::get('/print/{id}', [StudioSaleController::class, 'print']);
+        Route::get('/report/sheet', [StudioSaleController::class, 'report']);
         Route::post('/', [StudioSaleController::class, 'store']);
         Route::patch('/{id}', [StudioSaleController::class, 'update']);
         Route::delete('/{id}', [StudioSaleController::class, 'destroy']);
@@ -287,6 +289,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/show/{id}', [CentralSaleController::class, 'show']);
         Route::get('/edit/{id}', [CentralSaleController::class, 'edit']);
         Route::get('/approve/{id}', [CentralSaleController::class, 'approve']);
+        Route::get('/report-by-customer/sheet', [CentralSaleController::class, 'reportByCustomer']);
+        Route::get('/report-by-product/sheet', [CentralSaleController::class, 'reportByProduct']);
         Route::post('/', [CentralSaleController::class, 'store']);
         Route::post('/action/update-print-status/{id}', [CentralSaleController::class, 'updatePrintStatus']);
         Route::patch('/approve/{id}', [CentralSaleController::class, 'approved']);
@@ -557,8 +561,11 @@ Route::group(['middleware' => 'auth'], function () {
     //RouteUser
     Route::prefix('/report')->group(function () {
         Route::get('/', [ReportController::class, 'index']);
-        Route::get('/central-sale/detail', [ReportController::class, 'centralSaleDetail']);
+        Route::get('/central-sale/customer/detail', [ReportController::class, 'centralSaleByCustomerDetail']);
+        Route::get('/central-sale/product/detail', [ReportController::class, 'centralSaleByProductDetail']);
         Route::get('/central-sale/summary', [ReportController::class, 'centralSaleSummary']);
+        Route::get('/retail-sale/detail', [ReportController::class, 'retailSaleDetail']);
+        Route::get('/studio-sale/detail', [ReportController::class, 'studioSaleDetail']);
     });
 });
 
@@ -670,7 +677,7 @@ Route::prefix('/datatables')->group(function () {
         Route::get('/{id}', [AccountController::class, 'datatableAccountTransactions']);
     });
     Route::prefix('/reports')->group(function () {
-        Route::get('/central-sale-detail', [ReportController::class, 'centralSaleDetailData']);
+        Route::get('/central-sale-detail', [ReportController::class, 'centralSaleByCustomerDetailData']);
         Route::get('/central-sale-summary', [ReportController::class, 'centralSaleSummaryData']);
     });
 });
