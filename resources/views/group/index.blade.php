@@ -1,93 +1,92 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-<style>
-    /* .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    }
-
-    table tr th {
-        font-size: 15px;
-        /* color: black; */
-    }
-
-    table tr td {
-        font-size: 13px;
-        /* color: black; */
-    }
-
-    .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
-    } */
-</style>
 @section('content')
-<div class="components-preview">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
+@php $permission = json_decode(Auth::user()->group->permission);@endphp
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between">
         <div class="nk-block-head-content">
-            <h4 class="nk-block-title fw-normal">Data Group</h4>
-        </div>
-    </div><!-- .nk-block -->
-    <div class="nk-block nk-block-lg">
-        <a href="{{url('/group/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Tambah Group</a>
-        <p></p>
-        <div class="card card-bordered">
-            <div class="card-inner overflow-hidden">
-                <table class="table table-striped" id="group-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 90%;">Nama Group</th>
-                            <th style="width: 10%">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+            <h3 class="nk-block-title page-title">Group</h3>
+            <div class="nk-block-des text-soft">
+                <p>Manage Group</p>
             </div>
+        </div><!-- .nk-block-head-content -->
+        <div class="nk-block-head-content">
+            <div class="toggle-wrap nk-block-tools-toggle">
+                <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
+                <div class="toggle-expand-content" data-content="pageMenu">
+                    <ul class="nk-block-tools g-3">
+                        <li>
+                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                                <em class="icon ni ni-download-cloud"></em>
+                                <span>Export</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                                <em class="icon ni ni-reports"></em>
+                                <span>Reports</span>
+                            </a>
+                        </li>
+                        @if(in_array("add_data_group", $permission))
+                        <li>
+                            <a href="/customer/create" class="btn btn-primary">
+                                <em class="icon ni ni-plus"></em>
+                                <span>New Group</span>
+                            </a>
+                        </li>
+                        @endif
+                    </ul>
+                </div>
+            </div>
+        </div><!-- .nk-block-head-content -->
+    </div><!-- .nk-block-between -->
+</div>
+<div class="nk-block nk-block-lg">
+    <div class="card card-bordered">
+        <div class="card-inner overflow-hidden">
+            <table class="table table-striped" id="group-table">
+                <thead>
+                    <tr>
+                        <th style="width: 90%;">Nama Group</th>
+                        <th style="width: 10%">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 @endsection
 @section('pagescript')
 <script>
-    let app = new Vue({
-        el: '#app',
-        methods: {
-
-        }
-    })
-</script>
-<script>
     $(function() {
-        const groupTable = $('#group-table').DataTable({
-            processing: true,
-            serverSide: true,
-            destroy: true,
-            autoWidth: false,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: '/datatables/group',
-                type: 'GET',
-            },
-            columns: [{
-                    data: 'name',
-                    name: 'name'
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#group-table', {
+                processing: true,
+                serverSide: true,
+                destroy: true,
+                autoWidth: false,
+                ajax: {
+                    url: '/datatables/group',
+                    type: 'GET',
                 },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
-            ]
-        });
+                columns: [{
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
+                    },
+                ]
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+
+        NioApp.DataTable.init();
+
         $('#group-table').on('click', 'tr .btn-delete', function(e) {
             e.preventDefault();
             // alert('click');
