@@ -1,42 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-@section('pagestyle')
-<style>
-    /* .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    }
-
-    table tr th {
-        font-size: 15px;
-        /* color: black; */
-    }
-
-    table tr td {
-        font-size: 13px;
-        /* color: black; */
-    }
-
-    .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
-    }
-
-    */ #suppliers tr th,
-    #suppliers tr td {
-        font-size: 0.875rem;
-    }
-</style>
-@endsection
 @section('content')
 @php $permission = json_decode(Auth::user()->group->permission);@endphp
 <div class="components-preview">
