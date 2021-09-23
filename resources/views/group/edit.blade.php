@@ -16,9 +16,6 @@
     </div>
     <div class="card card-bordered">
         <div class="card-inner">
-            <!-- <div class="card-head">
-                    <h5 class="card-title">Form</h5>
-                </div> -->
             <form @submit.prevent="submitForm">
                 <div class="row g-4">
                     <div class="col-lg-6">
@@ -38,9 +35,9 @@
                                 <div class="form-control-wrap">
                                     <table class="table">
                                         <thead>
-                                            <tr class="text-center">
+                                            <tr>
                                                 <th></th>
-                                                <!-- <th>All</th> -->
+                                                <th>All</th>
                                                 <th>View</th>
                                                 <th>Tambah</th>
                                                 <th>Edit</th>
@@ -56,19 +53,17 @@
                                             </tr>
                                             <tr v-for="(permission, j) in parent.attributes">
                                                 <td class="">@{{permission.subtitle}}</td>
-                                                <!-- <td class="">
-                                                    <input type="checkbox" v-model="selectAll" @click="select()" />
-                                                    <span></span>
-                                                </td> -->
+                                                <td>
+                                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                                        <input type="checkbox" @change="toggleCheckAllSection($event, permission)" class="custom-control-input" :id="'checkAll'+i+j" />
+                                                        <label :for="'checkAll'+i+j" class="custom-control-label"></label>
+                                                    </div>
+                                                </td>
                                                 <td v-for="(attribute, k) in permission.attributes" class="text-center">
                                                     <div v-if="attribute !== null" class="custom-control custom-control-sm custom-checkbox">
                                                         <input type="checkbox" v-model="checkedPermissions" :value="attribute" class="custom-control-input" :id="'permission'+i+j+k">
                                                         <label class="custom-control-label" :for="'permission'+i+j+k"></label>
                                                     </div>
-                                                    <!-- <label class="checkbox justify-content-center"> -->
-                                                    <!-- <input type="checkbox" v-model="checkedPermissions" :value="attribute" />
-                                                        <span></span> -->
-                                                    <!-- </label> -->
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -283,7 +278,42 @@
                             'error'
                         )
                     });
-            }
+            },
+            select: function() {
+                this.selectAll = !this.selectAll;
+                this.checkedPermissions = [];
+                if (this.selectAll) {
+                    for (var i in this.permissions.attributes.attributes) {
+                        this.checkedPermissions.push(this.permission.attributes.attributes[i]);
+                    }
+                }
+            },
+            updateCheckall: function() {
+                if (this.checkedPermissions.length == this.permission.length) {
+                    this.selectAll = true;
+                } else {
+                    this.selectAll = false;
+                }
+            },
+            toggleCheckAllSection: function(e, subAttribute) {
+                // console.log(e);
+                const isChecked = e.target.checked;
+                // If Unchecked
+                if (!isChecked) {
+                    let unchecked = this.checkedPermissions.filter(checked => {
+                        const included = subAttribute.attributes.includes(checked);
+                        return !included;
+                    });
+                    // console.log(unchecked);
+                    this.checkedPermissions = unchecked;
+                } else { // If Checked
+                    // let unchecked = this.checkedPermissions;
+                    this.checkedPermissions = this.checkedPermissions.filter(checked => {
+                        const included = subAttribute.attributes.includes(checked);
+                        return !included;
+                    }).concat(subAttribute.attributes.filter(attribute => attribute !== null));
+                }
+            },
         }
     })
 </script>
