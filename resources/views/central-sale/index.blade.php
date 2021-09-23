@@ -3,49 +3,79 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="components-preview mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
+@php $permission = json_decode(Auth::user()->group->permission);@endphp
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between">
         <div class="nk-block-head-content">
-            <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-            <h4 class="nk-block-title fw-normal">Transaksi Penjualan Barang</h4>
-        </div>
-    </div>
-    <div class="nk-block nk-block-lg">
-        <a href="/central-sale/create" class="btn btn-primary">Tambah</a>
-        <p></p>
-        <p></p>
-        <div class="card card-bordered">
-            <div class="card-inner overflow-hidden">
-                <div class="table-responsive">
-                    <table class="table table-striped" id="centralSale">
-                        <thead>
-                            <tr class="text-center">
-                                <th>No. Invoice</th>
-                                <th>Tanggal Invoice</th>
-                                <th>Shipment</th>
-                                <!-- <th>Sales</th> -->
-                                <th>Penerima</th>
-                                <th>Subtotal</th>
-                                <th>Discount</th>
-                                <th>Shipping</th>
-                                <th>Grand Total</th>
-                                <th>Pembayaran 1</th>
-                                <th>Pembayaran 2</th>
-                                <th>Sisa</th>
-                                <th>Berat (gr)</th>
-                                <th>Status</th>
-                                <th>Status Cetak</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+            <h3 class="nk-block-title page-title">Penjualan Pusat</h3>
+            <div class="nk-block-des text-soft">
+                <p>Manage Penjualan Pusat</p>
+            </div>
+        </div><!-- .nk-block-head-content -->
+        <div class="nk-block-head-content">
+            <div class="toggle-wrap nk-block-tools-toggle">
+                <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
+                <div class="toggle-expand-content" data-content="pageMenu">
+                    <ul class="nk-block-tools g-3">
+                        <li>
+                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                                <em class="icon ni ni-download-cloud"></em>
+                                <span>Export</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                                <em class="icon ni ni-reports"></em>
+                                <span>Reports</span>
+                            </a>
+                        </li>
+                        @if(in_array("add_product_sell", $permission))
+                        <li>
+                            <a href="/central-sale/create" class="btn btn-primary">
+                                <em class="icon ni ni-plus"></em>
+                                <span>New Sale</span>
+                            </a>
+                        </li>
+                        @endif
+                    </ul>
                 </div>
+            </div>
+        </div><!-- .nk-block-head-content -->
+    </div><!-- .nk-block-between -->
+</div>
+<div class="nk-block nk-block-lg">
+    <div class="card card-bordered">
+        <div class="card-inner overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-striped" id="centralSale">
+                    <thead>
+                        <tr class="text-center">
+                            <th>No. Invoice</th>
+                            <th>Tanggal Invoice</th>
+                            <th>Shipment</th>
+                            <!-- <th>Sales</th> -->
+                            <th>Penerima</th>
+                            <th>Subtotal</th>
+                            <th>Discount</th>
+                            <th>Shipping</th>
+                            <th>Grand Total</th>
+                            <th>Pembayaran 1</th>
+                            <th>Pembayaran 2</th>
+                            <th>Sisa</th>
+                            <th>Berat (gr)</th>
+                            <th>Status</th>
+                            <th>Status Cetak</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+
 @endsection
 @section('pagescript')
 <script>

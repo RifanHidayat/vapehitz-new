@@ -1,35 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-<style>
-    .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    }
-
-    table tr th {
-        font-size: 15px;
-        /* color: black; */
-    }
-
-    table tr td {
-        font-size: 13px;
-        /* color: black; */
-    }
-
-    .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
-    }
-</style>
 @section('content')
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
@@ -63,34 +34,40 @@
 @section('pagescript')
 <script>
     $(function() {
-        const retailRequestToCentralTable = $('#retail-request-to-central-table').DataTable({
-            processing: true,
-            serverSide: true,
-            destroy: true,
-            autoWidth: false,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: '/datatables/retail-request-to-central',
-                type: 'GET',
-            },
-            columns: [{
-                    data: 'code',
-                    name: 'code'
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#retail-request-to-central-table', {
+                processing: true,
+                serverSide: true,
+                destroy: true,
+                autoWidth: false,
+                // dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
+                ajax: {
+                    url: '/datatables/retail-request-to-central',
+                    type: 'GET',
                 },
-                {
-                    data: 'date',
-                    name: 'date'
-                },
-                {
-                    data: 'status',
-                    name: 'status'
-                },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
-            ]
-        });
+                columns: [{
+                        data: 'code',
+                        name: 'code'
+                    },
+                    {
+                        data: 'date',
+                        name: 'date'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
+                    },
+                ]
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+
+        NioApp.DataTable.init();
+
     });
     $('#retail-request-to-central-table').on('click', 'tr .btn-delete', function(e) {
         e.preventDefault();

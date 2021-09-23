@@ -1,40 +1,38 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-<style>
-    .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    }
-
-    table tr th {
-        font-size: 15px;
-        /* color: black; */
-    }
-
-    table tr td {
-        font-size: 13px;
-        /* color: black; */
-    }
-
-    .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
-    }
-</style>
 @section('content')
-<div class="nk-block-head nk-block-head-lg wide-sm">
-    <div class="nk-block-head-content">
-        <h4 class="nk-block-title fw-normal">Permintaan Barang Dari Retail</h4>
-    </div>
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between">
+        <div class="nk-block-head-content">
+            <h3 class="nk-block-title page-title">Permintaan Barang Dari Studio</h3>
+            <div class="nk-block-des text-soft">
+                <p>Manage Permintaan Barang Dari Studio</p>
+            </div>
+        </div><!-- .nk-block-head-content -->
+        <div class="nk-block-head-content">
+            <div class="toggle-wrap nk-block-tools-toggle">
+                <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
+                <div class="toggle-expand-content" data-content="pageMenu">
+                    <ul class="nk-block-tools g-3">
+                        <li>
+                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                                <em class="icon ni ni-download-cloud"></em>
+                                <span>Export</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                                <em class="icon ni ni-reports"></em>
+                                <span>Reports</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </div><!-- .nk-block-head-content -->
+    </div><!-- .nk-block-between -->
 </div>
 <div class="nk-block nk-block-lg">
     <div class="card card-bordered">
@@ -69,34 +67,39 @@
 </script>
 <script>
     $(function() {
-        const requestToRetailTable = $('#approve-studio').DataTable({
-            processing: true,
-            serverSide: true,
-            destroy: true,
-            autoWidth: false,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: '/datatables/approve-central-studio',
-                type: 'GET',
-            },
-            columns: [{
-                    data: 'code',
-                    name: 'code'
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#approve-studio', {
+                processing: true,
+                serverSide: true,
+                destroy: true,
+                autoWidth: false,
+                ajax: {
+                    url: '/datatables/approve-central-studio',
+                    type: 'GET',
                 },
-                {
-                    data: 'date',
-                    name: 'date'
-                },
-                {
-                    data: 'status',
-                    name: 'status'
-                },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
-            ]
-        });
+                columns: [{
+                        data: 'code',
+                        name: 'code'
+                    },
+                    {
+                        data: 'date',
+                        name: 'date'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
+                    },
+                ]
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+
+        NioApp.DataTable.init();
+
     });
 </script>
 @endsection

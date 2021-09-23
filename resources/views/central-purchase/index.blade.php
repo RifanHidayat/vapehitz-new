@@ -1,46 +1,55 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+@section('pagestyle')
 <style>
-    .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    }
-
-    table tr th {
-        font-size: 15px;
-        /* color: black; */
-    }
-
-    table tr td {
-        font-size: 13px;
-        /* color: black; */
-    }
-
-    .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
+    #customers tr th,
+    #customers tr td {
+        font-size: 0.875rem;
     }
 </style>
+@endsection
 @section('content')
-
-<div class="nk-block-head nk-block-head-lg wide-sm">
-    <div class="nk-block-head-content">
-        <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-        <h2 class="nk-block-title fw-normal">Transaksi Pembelian Barang</h2>
-        <!-- <div class="nk-block-des">
-                <p class="lead">Manage Supplier</p>
-            </div> -->
-    </div>
-</div><!-- .nk-block -->
+@php $permission = json_decode(Auth::user()->group->permission);@endphp
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between">
+        <div class="nk-block-head-content">
+            <h3 class="nk-block-title page-title">Pembelian</h3>
+            <div class="nk-block-des text-soft">
+                <p>Manage Pembelian</p>
+            </div>
+        </div><!-- .nk-block-head-content -->
+        <div class="nk-block-head-content">
+            <div class="toggle-wrap nk-block-tools-toggle">
+                <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
+                <div class="toggle-expand-content" data-content="pageMenu">
+                    <ul class="nk-block-tools g-3">
+                        <li>
+                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                                <em class="icon ni ni-download-cloud"></em>
+                                <span>Export</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                                <em class="icon ni ni-reports"></em>
+                                <span>Reports</span>
+                            </a>
+                        </li>
+                        @if(in_array("add_purchase_product", $permission))
+                        <li>
+                            <a href="/central-purchase/create" class="btn btn-primary">
+                                <em class="icon ni ni-plus"></em>
+                                <span>New Order</span>
+                            </a>
+                        </li>
+                        @endif
+                    </ul>
+                </div>
+            </div>
+        </div><!-- .nk-block-head-content -->
+    </div><!-- .nk-block-between -->
+</div>
 <div class="nk-block nk-block-lg">
     <!-- <div class="nk-block-head">
             <div class="nk-block-head-content">
@@ -50,8 +59,7 @@
                 </div>
             </div>
         </div> -->
-    <a href="{{url('/central-purchase/create')}}" class="btn btn-outline-success">Tambah Pembelian Barang</a>
-    <p></p>
+    <!-- <a href="{{url('/central-purchase/create')}}" class="btn btn-outline-success">Tambah Pembelian Barang</a> -->
     <div class="card card-bordered">
         <div class="card-inner overflow-hidden">
             <!-- <div class="card-head">
@@ -83,105 +91,61 @@
 @endsection
 @section('pagescript')
 <script>
-    let app = new Vue({
-        el: '#app',
-
-        methods: {
-            deleteRow: function(id) {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "The data will be deleted",
-                    icon: 'warning',
-                    reverseButtons: true,
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Delete',
-                    cancelButtonText: 'Cancel',
-                    showLoaderOnConfirm: true,
-                    preConfirm: () => {
-                        return axios.delete('/central-purchase/' + id)
-                            .then(function(response) {
-                                console.log(response.data);
-                            })
-                            .catch(function(error) {
-                                console.log(error.data);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops',
-                                    text: 'Something wrong',
-                                })
-                            });
+    $(function() {
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#centralPurchase', {
+                processing: true,
+                serverSide: true,
+                // dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
+                ajax: {
+                    url: '/datatables/central-purchases',
+                    type: 'GET',
+                    // length: 2,
+                },
+                columns: [{
+                        data: 'date',
+                        name: 'central_purchases.date'
                     },
-                    allowOutsideClick: () => !Swal.isLoading()
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: 'Data has been deleted',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.reload();
-                                // invoicesTable.ajax.reload();
-                            }
-                        })
-                    }
-                })
-            }
+                    {
+                        data: 'code',
+                        name: 'central_purchases.code'
+                    },
+                    {
+                        data: 'invoice_number',
+                        name: 'central_purchases.invoice_number'
+                    },
+                    {
+                        data: 'supplier_name',
+                        name: 'supplier_name',
+                    },
+
+                    {
+                        data: 'netto',
+                        name: 'netto'
+                    },
+                    {
+                        data: 'payAmount',
+                        name: 'payAmount'
+                    },
+
+
+
+                    {
+                        data: 'remainingAmount',
+                        name: 'remainingAmount'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
+                    },
+
+                ]
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
         }
-    })
-</script>
-<script>
-    var centralPurchaseTable = $(function() {
-        $('#centralPurchase').DataTable({
-            processing: true,
-            serverSide: true,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: '/datatables/central-purchases',
-                type: 'GET',
-                // length: 2,
-            },
-            columns: [{
-                    data: 'date',
-                    name: 'central_purchases.date'
-                },
-                {
-                    data: 'code',
-                    name: 'central_purchases.code'
-                },
-                {
-                    data: 'invoice_number',
-                    name: 'central_purchases.invoice_number'
-                },
-                {
-                    data: 'supplier_name',
-                    name: 'supplier_name',
-                },
 
-                {
-                    data: 'netto',
-                    name: 'netto'
-                },
-                {
-                    data: 'payAmount',
-                    name: 'payAmount'
-                },
+        NioApp.DataTable.init();
 
-
-
-                {
-                    data: 'remainingAmount',
-                    name: 'remainingAmount'
-                },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
-
-            ]
-        });
         $('#centralPurchase').on('click', 'tr .btn-delete', function(e) {
             e.preventDefault();
             // alert('click');
@@ -227,6 +191,6 @@
                 }
             })
         })
-    });
+    })
 </script>
 @endsection
