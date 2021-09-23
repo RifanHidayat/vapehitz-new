@@ -112,7 +112,7 @@ if (isset($sidebar_class)) {
                                 &nbsp;
                             </li>
                             @if(in_array("view_stock_opname",$permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('stock-opname') || request()->is('stock-opname/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/stock-opname')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
                             </li>
                             @endif
