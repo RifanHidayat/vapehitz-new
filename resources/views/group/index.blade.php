@@ -9,12 +9,12 @@
 
     table tr th {
         font-size: 15px;
-        color: black;
+        /* color: black; */
     }
 
     table tr td {
         font-size: 13px;
-        color: black;
+        /* color: black; */
     }
 
     .pull-left {
@@ -38,7 +38,7 @@
         </div>
     </div><!-- .nk-block -->
     <div class="nk-block nk-block-lg">
-        <a href="{{url('/group/create')}}" class="btn btn-outline-success">Tambah Group</a>
+        <a href="{{url('/group/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Tambah Group</a>
         <p></p>
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">

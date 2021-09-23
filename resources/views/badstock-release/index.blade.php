@@ -39,7 +39,7 @@
 </div>
 <div class="nk-block nk-block-lg">
     @if(in_array("add_badstock_release", $permission))
-    <a href="{{url('/badstock-release/create')}}" class="btn btn-primary"><em class="fas fa-plus"></em>&nbsp;Buat Baru</a>
+    <a href="{{url('/badstock-release/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Buat Baru</a>
     @endif
     <p></p>
     <div class="card card-bordered">

@@ -9,12 +9,12 @@
 
     table tr th {
         font-size: 15px;
-        color: black;
+        /* color: black; */
     }
 
     table tr td {
         font-size: 13px;
-        color: black;
+        /* color: black; */
     }
 
     .pull-left {
@@ -51,7 +51,7 @@
             </div>
         </div> -->
     @if(in_array("add_customer", $permission))
-    <a href="{{url('/customer/create')}}" class="btn btn-outline-success">Tambah Customer</a>
+    <a href="{{url('/customer/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Tambah Customer</a>
     @endif
     <p></p>
     <div class="card card-bordered">
@@ -66,8 +66,8 @@
                             <th>Code</th>
                             <th>Nama</th>
                             <th>Alamat</th>
-                            <th>No. Tlp</th>
-                            <th>No. HP</th>
+                            <!-- <th>No. Tlp</th> -->
+                            <th>No.Tlp/HP/WA</th>
                             <th>Email</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -155,10 +155,10 @@
                     data: 'address',
                     name: 'address'
                 },
-                {
-                    data: 'telephone',
-                    name: 'telephone'
-                },
+                // {
+                //     data: 'telephone',
+                //     name: 'telephone'
+                // },
                 {
                     data: 'handphone',
                     name: 'handphone'

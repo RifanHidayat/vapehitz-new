@@ -9,56 +9,78 @@ if (request()->session()->has('userLoginPermissions')) {
 $userLoginPermissions = request()->session()->get('userLoginPermissions');
 }
 @endphp
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between g-3">
         <div class="nk-block-head-content">
-            <div class="nk-block-head-sub"><a class="back-to" href="{{url('/user')}}"><em class="icon ni ni-arrow-left"></em><span>Data User</span></a></div>
-            <h3 class="nk-block-title fw-normal">Edit User</h3>
+            <a href="{{url('/user')}}" class="btn btn-round btn-outline-success d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
+        </div>
+        <div class="nk-block-head-content">
+            <button type="button" class="btn btn-round btn-outline-danger" data-toggle="modal" data-target=".bd-example-modal-lg"><em class="icon ni ni-setting"></em><span>Ganti Password</span></button>
         </div>
     </div>
-    <div class="text-right">
-        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target=".bd-example-modal-lg">Ganti Password</button>
-    </div>
-    <div class="card card-bordered mt-3">
-        <div class="card-inner">
-            <form action="/user/{{$user->id}}" method="post">
-                @method('patch')
-                @csrf
-                @if(session('errors'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    Something it's wrong:
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
+</div>
+<div class="card card-bordered mt-3">
+    <div class="card-inner">
+        <div class="card-head">
+            <h5 class="card-title">Edit User : {{$user->username}}</h5>
+        </div>
+        <form action="/user/{{$user->id}}" class="gy-3" method="post">
+            @method('patch')
+            @csrf
+            @if(session('errors'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                Something it's wrong:
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            <div class="row g-3 align-center">
                 <div class="col-lg-5">
                     <div class="form-group">
-                        <label class="form-label" for="full-name-1">Nama Lengkap</label>
+                        <!-- <span class="form-note">(*)</span> -->
+                        <label class="form-label" for="site-name">Nama Lengkap</label>
+                        <span class="form-note">Kolom ini wajib di isi</span>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="form-group">
                         <div class="form-control-wrap">
-                            <input type="text" name="name" value="{{$user->name}}" class="form-control">
+                            <input type="text" name="name" value="{{$user->name}}" class="form-control" id="site-name">
                         </div>
                     </div>
                 </div>
-                <p></p>
+            </div>
+            <div class="row g-3 align-center">
                 <div class="col-lg-5">
                     <div class="form-group">
-                        <label class="form-label" for="full-name-1">Username</label>
+                        <label class="form-label">Username</label>
+                        <span class="form-note">Kolom ini wajib di isi</span>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="form-group">
                         <div class="form-control-wrap">
                             <input type="text" name="username" value="{{$user->username}}" class="form-control">
                         </div>
                     </div>
                 </div>
-                <p></p>
-                @if(in_array("add_data_user", $userLoginPermissions))
+            </div>
+            @if(in_array("add_data_user", $userLoginPermissions))
+            <div class="row g-3 align-center">
                 <div class="col-lg-5">
                     <div class="form-group">
-                        <label class="form-label" for="full-name-1">Group</label>
+                        <label class="form-label">Group</label>
+                        <span class="form-note">Kolom ini wajib di isi</span>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="form-group">
                         <div class="form-control-wrap">
                             <select name="group" class="form-control">
                                 @foreach($group as $groups)
@@ -68,10 +90,17 @@ $userLoginPermissions = request()->session()->get('userLoginPermissions');
                         </div>
                     </div>
                 </div>
-                @else
+            </div>
+            @else
+            <div class="row g-3 align-center">
                 <div class="col-lg-5">
                     <div class="form-group">
-                        <label class="form-label" for="full-name-1">Group</label>
+                        <label class="form-label">Group</label>
+                        <span class="form-note">Kolom ini wajib di isi</span>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="form-group">
                         <div class="form-control-wrap">
                             <select name="group" class="form-control">
                                 <option value="{{$user->group->id}}">
@@ -81,22 +110,31 @@ $userLoginPermissions = request()->session()->get('userLoginPermissions');
                         </div>
                     </div>
                 </div>
-                @endif
-                <p></p>
+            </div>
+            @endif
+            <div class="row g-3 align-center">
                 <div class="col-lg-5">
                     <div class="form-group">
-                        <label class="form-label" for="full-name-1">Email</label>
+                        <label class="form-label">Email</label>
+                        <span class="form-note">Kolom ini wajib di isi</span>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="form-group">
                         <div class="form-control-wrap">
                             <input type="email" name="email" value="{{$user->email}}" class="form-control">
                         </div>
                     </div>
                 </div>
-                <p></p>
-                <div class="col-md-12 text-right">
-                    <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+            <div class="row g-3">
+                <div class="col-lg-12 text-right">
+                    <div class="form-group mt-2">
+                        <button type="submit" class="btn btn-primary"><em class="icon ni ni-save"></em>&nbsp; Simpan</button>
+                    </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
 <!-- Modal -->

@@ -37,7 +37,7 @@
     </div>
 </div>
 <div class="nk-block nk-block-lg">
-    <a href="{{url('/request-to-retail/create')}}" class="btn btn-primary"><em class="fas fa-plus"></em>&nbsp;Buat Baru</a>
+    <a href="{{url('/request-to-retail/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Tambah Baru</a>
     <p></p>
     <div class="card card-bordered">
         <div class="card-inner overflow-hidden">

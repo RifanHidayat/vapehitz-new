@@ -148,11 +148,11 @@
                                         <td>@{{product.name}}</td>
                                         <td>@{{product.retail_stock}}</td>
                                         <td>
-                                            <input type="number" v-model="product.good_stock" class="form-control text-right" placeholder="Real Stock">
+                                            <input type="number" v-model="product.good_stock" class="form-control" placeholder="Real Stock">
                                         </td>
                                         <td><input type="number" :value="totalDifference(product)" class="form-control" readonly></td>
                                         <td>
-                                            <input type="text" v-model="product.description" class="form-control text-right" placeholder="Keterangan">
+                                            <input type="text" v-model="product.description" class="form-control" placeholder="Keterangan">
                                         </td>
                                         <td>
                                             <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>

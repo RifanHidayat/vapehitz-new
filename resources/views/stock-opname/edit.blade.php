@@ -111,7 +111,7 @@
                                         <td>@{{product.name}}</td>
                                         <td>@{{product.central_stock}}</td>
                                         <td>
-                                            <input type="number" v-model="product.good_stock" class="form-control text-right" placeholder="Real Stock">
+                                            <input type="number" v-model="product.good_stock" class="form-control" placeholder="Real Stock">
                                         </td>
                                         <td><input type="number" :value="totalDifference(product)" class="form-control" readonly></td>
                                         <td>
@@ -309,7 +309,7 @@
             serverSide: true,
             "autoWidth": false,
             ajax: {
-                url: '/datatables/stock-opname/products',
+                url: '{{url("/datatables/stock-opname/products")}}',
                 type: 'GET',
             },
             columns: [{

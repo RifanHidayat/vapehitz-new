@@ -60,7 +60,12 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $group = Group::all();
+        $user = User::with('group')->findOrFail($id);
+        return view('user.show', [
+            'user' => $user,
+            'group' => $group,
+        ]);
     }
 
     /**

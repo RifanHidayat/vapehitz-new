@@ -256,6 +256,16 @@ class RequestToRetailController extends Controller
     {
         $requestToRetail = RequestToRetail::findOrFail($id);
         try {
+            $requestToRetail->products()->detach();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
             $requestToRetail->delete();
             return response()->json([
                 'message' => 'Data has been saved',

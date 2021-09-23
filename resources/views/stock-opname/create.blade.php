@@ -150,14 +150,14 @@
                                         <td>@{{product.name}}</td>
                                         <td>@{{product.central_stock}}</td>
                                         <td>
-                                            <input type="text" v-model="product.good_stock" class="form-control text-right" placeholder="Good Stock">
+                                            <input type="text" v-model="product.good_stock" class="form-control" placeholder="Good Stock">
                                         </td>
                                         <td>
-                                            <input type="text" v-model="product.bad_stock" class="form-control text-right" placeholder="Bad Stock">
+                                            <input type="text" v-model="product.bad_stock" class="form-control" placeholder="Bad Stock">
                                         </td>
                                         <td>@{{total}}</td>
                                         <td>
-                                            <input type="text" v-model="product.description" class="form-control text-right" placeholder="Keterangan">
+                                            <input type="text" v-model="product.description" class="form-control" placeholder="Keterangan">
                                         </td>
                                         <td>
                                             <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
@@ -411,7 +411,7 @@
             autoWidth: false,
             dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
-                url: '/datatables/stock-opname/products',
+                url: '{{url("/datatables/stock-opname/products")}}',
                 type: 'GET',
             },
             columns: [{

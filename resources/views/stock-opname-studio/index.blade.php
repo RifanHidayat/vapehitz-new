@@ -35,14 +35,14 @@
 <div class="nk-block nk-block-lg">
     <div class="nk-block-head">
         <div class="nk-block-head-content">
-            <h4 class="title nk-block-title">Stock Opname Retail</h4>
+            <h4 class="title nk-block-title">Stock Opname Studio</h4>
             <!-- <div class="nk-block-des">
                 <p>You can alow display form in column as example below.</p>
             </div> -->
         </div>
     </div>
     @if(in_array("add_sop_studio", $permission))
-    <a href="{{url('/studio-stock-opname/create')}}" class="btn btn-primary">Tambah Data</a>
+    <a href="{{url('/studio-stock-opname/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp; Tambah Data</a>
     @endif
     <p></p>
     <div class="card card-bordered">

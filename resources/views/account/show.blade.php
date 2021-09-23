@@ -9,9 +9,9 @@
             <h3 class="nk-block-title page-title">Akun {{$account->name}} ({{$account->number}})</h3>
             <div class="nk-block-des text-soft">
                 <ul class="list-inline">
-                    
-                    
-                   
+
+
+
                 </ul>
             </div>
         </div>
@@ -20,10 +20,8 @@
         </div>
     </div>
 </div>
-<div class="components-preview">
-    
-    <div class="nk-block nk-block-lg">
-        <!-- <div class="nk-block-head">
+<div class="nk-block nk-block-lg">
+    <!-- <div class="nk-block-head">
             <div class="nk-block-head-content">
                 <h4 class="title nk-block-title">Tambah Kategori Barang</h4>
                 <div class="nk-block-des">
@@ -31,9 +29,9 @@
                 </div>
             </div>
         </div> -->
-     
 
-<!-- <div class="card card-bordered">
+
+    <!-- <div class="card card-bordered">
     <div class="card-inner-group">
         <div class="card-inner card-inner-md">
             <div class="card-title-group">
@@ -88,72 +86,65 @@
         </div>
     </div>
 </div> -->
-<div class="col-lg-6 col-md-6">
-        <div class="card card-bordered" >
-                <div class="card-inner">
-                    
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center">
-                                <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
-                                <div class="info">
-                                    <span class="title">Total In</span>
-                                    <p class="amount" ><strong>{{number_format($cash_in)}}</strong></p>
-                                </div>
-                            </div>
+    <div class="card card-bordered mb-3">
+        <div class="card-inner">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center">
+                        <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
+                        <div class="info">
+                            <span class="title">Total In</span>
+                            <p class="amount"><strong>{{number_format($cash_in)}}</strong></p>
                         </div>
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center">
-                                <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
-                                <div class="info">
-                                    <span class="title">Total Out</span>
-                                    <p class="amount" ><strong>{{number_format($cash_out)}}</strong></p>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center">
+                        <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
+                        <div class="info">
+                            <span class="title">Total Out</span>
+                            <p class="amount"><strong>{{number_format($cash_out)}}</strong></p>
                         </div>
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center">
-                                <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
-                                <div class="info">
-                                    <span class="title">Balance</span>
-                                    <p class="amount" ><strong>{{number_format($balance)}}</strong></p>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center">
+                        <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
+                        <div class="info">
+                            <span class="title">Balance</span>
+                            <p class="amount"><strong>{{number_format($balance)}}</strong></p>
                         </div>
                     </div>
                 </div>
             </div>
-<br>
-</div>
-
-       
-        <div class="card card-bordered">
-            <div class="card-inner overflow-hidden">
-                <!-- <div class="card-head">
+        </div>
+    </div>
+    <div class="card card-bordered">
+        <div class="card-inner overflow-hidden">
+            <!-- <div class="card-head">
                     <h5 class="card-title">Form</h5>
                 </div> -->
-                <div class="table-responsive">
-                    <table style="width: 100%;" class="table table-striped" id="accountTransactions">
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Catatan </th>
-                                <!-- <th>Nomor Order</th> -->
-                                <th>Type</th>
-                                <th>In</th>
-                                <th>Out</th>
-                                <th>Saldo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+            <div class="table-responsive">
+                <table style="width: 100%;" class="table table-striped" id="accountTransactions">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Catatan </th>
+                            <!-- <th>Nomor Order</th> -->
+                            <th>Type</th>
+                            <th>In</th>
+                            <th>Out</th>
+                            <th>Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div><!-- .nk-block -->
-</div>
+    </div>
+</div><!-- .nk-block -->
 @endsection
 @section('pagescript')
 <script>
@@ -208,36 +199,53 @@
 </script>
 
 <script>
-//  $('#accountTransactions').DataTable({
-//         processing: true,
-//         serverSide: true,
-//         ajax: '/datatables/account-transactions/'+<?php echo $account_id ?>,
-//         columns: [
-//             {data: 'id', name: 'id'},
-//             {data: 'name', name: 'name'},
-//             {data: 'email', name: 'email'},
-//             {data: 'created_at', name: 'created_at'},
-//             {data: 'updated_at', name: 'updated_at'}
-//         ]
-//     });
+    //  $('#accountTransactions').DataTable({
+    //         processing: true,
+    //         serverSide: true,
+    //         ajax: '/datatables/account-transactions/'+<?php echo $account_id ?>,
+    //         columns: [
+    //             {data: 'id', name: 'id'},
+    //             {data: 'name', name: 'name'},
+    //             {data: 'email', name: 'email'},
+    //             {data: 'created_at', name: 'created_at'},
+    //             {data: 'updated_at', name: 'updated_at'}
+    //         ]
+    //     });
     var centralPurchaseTable = $(function() {
         $('#accountTransactions').DataTable({
             processing: true,
             serverSide: true,
             dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
-                url: '/datatables/account-transactions/'+<?php echo $account_id ?>,
+                url: '/datatables/account-transactions/' + <?php echo $account_id ?>,
                 type: 'GET',
                 // length: 2,
             },
-            columns: [
-            {data: 'date', name: 'date'},
-            {data: 'note', name: 'note'},
-            {data: 'type', name: 'type'},   
-            {data: 'in', name: 'in'},
-            {data: 'out', name: 'out'},
-            {data: 'balance', name: 'balance'},
-        ]
+            columns: [{
+                    data: 'date',
+                    name: 'date'
+                },
+                {
+                    data: 'note',
+                    name: 'note'
+                },
+                {
+                    data: 'type',
+                    name: 'type'
+                },
+                {
+                    data: 'in',
+                    name: 'in'
+                },
+                {
+                    data: 'out',
+                    name: 'out'
+                },
+                {
+                    data: 'balance',
+                    name: 'balance'
+                },
+            ]
         });
         $('#centralPurchase').on('click', 'tr .btn-delete', function(e) {
             e.preventDefault();

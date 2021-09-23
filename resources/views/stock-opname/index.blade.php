@@ -42,7 +42,7 @@
         </div>
     </div>
     @if(in_array("add_stock_opname", $permission))
-    <a href="/stock-opname/create" class="btn btn-outline-success">Buat Baru</a>
+    <a href="{{url('/stock-opname/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Buat Baru</a>
     @endif
     <p></p>
     <div class="card card-bordered">
@@ -128,7 +128,7 @@
             autoWidth: false,
             dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
-                url: '/datatables/stock-opname',
+                url: '{{url("/datatables/stock-opname")}}',
                 type: 'GET',
             },
             columns: [{

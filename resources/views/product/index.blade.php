@@ -51,7 +51,7 @@
             </div>
         </div> -->
     @if(in_array("add_product", $permission))
-    <a href="{{url('/product/create')}}" class="btn btn-outline-success">Tambah Produk</a>
+    <a href="{{url('/product/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Tambah Produk</a>
     @endif
     <p></p>
     <div class="card card-bordered">
@@ -163,7 +163,11 @@
             },
             {
                 data: 'purchase_price',
-                name: 'purchase_price'
+                name: 'purchase_price',
+                className: 'text-right',
+                render: function(data) {
+                    return Intl.NumberFormat('de-DE').format(data);
+                }
             },
             {
                 data: 'status',

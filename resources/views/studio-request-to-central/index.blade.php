@@ -37,9 +37,8 @@
     </div>
 </div>
 <div class="nk-block nk-block-lg">
-    <a href="{{url('/studio-request-to-central/create')}}" class="btn btn-primary"><em class="fas fa-plus"></em>&nbsp;Buat Baru</a>
-    <p></p>
-    <div class="card card-bordered">
+    <a href="{{url('/studio-request-to-central/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Buat Baru</a>
+    <div class="card card-bordered mt-3">
         <div class="card-inner overflow-hidden">
             <div class="table-responsive">
                 <table class="table table-striped" id="studio-request-to-central-table">

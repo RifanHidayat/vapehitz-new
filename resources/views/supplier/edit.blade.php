@@ -45,12 +45,12 @@
                                     <input type="text" v-model="address" class="form-control">
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label class="form-label" for="full-name-1">No. Tlp</label>
                                 <div class="form-control-wrap">
                                     <input type="text" v-model="telephone" class="form-control">
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">No. HP/WA</label>
                                 <div class="form-control-wrap">
@@ -105,7 +105,7 @@
             code: '{{ $supplier->code }}',
             name: '{{ $supplier->name }}',
             address: '{{ $supplier->address }}',
-            telephone: '{{ $supplier->telephone }}',
+            // telephone: '{{ $supplier->telephone }}',
             handphone: '{{ $supplier->handphone }}',
             email: '{{ $supplier->email }}',
             status: '{{ $supplier->status }}',
@@ -123,7 +123,7 @@
                         name: this.name,
                         code: this.code,
                         address: this.address,
-                        telephone: this.telephone,
+                        // telephone: this.telephone,
                         handphone: this.handphone,
                         email: this.email,
                         status: this.status,

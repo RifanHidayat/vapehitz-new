@@ -302,7 +302,7 @@ class ApproveCentralController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $show = '<a href="/approve-central-retail/show/' . $row->id . '" class="btn btn-outline-warning btn-sm"><em class="icon fas fa-eye"></em>
+                $show = '<a href="/approve-central-retail/show/' . $row->id . '" class="btn btn-outline-light btn-sm"><em class="icon fas fa-eye"></em>
                 <span>Detail</span>
             </a>';
                 $button = ".$show.";
