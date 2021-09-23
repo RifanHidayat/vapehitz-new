@@ -155,7 +155,7 @@
                                         <td>
                                             <input type="text" v-model="product.bad_stock" class="form-control" placeholder="Bad Stock">
                                         </td>
-                                        <td>@{{total}}</td>
+                                        <td><input type="number" :value="totalDifference(product)" class="form-control" readonly></td>
                                         <td>
                                             <input type="text" v-model="product.description" class="form-control" placeholder="Keterangan">
                                         </td>
@@ -380,25 +380,8 @@
             removeFromCheck: function(index) {
                 this.check.splice(index, 1);
             },
-        },
-        computed: {
-            badGoodStock: function() {
-                const data = Number(this.badStock) + Number(this.goodStock);
-                return data;
-            },
-            centralStock: function() {
-                const centralStock = this.selectedProducts.map(product => {
-                    const amount = Number(product.central_stock);
-                    return amount;
-                }).reduce((acc, cur) => {
-                    return acc + cur;
-                }, 0);
-
-                return centralStock;
-            },
-            total: function() {
-                const total = Number(this.centralStock) - Number(this.badGoodStock);
-                return total;
+            totalDifference: function(product) {
+                return Number(product.central_stock) - (Number(product.good_stock) + Number(product.bad_stock));
             },
         },
     })

@@ -10,9 +10,8 @@
         </div>
     </div>
     <div class="nk-block nk-block-lg">
-        <a href="/request-to-studio/create" class="btn btn-primary"><em class="fas fa-plus"></em>&nbsp;Buat Baru</a>
-        <p></p>
-        <div class="card card-bordered">
+        <a href="{{url('/request-to-studio/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp; Tambah Baru</a>
+        <div class="card card-bordered mt-3">
             <div class="card-inner overflow-hidden">
                 <!-- <div class="card-head">
                     <h5 class="card-title">Form</h5>
@@ -25,7 +24,7 @@
                                 <th>Tanggal Proses</th>
                                 <th>Status</th>
                                 <th>Action</th>
-                               
+
                             </tr>
                         </thead>
                         <tbody>
@@ -49,8 +48,7 @@
                 type: 'GET',
                 // length: 2,
             },
-            columns: [
-                {
+            columns: [{
                     data: 'code',
                     name: 'code'
                 },
@@ -66,8 +64,8 @@
                     data: 'action',
                     name: 'action'
                 },
-               
-               
+
+
 
             ]
         });
