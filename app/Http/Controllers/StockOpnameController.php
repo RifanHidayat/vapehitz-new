@@ -322,7 +322,7 @@ class StockOpnameController extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 $button = '
-                <a href="/stock-opname/show/' . $row->id . '" class="btn btn-outline-success btn-sm"><em class="icon fas fa-eye"></em>
+                <a href="/stock-opname/show/' . $row->id . '" class="btn btn-outline-light btn-sm"><em class="icon fas fa-eye"></em>
                     <span>Detail</span>
                 </a>';
                 return $button;
