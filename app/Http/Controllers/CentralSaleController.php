@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Exports\CentralSaleByCustomerDetailExport;
+use App\Exports\CentralSaleByCustomerSummaryExport;
 use App\Exports\CentralSaleByProductDetailExport;
+use App\Exports\CentralSaleByProductSummaryExport;
 use App\Models\Account;
 use App\Models\AccountTransaction;
 use App\Models\CentralSale;
@@ -12,10 +14,12 @@ use App\Models\CentralSaleTransaction;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Shipment;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
 use PDF;
@@ -1263,12 +1267,73 @@ class CentralSaleController extends Controller
         }
     }
 
+    public function authProductPrice(Request $request)
+    {
+        $username = $request->username;
+        $password = $request->password;
+
+        $user = User::with('group')->where('username', $username)->first();
+        if ($user == null) {
+            return response()->json([
+                'message' => 'Username atau password salah',
+                'code' => 400,
+                'error' => true,
+            ], 400);
+        }
+
+        if (!Hash::check($password, $user->password)) {
+            return response()->json([
+                'message' => 'Username atau password salah',
+                'code' => 400,
+                'error' => true,
+            ], 400);
+        }
+
+        if ($user->group == null) {
+            return response()->json([
+                'message' => 'User tidak memiliki grup',
+                'code' => 400,
+                'error' => true,
+            ], 400);
+        }
+
+        $permissions = json_decode($user->group->permission);
+        if (in_array('edit_product', $permissions)) {
+            return response()->json([
+                'message' => 'OK',
+                'code' => 200,
+                'error' => false,
+                'data' => [
+                    'user' => $user,
+                ]
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'User tidak memiliki akses untuk mengubah harga',
+                'code' => 500,
+                'error' => true,
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Internal error',
+            'code' => 500,
+            'error' => true,
+        ], 500);
+    }
+
     public function reportByCustomer(Request $request)
     {
 
         // return CentralSale::with(['products', 'customer'])->get()->groupBy(function ($item, $key) {
         //     return $item->customer->name;
-        // })->all();
+        // })->map(function ($item, $customer) {
+        //     $totalCustomer = collect($item)->sum('total_cost');
+        //     return [
+        //         'customer' => $customer,
+        //         'total' => $totalCustomer
+        //     ];
+        // })->values()->all();
 
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
@@ -1278,6 +1343,7 @@ class CentralSaleController extends Controller
         if ($reportType == 'detail') {
             return Excel::download(new CentralSaleByCustomerDetailExport($request->all()), 'Central Sales By Customer Detail ' . $startDate . ' - ' . $endDate . '.xlsx');
         } else if ($reportType == 'summary') {
+            return Excel::download(new CentralSaleByCustomerSummaryExport($request->all()), 'Central Sales By Customer Summary ' . $startDate . ' - ' . $endDate . '.xlsx');
         } else {
             return response()->json([
                 'msg' => 'Unknown report type'
@@ -1290,7 +1356,44 @@ class CentralSaleController extends Controller
     public function reportByProduct(Request $request)
     {
 
-        // return Product::with(['productCategory', 'productSubcategory', 'centralSales.customer'])->get();
+        // return Product::with(['productCategory', 'productSubcategory', 'centralSales'])->get()
+        //     ->map(function ($product, $key) {
+        //         $totalQuantity = collect($product->centralSales)->sum(function ($item) {
+        //             return $item->pivot->quantity;
+        //         });
+        //         $totalAmount = collect($product->centralSales)->sum('total_cost');
+        //         $avaregePrice = collect($product->centralSales)->average(function ($item) {
+        //             return $item->pivot->price;
+        //         });
+        //         return [
+        //             'category' => $product->productCategory->name,
+        //             'subcategory' => $product->productSubcategory->name,
+        //             'name' => $product->name,
+        //             'quantity' => $totalQuantity,
+        //             'amount' => $totalAmount,
+        //             'avg_price' => $avaregePrice,
+        //         ];
+        //     })
+        //     ->groupBy('category')
+        //     // ->groupBy(function ($item) {
+        //     //     return $item->productCategory->name;
+        //     // })
+        //     // ->map(function ($item, $key) {
+        //     //     $
+        //     //     return [
+        //     //         'key' => $key,
+        //     //     ];
+        //     // })
+
+        //     // ->mapWithKeys(function ($item, $category) {
+        //     //     $subcategoryGroup = collect($item)->values()->groupBy(function ($product) {
+        //     //         return $product->productSubcategory->name;
+        //     //     })->all();
+        //     //     return [
+        //     //         $category => $subcategoryGroup,
+        //     //     ];
+        //     // })
+        //     ->all();
 
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
@@ -1300,6 +1403,7 @@ class CentralSaleController extends Controller
         if ($reportType == 'detail') {
             return Excel::download(new CentralSaleByProductDetailExport($request->all()), 'Central Sales By Product Detail ' . $startDate . ' - ' . $endDate . '.xlsx');
         } else if ($reportType == 'summary') {
+            return Excel::download(new CentralSaleByProductSummaryExport($request->all()), 'Central Sales By Product Summary ' . $startDate . ' - ' . $endDate . '.xlsx');
         } else {
             return response()->json([
                 'msg' => 'Unknown report type'

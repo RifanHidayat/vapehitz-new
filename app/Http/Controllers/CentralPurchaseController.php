@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CentralPurchaseByProductDetailExport;
+use App\Exports\CentralPurchaseByProductSummaryExport;
+use App\Exports\CentralPurchaseBySupplierDetailExport;
+use App\Exports\CentralPurchaseBySupplierSummaryExport;
 use App\Models\Account;
 use App\Models\AccountTransaction;
 use Illuminate\Http\Request;
@@ -13,6 +17,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class CentralPurchaseController extends Controller
@@ -551,6 +556,84 @@ class CentralPurchaseController extends Controller
             'selected_products' => $selectedProducts,
             'payAmountPurchase' => $payAmountPurchase
         ]);
+    }
+
+    public function reportBySupplier(Request $request)
+    {
+
+        // return CentralSale::with(['products', 'customer'])->get()->groupBy(function ($item, $key) {
+        //     return $item->customer->name;
+        // })->all();
+
+        // $query = CentralPurchase::with(['products' => function ($q) {
+        //     $q->with(['productCategory', 'productSubcategory']);
+        // }, 'supplier']);
+
+        // $purchases = $query->get()->map(function ($purchase, $key) {
+        //     $totalForSupplier = 0;
+        //     return [
+        //         'supplier' => $purchase->supplier->name,
+        //         'total' => $totalForSupplier
+        //     ];
+        // })->all();
+        //---------------
+        // $query = Supplier::with(['centralPurchases' => function ($query) {
+        //     $query->with(['supplier', 'products']);
+        // }]);
+
+        // $purchases = $query->get()->map(function ($supplier, $key) {
+        //     $totalForSupplier = collect($supplier->centralPurchases)->sum(function ($purchase) {
+        //         return collect($purchase->products)->sum(function ($product) {
+        //             return $product->pivot->quantity * $product->pivot->price;
+        //         });
+        //     });
+        //     return [
+        //         'supplier' => $supplier->name,
+        //         'total' => $totalForSupplier,
+        //     ];
+        // })->all();
+
+        // return $purchases;
+
+        //-----------------------------------------------------
+
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $reportType = $request->query('report_type');
+
+        if ($reportType == 'detail') {
+            return Excel::download(new CentralPurchaseBySupplierDetailExport($request->all()), 'Central Purchases By Supplier Detail ' . $startDate . ' - ' . $endDate . '.xlsx');
+        } else if ($reportType == 'summary') {
+            return Excel::download(new CentralPurchaseBySupplierSummaryExport($request->all()), 'Central Purchases By Supplier Summary ' . $startDate . ' - ' . $endDate . '.xlsx');
+        } else {
+            return response()->json([
+                'msg' => 'Unknown report type'
+            ], 400);
+        }
+
+        return;
+    }
+
+    public function reportByProduct(Request $request)
+    {
+
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $reportType = $request->query('report_type');
+
+        if ($reportType == 'detail') {
+            return Excel::download(new CentralPurchaseByProductDetailExport($request->all()), 'Central Purchases By Product Detail ' . $startDate . ' - ' . $endDate . '.xlsx');
+        } else if ($reportType == 'summary') {
+            return Excel::download(new CentralPurchaseByProductSummaryExport($request->all()), 'Central Purchases By Product Summary ' . $startDate . ' - ' . $endDate . '.xlsx');
+        } else {
+            return response()->json([
+                'msg' => 'Unknown report type'
+            ], 400);
+        }
+
+        return;
     }
 
 
