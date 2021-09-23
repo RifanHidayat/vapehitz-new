@@ -45,4 +45,19 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Group::class);
     }
+
+    public function centralSales()
+    {
+        return $this->hasMany(CentralSale::class, 'created_by');
+    }
+
+    public function retailSales()
+    {
+        return $this->hasMany(RetailSale::class, 'created_by');
+    }
+
+    public function studioSales()
+    {
+        return $this->hasMany(StudioSale::class, 'created_by');
+    }
 }

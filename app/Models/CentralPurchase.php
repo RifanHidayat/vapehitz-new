@@ -16,7 +16,7 @@ class CentralPurchase extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class)->withPivot('stock', 'price', 'quantity','return_quantity');
+        return $this->belongsToMany(Product::class)->withPivot('stock', 'price', 'quantity', 'return_quantity');
     }
 
     public function account()
@@ -34,7 +34,8 @@ class CentralPurchase extends Model
         return $this->hasMany(PurchaseReturn::class);
     }
 
-   
-    
-
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

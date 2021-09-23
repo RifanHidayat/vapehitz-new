@@ -12,6 +12,7 @@ use App\Models\Supplier;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
@@ -97,6 +98,7 @@ class RetailSaleController extends Controller
         // $retailSale->detail = $request->detail;
         $retailSale->payment_method = $request->payment_method;
         $retailSale->account_id = $request->account_id;
+        $retailSale->created_by = Auth::id();
         // $retailSale->note = $request->note;
         $products = $request->selected_products;
 

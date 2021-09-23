@@ -18,4 +18,9 @@ class StudioSale extends Model
     {
         return $this->hasMany(StudioSaleReturn::class);
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

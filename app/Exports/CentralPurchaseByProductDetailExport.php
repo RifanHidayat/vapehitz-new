@@ -59,7 +59,7 @@ class CentralPurchaseByProductDetailExport implements FromView, ShouldAutoSize
         $query = Product::whereHas('centralPurchases', function (Builder $query) use ($startDate, $endDate) {
             $query->whereBetween(DB::raw('DATE(date)'), [$startDate, $endDate]);
         })->with(['productCategory', 'productSubcategory', 'centralPurchases' => function ($query) use ($supplier, $shipment, $status) {
-            $query->with(['supplier']);
+            $query->with(['supplier', 'createdBy']);
             if ($supplier !== '' && $supplier !== null) {
                 $query->where('supplier_id', $supplier);
             }

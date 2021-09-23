@@ -18,4 +18,9 @@ class RetailSale extends Model
     {
         return $this->hasMany(RetailSaleReturn::class);
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

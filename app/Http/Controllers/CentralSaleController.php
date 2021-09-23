@@ -18,6 +18,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
@@ -99,6 +100,7 @@ class CentralSaleController extends Controller
         $centralSale->remaining_payment = $request->remaining_payment;
         $centralSale->address_recipient = $request->address_recipient;
         $centralSale->detail = $request->detail;
+        $centralSale->created_by = Auth::id();
         $products = $request->selected_products;
 
         try {

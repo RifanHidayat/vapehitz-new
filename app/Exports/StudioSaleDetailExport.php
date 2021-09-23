@@ -55,7 +55,7 @@ class StudioSaleDetailExport implements FromView, ShouldAutoSize
         $sortBy = $this->request['sort_by'];
         $sortIn = $this->request['sort_in'];
         // $query = CentralSale::with(['products', 'customer'])->whereBetween('date', [$startDate, $endDate]);
-        $query = StudioSale::with(['products' => function ($q) {
+        $query = StudioSale::with(['createdBy', 'products' => function ($q) {
             $q->with(['productCategory', 'productSubcategory']);
         }])->whereBetween(DB::raw('DATE(date)'), [$startDate, $endDate]);
         // if ($customer !== '' && $customer !== null) {

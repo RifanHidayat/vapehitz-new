@@ -98,6 +98,7 @@ class CentralPurchaseController extends Controller
         $centralPurchase->netto = $netto;
         $centralPurchase->pay_amount = $payAmount;
         $centralPurchase->payment_method = $request->payment_method;
+        $centralPurchase->created_by = Auth::id();
         $products = $request->selected_products;
         //account transaction
         $accountTransaction = new AccountTransaction;

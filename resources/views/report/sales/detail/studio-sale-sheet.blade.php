@@ -2,8 +2,9 @@
     <thead>
         <tr>
             <th>No.</th>
-            <th>Tanggal</th>
-            <th>Produk</th>
+            <th>Date</th>
+            <th>Created By</th>
+            <th>Product</th>
             <th>Qty</th>
             <th>Free</th>
             <th>Price</th>
@@ -18,12 +19,18 @@
         <tr>
             <td>{{ $sale->code }}</td>
             <td>{{ $sale->date }}</td>
+            @if($sale->createdBy !== null)
+            <td>{{ $sale->createdBy->name }}</td>
+            @else
+            <td></td>
+            @endif
             @for($i = 0; $i < $emptyCellCount; $i++) <td>
                 </td>
                 @endfor
         </tr>
         @foreach($sale->products as $product)
         <tr>
+            <td></td>
             <td></td>
             <td></td>
             <td>{{ $product->productCategory->name . ':' }}{{ $product->productSubcategory->name . ' - ' }}{{ $product->name }}</td>
