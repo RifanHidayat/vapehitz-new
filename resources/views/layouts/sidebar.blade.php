@@ -117,7 +117,7 @@ if (isset($sidebar_class)) {
                             </li>
                             @endif
                             @if(in_array("view_badstock_release", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('badstock-release') || request()->is('badstock-release/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/badstock-release')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pengeluaran Badstok</span></a>
                             </li>
                             @endif
@@ -125,23 +125,23 @@ if (isset($sidebar_class)) {
                                 &nbsp;
                             </li>
                             @if(in_array("view_request_to_retail", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('request-to-retail') || request()->is('request-to-retail/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/request-to-retail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Retail</span></a>
                             </li>
                             @endif
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('request-to-studio') || request()->is('request-to-studio/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/request-to-studio')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan ke Studio</span></a>
                             </li>
                             <li class="nk-menu-item">
                                 &nbsp;
                             </li>
                             @if(in_array("view_confirm_request", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('approve-central-retail') || request()->is('approve-central-retail/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/approve-central-retail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan Dari Retail</span></a>
                             </li>
                             @endif
                             @if(in_array("view_confirm_request", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('approve-central-studio') || request()->is('approve-central-studio/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/approve-central-studio')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan Dari Studio</span></a>
                             </li>
                             @endif
@@ -156,23 +156,23 @@ if (isset($sidebar_class)) {
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             @if(in_array("view_confirm_request_retail", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('approve-retail') || request()->is('approve-retail/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/approve-retail')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan Dari Pusat</span></a>
                             </li>
                             @endif
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('retail-request-to-central') || request()->is('retail-request-to-central/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/retail-request-to-central')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan Ke Pusat</span></a>
                             </li>
                             @if(in_array("view_retail_sell", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('retail-sale') || request()->is('retail-sale/*') ? 'active current-page' : '' }}">
                                 <a href="/retail-sale" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
                             </li>
                             @endif
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('retail-sale-return') || request()->is('retail-sale-return/*') ? 'active current-page' : '' }}">
                                 <a href="/retail-sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Penjualan Barang</span></a>
                             </li>
                             @if(in_array("view_sop_retail", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('retail-stock-opname') || request()->is('retail-stock-opname/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/retail-stock-opname')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
                             </li>
                             @endif
@@ -186,22 +186,22 @@ if (isset($sidebar_class)) {
                             <span class="nk-menu-text">Transaksi Studio</span>
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('approve-studio') || request()->is('approve-studio/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/approve-studio')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan Dari Pusat</span></a>
                             </li>
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('studio-request-to-central') || request()->is('studio-request-to-central/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/studio-request-to-central')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Permintaan Ke Pusat</span></a>
                             </li>
                             @if(in_array("view_studio_sell", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('studio-sale') || request()->is('studio-sale/*') ? 'active current-page' : '' }}">
                                 <a href="/studio-sale" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
                             </li>
                             @endif
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('studio-sale-return') || request()->is('studio-sale-return/*') ? 'active current-page' : '' }}">
                                 <a href="/studio-sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Penjualan Barang</span></a>
                             </li>
                             @if(in_array("view_sop_studio", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('studio-stock-opname') || request()->is('studio-stock-opname/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/studio-stock-opname')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Stok Opname</span></a>
                             </li>
                             @endif
@@ -216,12 +216,12 @@ if (isset($sidebar_class)) {
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             @if(in_array("view_data_group", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('group') || request()->is('group/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/group')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data Groups</span></a>
                             </li>
                             @endif
                             @if(in_array("view_data_user", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('user') || request()->is('user/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/user')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data User</span></a>
                             </li>
                             @endif
@@ -241,19 +241,19 @@ if (isset($sidebar_class)) {
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             @if(in_array("view_account_finance", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('account') || request()->is('account/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/account')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Akun</span></a>
                             </li>
                             @endif
                             @if(in_array("view_cash_in_out_finance", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('account-transaction') || request()->is('account-transaction/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/account-transaction')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Cash in/out</span></a>
                             </li>
                             @endif
                         </ul>
                     </li>
                     @endif
-                    <li class="nk-menu-item">
+                    <li class="nk-menu-item {{ request()->is('report') || request()->is('report/*') ? 'active current-page' : '' }}">
                         <a href="/report" class="nk-menu-link" data-original-title="" title="">
                             <span class="nk-menu-icon"><em class="icon ni ni-reports"></em></span>
                             <span class="nk-menu-text">Laporan</span>
