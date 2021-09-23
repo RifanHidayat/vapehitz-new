@@ -71,8 +71,8 @@
                             <th>Code</th>
                             <th>Nama</th>
                             <th>Alamat</th>
-                            <th>No. Tlp</th>
-                            <th>No. HP</th>
+                            <!-- <th>No. Tlp</th> -->
+                            <th>No.Tlp/HP/WA</th>
                             <th>Email</th>
                             <th>Status</th>
                             <th>Action</th>

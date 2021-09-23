@@ -42,7 +42,7 @@
         </div>
     </div>
     @if(in_array("add_sop_retail", $permission))
-    <a href="{{url('/retail-stock-opname/create')}}" class="btn btn-primary">Tambah Data</a>
+    <a href="{{url('/retail-stock-opname/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Tambah Data</a>
     @endif
     <p></p>
     <div class="card card-bordered">

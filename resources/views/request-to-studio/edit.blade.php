@@ -48,7 +48,7 @@
                                         <th>Kode Barang</th>
                                         <th>Nama Barang</th>
                                         <th>Stok Pusat</th>
-                                        <th>Stok Retail</th>
+                                        <th>Stok Studio</th>
                                         <th>Qty</th>
                                     </tr>
                                 </thead>
@@ -57,7 +57,7 @@
                                         <td>@{{product.code}}</td>
                                         <td>@{{product.name}}</td>
                                         <td>@{{product.central_stock}}</td>
-                                        <td>@{{product.retail_stock}}</td>
+                                        <td>@{{product.studio_stock}}</td>
                                         <td>
                                             <input type="number" v-model="product.quantity" class="form-control">
                                         </td>

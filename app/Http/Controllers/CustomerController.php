@@ -59,13 +59,13 @@ class CustomerController extends Controller
     {
         $request->validate(([
             'name' => 'required',
-            'handphone' => 'nullable|numeric',
+            'handphone' => 'nullable',
         ]));
         $customer = new Customer;
         $customer->name = $request->name;
         $customer->code = $request->code;
         $customer->address = $request->address;
-        $customer->telephone = $request->telephone;
+        // $customer->telephone = $request->telephone;
         $customer->handphone = $request->handphone;
         $customer->email = $request->email;
         $customer->status = $request->status;
@@ -128,13 +128,13 @@ class CustomerController extends Controller
     {
         $request->validate(([
             'name' => 'required',
-            'handphone' => 'nullable|numeric',
+            'handphone' => 'nullable',
         ]));
         $customer = Customer::find($id);
         $customer->name = $request->name;
         $customer->code = $request->code;
         $customer->address = $request->address;
-        $customer->telephone = $request->telephone;
+        // $customer->telephone = $request->telephone;
         $customer->handphone = $request->handphone;
         $customer->email = $request->email;
         $customer->status = $request->status;

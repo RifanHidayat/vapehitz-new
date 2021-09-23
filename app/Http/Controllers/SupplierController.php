@@ -73,7 +73,7 @@ class SupplierController extends Controller
     {
         $request->validate(([
             'name' => 'required',
-            'handphone' => 'nullable|numeric',
+            'handphone' => 'nullable',
         ]));
 
         $code = $request->code;
@@ -86,7 +86,7 @@ class SupplierController extends Controller
         $supplier->name = $request->name;
         $supplier->code = $code;
         $supplier->address = $request->address;
-        $supplier->telephone = $request->telephone;
+        // $supplier->telephone = $request->telephone;
         $supplier->handphone = $request->handphone;
         $supplier->email = $request->email;
         $supplier->status = $request->status;
@@ -138,25 +138,25 @@ class SupplierController extends Controller
         ]);
     }
 
-    public function pay($id){
-    
+    public function pay($id)
+    {
+
         $accounts = Account::all();
-        $supplier = Supplier::with(['centralPurchases','purchaseTransactions'])->find($id);
+        $supplier = Supplier::with(['centralPurchases', 'purchaseTransactions'])->find($id);
         $payAmountentralPurchase = collect($supplier->purchaseTransactions)->sum('amount');
-        $grandTotalCentralPurchase= collect($supplier->centralPurchases)->sum('netto');
+        $grandTotalCentralPurchase = collect($supplier->centralPurchases)->sum('netto');
 
         return view('supplier.pay', [
-       
-            'payRemaining'=>$grandTotalCentralPurchase-$payAmountentralPurchase,
+
+            'payRemaining' => $grandTotalCentralPurchase - $payAmountentralPurchase,
             'accounts' => $accounts,
-            'supplier_id'=>$id
-           
+            'supplier_id' => $id
+
         ]);
-
-
     }
 
-    public function payment(Request $request){
+    public function payment(Request $request)
+    {
         $date = $request->date;
         $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
         $transactionNumber = 'PT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
@@ -170,14 +170,13 @@ class SupplierController extends Controller
         $purchaseTransaction->amount = $amount;
         $purchaseTransaction->payment_method = $request->payment_method;
         $purchaseTransaction->note = $request->note;
-        $centralPurchaseSelected=$request->central_purchase_selected;
+        $centralPurchaseSelected = $request->central_purchase_selected;
         $accountTransaction = new AccountTransaction;
-      // return $centralPurchaseSelected;
+        // return $centralPurchaseSelected;
         //purchase transaction
-        try{
-        $purchaseTransaction->save();
-
-        }catch (Exception $e){
+        try {
+            $purchaseTransaction->save();
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -185,30 +184,28 @@ class SupplierController extends Controller
                 'errors' => $e,
             ], 500);
         }
-      
-        
-        //account transaction
-        try{
-            $accountTransaction=new AccountTransaction;
-            $accountTransaction->account_id=$request->account_id;
-            $accountTransaction->amount=$amount;
-            $accountTransaction->type="out";
-            $accountTransaction->note=$transactionNumber.' | '.$request->note;
-            $accountTransaction->date=$request->date;
-            $accountTransaction->save();
 
-        }catch(Exception $e){
+
+        //account transaction
+        try {
+            $accountTransaction = new AccountTransaction;
+            $accountTransaction->account_id = $request->account_id;
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "out";
+            $accountTransaction->note = $transactionNumber . ' | ' . $request->note;
+            $accountTransaction->date = $request->date;
+            $accountTransaction->save();
+        } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
                 'error' => true,
                 'errors' => $e,
             ], 500);
-
         }
 
         //central purchase purchase transaction
-        $purchaseTransactionId=$purchaseTransaction->id;
+        $purchaseTransactionId = $purchaseTransaction->id;
         // $keyCentralPurchase = collect($centralPurchaseSelected)->mapWithKeys(function ($item) use ($purchaseTransactionId) {
         //     return [
         //         $purchaseTransactionId => [
@@ -222,34 +219,32 @@ class SupplierController extends Controller
         //return $centralPurchaseSelected;
         //return $keyCentralPurchase;
 
-        $keyCentralPurchase=collect($centralPurchaseSelected)->mapWithKeys(function ($item) {
+        $keyCentralPurchase = collect($centralPurchaseSelected)->mapWithKeys(function ($item) {
 
-           return [
+            return [
                 $item['id'] => [
                     // 'central_purchase_id'=>$item['id'],
-                    'amount'=>$item['amount'],
+                    'amount' => $item['amount'],
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),
                 ]
             ];
         });;
 
-     
-      
 
-         try {
+
+
+        try {
             $purchaseTransaction->centralPurchases()->attach($keyCentralPurchase);
-    
         } catch (Exception $e) {
             $purchaseTransaction->delete();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
                 'error' => true,
-                'errors' => $e."e",
+                'errors' => $e . "e",
             ], 500);
         }
-
     }
 
 
@@ -265,13 +260,13 @@ class SupplierController extends Controller
         $supplier = Supplier::find($id);
         $request->validate(([
             'name' => 'required',
-            'handphone' => 'nullable|numeric',
+            'handphone' => 'nullable',
         ]));
 
         $supplier->name = $request->name;
         $supplier->code = $request->code;
         $supplier->address = $request->address;
-        $supplier->telephone = $request->telephone;
+        // $supplier->telephone = $request->telephone;
         $supplier->handphone = $request->handphone;
         $supplier->email = $request->email;
         $supplier->status = $request->status;
@@ -330,7 +325,7 @@ class SupplierController extends Controller
 
         $suppliers = Supplier::all();
         return DataTables::of($suppliers)
-            ->addIndexColumn()  
+            ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 $permission = json_decode(Auth::user()->group->permission);
                 if (in_array("edit_supplier", $permission)) {
@@ -356,7 +351,7 @@ class SupplierController extends Controller
                     ' . $edit . '
                     ' . $delete . '
                     
-                        <a href="/supplier/pay/'.$row->id.'"><em class="icon fas fa-check"></em>
+                        <a href="/supplier/pay/' . $row->id . '"><em class="icon fas fa-check"></em>
 
                             <span>Pay</span>
                         </a>
@@ -370,11 +365,11 @@ class SupplierController extends Controller
 
     public function datatableSupplierPayment($id)
     {
-        $centralPurchase = CentralPurchase::with(['supplier'])->select('central_purchases.*')->where('supplier_id','=',$id);     
+        $centralPurchase = CentralPurchase::with(['supplier'])->select('central_purchases.*')->where('supplier_id', '=', $id);
         return DataTables::eloquent($centralPurchase)
             ->addIndexColumn()
             ->addColumn('date', function ($row) {
-                return ($row->date); 
+                return ($row->date);
             })
 
             ->addColumn('action', function ($row) {
@@ -383,7 +378,7 @@ class SupplierController extends Controller
             })
 
             ->addColumn('netto', function ($row) {
-                return (number_format($row->netto)); 
+                return (number_format($row->netto));
             })
 
             ->addColumn('payAmount', function ($row) {
@@ -393,15 +388,12 @@ class SupplierController extends Controller
             })
 
             ->addColumn('remainingAmount', function ($row) {
-                $paidOff='<div><span class="badge badge-sm badge-dim badge-outline-success d-none d-md-inline-flex">Lunas</span></div>';
+                $paidOff = '<div><span class="badge badge-sm badge-dim badge-outline-success d-none d-md-inline-flex">Lunas</span></div>';
                 $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($row->id);
                 $transactions = collect($purchase->purchaseTransactions)->sum('pivot.amount');
-                return number_format(($row->netto)-($transactions));
+                return number_format(($row->netto) - ($transactions));
             })
-            
+
             ->make(true);
     }
 }
-
-
-

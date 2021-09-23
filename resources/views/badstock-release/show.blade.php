@@ -3,87 +3,109 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
-        <div class="nk-block-head-content">
-            <div class="nk-block-head-sub"><a class="back-to" href="/badstock-release"><em class="icon ni ni-arrow-left"></em><span>Pengeluaran Badstock</span></a></div>
-            <h4 class="nk-block-title fw-normal">Detail Data Pengeluaran Badstock</h4>
-        </div>
-    </div>
-    <div class="card card-bordered">
-        <div class="card-inner">
-            <div class="col-lg-5">
-                <div class="form-group">
-                    <label class="form-label" for="full-name-1">Kode</label>
-                    <div class="form-control-wrap">
-                        {{$badstock->code}}
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-5 mt-3">
-                <div class="form-group">
-                    <label class="form-label" for="full-name-1">Tanggal Proses</label>
-                    <div class="form-control-wrap">
-                        {{$badstock->date}}
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-5 mt-3">
-                <div class="form-group">
-                    <label class="form-label" for="full-name-1">Gambar</label>
-                    <div class="input-group mb-3">
-                    </div>
-                </div>
-            </div>
-            <div id="preview" class="col-lg-5">
-                <a href=""><img v-if="url" :src="url" /></a>
-            </div>
-            <div class="col-lg-12 mt-3">
-                <!-- <div class="form-group">
-                        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal">
-                            Tambah Barang
-                        </button>
-                    </div> -->
-                <div class="form-group">
-                    <div class="card card-bordered">
-                        <div class="card-inner">
-                            <table class="datatable-init table table-stripped">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th>Kode Barang</th>
-                                        <th>Nama Barang</th>
-                                        <th>Stok Pusat</th>
-                                        <th>Bad Stock</th>
-                                        <th>Qty</th>
-                                        <th>Sisa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
-                                        <td>@{{product.code}}</td>
-                                        <td>@{{product.name}}</td>
-                                        <td>@{{product.central_stock}}</td>
-                                        <td>@{{product.bad_stock}}</td>
-                                        <td>
-                                            @{{product.quantity}}
-                                            <!-- <input type="number" v-model="product.quantity" value="1" class="form-control"> -->
-                                        </td>
-                                        <td>
-                                            @{{subTotalProduct(product)}}
-                                            <!-- <input type="number" :value="subTotalProduct(product)" class="form-control" readonly> -->
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+<div class="nk-content ">
+    <div class="container-fluid">
+        <div class="nk-content-inner">
+            <div class="nk-content-body">
+                <div class="nk-block-head nk-block-head-sm">
+                    <div class="nk-block-between g-3">
+                        <div class="nk-block-head-content">
+                            <h3 class="nk-block-title page-title">Detail Data Pengeluaran Badstock</h3>
+                            <div class="nk-block-des text-soft">
+                                <ul class="list-inline">
+                                    <li>Kode Order: <span class="text-base">{{$badstock->code}}</span></li>
+                                    <li>Submited At: <span class="text-base">{{$badstock->date}}</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="nk-block-head-content">
+                            <a href="{{url('/badstock-release')}}" class="btn btn-outline-warning">
+                                <em class="icon ni ni-arrow-left"></em>
+                                <span>Kembali</span>
+                            </a>
                         </div>
                     </div>
+                </div><!-- .nk-block-head -->
+                <div class="nk-block">
+                    <div class="row gy-5">
+                        <div class="col-lg-8">
+                            <div class="nk-block-head">
+                                <div class="nk-block-head-content">
+                                    <h5 class="nk-block-title title">Order Info</h5>
+                                </div>
+                            </div><!-- .nk-block-head -->
+                            <div class="card card-bordered">
+                                <ul class="data-list is-compact">
+                                    <li class="data-item">
+                                        <div class="data-col">
+                                            <div class="data-label">Kode Order</div>
+                                            <div class="data-value">{{$badstock->code}}</div>
+                                        </div>
+                                    </li>
+                                    <li class="data-item">
+                                        <div class="data-col">
+                                            <div class="data-label">Ditambahkan Pada</div>
+                                            <div class="data-value">{{$badstock->date}}</div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div><!-- .card -->
+                            <div class="nk-block-head">
+                                <div class="nk-block-head-content">
+                                </div>
+                            </div><!-- .nk-block-head -->
+                            <div class="card">
+                                <!-- <div id="preview">
+                                    <a href=""><img v-if="url" :src="url" /></a>
+                                </div> -->
+                            </div><!-- .card -->
+                        </div><!-- .col -->
+                        <div class="col-lg-4">
+                            <div class="nk-block-head">
+                                <div class="nk-block-head-content">
+                                    <h5 class="nk-block-title title">Gambar Yang di Upload</h5>
+                                </div>
+                            </div>
+                            <div class="card card-bordered">
+                                <div id="preview">
+                                    <a href=""><img v-if="url" :src="url" /></a>
+                                </div>
+                            </div>
+                        </div><!-- .col -->
+                    </div><!-- .row -->
+                </div><!-- .nk-block -->
+                <div class="card card-bordered mt-3">
+                    <div class="card-inner">
+                        <table class="datatable-init table table-stripped">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Kode Barang</th>
+                                    <th>Nama Barang</th>
+                                    <th>Stok Pusat</th>
+                                    <th>Bad Stock</th>
+                                    <th>Qty</th>
+                                    <th>Sisa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
+                                    <td>@{{product.code}}</td>
+                                    <td>@{{product.name}}</td>
+                                    <td>@{{product.central_stock}}</td>
+                                    <td>@{{product.bad_stock}}</td>
+                                    <td>
+                                        @{{product.quantity}}
+                                        <!-- <input type="number" v-model="product.quantity" value="1" class="form-control"> -->
+                                    </td>
+                                    <td>
+                                        @{{subTotalProduct(product)}}
+                                        <!-- <input type="number" :value="subTotalProduct(product)" class="form-control" readonly> -->
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-12 text-right mt-3">
-                <a href="/badstock-release" class="btn btn-outline-warning">
-                    <em class="icon ni ni-arrow-left"></em>
-                    <span>Kembali</span>
-                </a>
             </div>
         </div>
     </div>

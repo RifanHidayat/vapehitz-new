@@ -9,12 +9,12 @@
 
     table tr th {
         font-size: 15px;
-        color: black;
+        /* color: black; */
     }
 
     table tr td {
         font-size: 13px;
-        color: black;
+        /* color: black; */
     }
 
     .pull-left {
@@ -93,6 +93,7 @@
                             </ul>
                         </div>
                         @endif
+<<<<<<< HEAD
 
                         <div class="form-row">
                             <div class="form-group col-md-6">
@@ -149,6 +150,109 @@
                         </div>
                         <div class="text-right">
                             <button type="submit" class="btn btn-primary">Simpan</button>
+=======
+                        <div class="row g-3 align-center">
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <!-- <span class="form-note">(*)</span> -->
+                                    <label class="form-label" for="site-name">Nama Lengkap</label>
+                                    <span class="form-note">Kolom ini wajib di isi</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="form-group">
+                                    <div class="form-control-wrap">
+                                        <input type="text" name="name" class="form-control" id="site-name">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 align-center">
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <label class="form-label">Username</label>
+                                    <span class="form-note">Kolom ini wajib di isi</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="form-group">
+                                    <div class="form-control-wrap">
+                                        <input type="text" name="username" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 align-center">
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <label class="form-label">Group</label>
+                                    <span class="form-note">Kolom ini wajib di isi</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="form-group">
+                                    <div class="form-control-wrap">
+                                        <select name="group" class="form-control">
+                                            @foreach($groups as $group)
+                                            <option value="{{$group->id}}">{{$group->name}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 align-center">
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <span class="form-note">Kolom ini wajib di isi</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="form-group">
+                                    <div class="form-control-wrap">
+                                        <input type="email" name="email" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 align-center">
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <label class="form-label">Password</label>
+                                    <span class="form-note">Kolom ini wajib di isi</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="form-group">
+                                    <div class="form-control-wrap">
+                                        <input type="password" name="password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 align-center">
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <label class="form-label">Konfirmasi Password</label>
+                                    <span class="form-note">Kolom ini wajib di isi</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="form-group">
+                                    <div class="form-control-wrap">
+                                        <input type="password" name="password_confirmation" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-lg-12 text-right">
+                                <div class="form-group mt-2">
+                                    <button type="submit" class="btn btn-primary"><em class="icon ni ni-save"></em>&nbsp; Simpan</button>
+                                </div>
+                            </div>
+>>>>>>> 6173802d49ee720618fe07ffc1fc3f1b8c750f2d
                         </div>
                     </form>
 

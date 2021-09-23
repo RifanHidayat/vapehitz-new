@@ -45,14 +45,14 @@
                                     <input type="text" v-model="address" class="form-control" placeholder="Masukan Alamat">
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label class="form-label" for="full-name-1">No. Tlp</label>
                                 <div class="form-control-wrap">
                                     <input type="text" v-model="telephone" class="form-control" placeholder="Masukan Nomor Telepon">
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="form-group">
-                                <label class="form-label" for="full-name-1">No. HP/WA</label>
+                                <label class="form-label" for="full-name-1">No. Telepon/HP/WA</label>
                                 <div class="form-control-wrap">
                                     <input type="number" v-model="handphone" class="form-control" placeholder="Masukan Nomor HP/WA">
                                 </div>
@@ -105,7 +105,7 @@
             name: '',
             code: '{{ $code }}',
             address: '',
-            telephone: '',
+            // telephone: '',
             handphone: '',
             email: '',
             status: '1',
@@ -123,7 +123,7 @@
                         name: this.name,
                         code: this.code,
                         address: this.address,
-                        telephone: this.telephone,
+                        // telephone: this.telephone,
                         handphone: this.handphone,
                         email: this.email,
                         status: this.status,

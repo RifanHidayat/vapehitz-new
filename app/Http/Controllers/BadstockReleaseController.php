@@ -308,6 +308,16 @@ class BadstockReleaseController extends Controller
         }
         $badstockRelease = BadstockRelease::findOrFail($id);
         try {
+            $badstockRelease->products()->detach();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
             $badstockRelease->delete();
             return response()->json([
                 'message' => 'Data has been saved',

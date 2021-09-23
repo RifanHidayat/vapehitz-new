@@ -76,9 +76,9 @@
                                     <tr class="text-center">
                                         <th>Kode Barang</th>
                                         <th>Nama Barang</th>
-                                        <th>Stok Retail</th>
+                                        <th>Stok Gudang</th>
                                         <th>Real Stock</th>
-                                        <th>Selisih</th>
+                                        <!-- <th>Selisih</th> -->
                                         <th>Keterangan</th>
                                     </tr>
                                 </thead>
@@ -90,9 +90,9 @@
                                         <td>
                                             @{{product.good_stock}}
                                         </td>
-                                        <td>
+                                        <!-- <td>
                                             @{{totalDifference(product)}}
-                                        </td>
+                                        </td> -->
                                         <td>
                                             @{{product.description}}
                                         </td>

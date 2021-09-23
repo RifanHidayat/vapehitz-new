@@ -3,42 +3,32 @@
 @section('title', 'Vapehitz')
 
 @section('content')
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
-        <div class="nk-block-head-content">
-            <div class="nk-block-head-sub">
-                <a class="back-to" href="{{url('/request-to-retail')}}"><em class="icon ni ni-arrow-left"></em>
-                    <span>Permintaan Barang ke Gudang Retail</span>
-                </a>
-            </div>
-        </div>
-    </div>
-    <div class="card card-bordered">
-        <div class="card-inner">
-            <div class="col-lg-5">
-                <div class="form-group">
-                    <label class="form-label" for="full-name-1">Nomor Request</label>
-                    <div class="form-control-wrap">
-                        {{$approve_retail->code}}
+<div class="nk-content ">
+    <div class="container-fluid">
+        <div class="nk-content-inner">
+            <div class="nk-content-body">
+                <div class="nk-block-head nk-block-head-sm">
+                    <div class="nk-block-between g-3">
+                        <div class="nk-block-head-content">
+                            <h3 class="nk-block-title page-title">Detail Data Permintaan Barang Dari Pusat</h3>
+                            <div class="nk-block-des text-soft">
+                                <ul class="list-inline">
+                                    <li>Kode Order: <span class="text-base">{{$approve_retail->code}}</span></li>
+                                    <li>Submited At: <span class="text-base">{{$approve_retail->date}}</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="nk-block-head-content">
+                            <a href="{{url('/approve-retail')}}" class="btn btn-outline-warning">
+                                <em class="icon ni ni-arrow-left"></em>
+                                <span>Kembali</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-5 mt-3">
-                <div class="form-group">
-                    <label class="form-label" for="full-name-1">Tanggal Request</label>
-                    <div class="form-control-wrap">
-                        {{$approve_retail->date}}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card card-bordered">
-        <div class="card-inner">
-            <div class="col-lg-12 mt-3">
-                <div class="form-group">
-                    <div class="card card-bordered">
-                        <table class="table table-stripped table-bordered">
+                <div class="card card-bordered mt-3">
+                    <div class="card-inner">
+                        <table class="datatable-init table table-stripped">
                             <thead>
                                 <tr class="text-center">
                                     <th>Kode Barang</th>

@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-
+<style>
+    .data-value {
+        text-align: right;
+    }
+</style>
 @section('content')
 <div class="nk-block-head nk-block-head-sm">
     <div class="nk-block-between g-3">
@@ -63,27 +67,29 @@
             <div class="card card-bordered">
                 <ul class="data-list is-compact">
                     <li class="data-item">
-                        <div class="data-col">
+                        <div class="data-col justify-content-between">
                             <div class="data-label">Harga Beli</div>
-                            <div class="data-value">Rp. {{ $products->purchase_price }}</div>
+                            <div class="data-value">Rp. {{ number_format($products->purchase_price) }}</div>
                         </div>
                     </li>
                     <li class="data-item">
-                        <div class="data-col">
+                        <div class="data-col justify-content-between">
                             <div class="data-label">Harga Jual Agen</div>
-                            <div class="data-value">Rp. {{ $products->agent_price }}</div>
+                            <div class="data-value">Rp. {{ number_format($products->agent_price) }}</div>
                         </div>
                     </li>
                     <li class="data-item">
-                        <div class="data-col">
+                        <div class="data-col justify-content-between">
                             <div class="data-label">Harga Jual Retail</div>
-                            <div class="data-value">Rp. {{ $products->retail_price }}</div>
+                            <div class="data-value">
+                                Rp. {{ number_format($products->retail_price) }}
+                            </div>
                         </div>
                     </li>
                     <li class="data-item">
-                        <div class="data-col">
+                        <div class="data-col justify-content-between">
                             <div class="data-label">Harga Jual WS</div>
-                            <div class="data-value">Rp. {{ $products->ws_price }}</div>
+                            <div class="data-value">Rp. {{ number_format($products->ws_price) }}</div>
                         </div>
                     </li>
                 </ul>

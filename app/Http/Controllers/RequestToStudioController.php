@@ -231,6 +231,16 @@ class RequestToStudioController extends Controller
     {
         $requestToStudio = RequestToStudio::findOrFail($id);
         try {
+            $requestToStudio->products()->detach();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        try {
             $requestToStudio->delete();
         } catch (Exception $e) {
             return response()->json([
