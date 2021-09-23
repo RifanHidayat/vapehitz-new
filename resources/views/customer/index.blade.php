@@ -161,10 +161,10 @@
                         data: 'address',
                         name: 'address'
                     },
-                    {
-                        data: 'telephone',
-                        name: 'telephone'
-                    },
+                    // {
+                    //     data: 'telephone',
+                    //     name: 'telephone'
+                    // },
                     {
                         data: 'handphone',
                         name: 'handphone'

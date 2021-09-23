@@ -29,9 +29,9 @@
 
     .bottom {
         float: right !important;
-    } */
+    }
 
-    #suppliers tr th,
+    */ #suppliers tr th,
     #suppliers tr td {
         font-size: 0.875rem;
     }
@@ -76,13 +76,6 @@
         </div><!-- .nk-block-between -->
     </div>
     <div class="nk-block nk-block-lg">
-<<<<<<< HEAD
-=======
-        @if(in_array("add_supplier", $permission))
-        <a href="{{url('/supplier/create')}}" class="btn btn-outline-primary"><em class="fas fa-plus"></em>&nbsp;Tambah Supplier</a>
-        @endif
-        <p></p>
->>>>>>> 6173802d49ee720618fe07ffc1fc3f1b8c750f2d
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
                 <!-- <div class="card-head">
@@ -163,7 +156,6 @@
 </script>
 <script>
     $(function() {
-<<<<<<< HEAD
         NioApp.DataTable.init = function() {
             NioApp.DataTable('#suppliers', {
                 processing: true,
@@ -174,41 +166,6 @@
                     url: "{{url('/datatables/suppliers')}}",
                     type: 'GET',
                     //length: 2,
-=======
-        var supplierTable = $('#suppliers').DataTable({
-            processing: true,
-            serverSide: true,
-            autoWidth: false,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: "{{url('/datatables/suppliers')}}",
-                type: 'GET',
-                //length: 2,
-            },
-            columns: [{
-                    data: 'code',
-                    name: 'code'
-                },
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-                {
-                    data: 'address',
-                    name: 'address'
-                },
-                // {
-                //     data: 'telephone',
-                //     name: 'telephone'
-                // },
-                {
-                    data: 'handphone',
-                    name: 'handphone'
-                },
-                {
-                    data: 'email',
-                    name: 'email'
->>>>>>> 6173802d49ee720618fe07ffc1fc3f1b8c750f2d
                 },
                 columns: [{
                         data: 'code',
@@ -222,10 +179,10 @@
                         data: 'address',
                         name: 'address'
                     },
-                    {
-                        data: 'telephone',
-                        name: 'telephone'
-                    },
+                    // {
+                    //     data: 'telephone',
+                    //     name: 'telephone'
+                    // },
                     {
                         data: 'handphone',
                         name: 'handphone'
