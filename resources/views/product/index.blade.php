@@ -129,8 +129,9 @@
 </script>
 <script>
     $(function() {
+        let productTable = null;
         NioApp.DataTable.init = function() {
-            NioApp.DataTable('#products', {
+            productTable = NioApp.DataTable('#products', {
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
@@ -188,7 +189,13 @@
             })
             $.fn.DataTable.ext.pager.numbers_length = 7;
         }
+        // productTable = 
         NioApp.DataTable.init();
+        // console.log();
+        // setTimeout(() => {
+
+        //     console.log('reloaded');
+        // }, 3000)
 
         // var productTable = $('#products').DataTable({
 
@@ -225,7 +232,8 @@
                 allowOutsideClick: () => !Swal.isLoading()
             }).then((result) => {
                 if (result.isConfirmed) {
-                    productTable.ajax.reload();
+                    // productTable.ajax.reload();
+                    $('#products').DataTable().ajax.reload();
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',

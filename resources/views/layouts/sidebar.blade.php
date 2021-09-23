@@ -45,17 +45,17 @@ if (isset($sidebar_class)) {
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             @if(in_array("view_supplier", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('supplier*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/supplier')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data Supplier</span></a>
                             </li>
                             @endif
                             @if(in_array("view_customer", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('customer*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/customer')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Data Customer</span></a>
                             </li>
                             @endif
                             @if(in_array("view_product", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('product*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/product')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Produk</span></a>
                             </li>
                             @endif
@@ -70,7 +70,7 @@ if (isset($sidebar_class)) {
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             @if(in_array("view_purchase_product", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('central-purchase*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/central-purchase')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembelian Barang</span></a>
                             </li>
                             @endif
@@ -94,17 +94,17 @@ if (isset($sidebar_class)) {
                                 &nbsp;
                             </li>
                             @if(in_array("view_product_sell", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('central-sale') || request()->is('central-sale/*') ? 'active current-page' : '' }}">
                                 <a href="{{url('/central-sale')}}" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Penjualan Barang</span></a>
                             </li>
                             @endif
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('central-sale-transaction') || request()->is('central-sale-transaction/*') ? 'active current-page' : '' }}">
                                 <a href="/central-sale-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Pelanggan</span></a>
                             </li>
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('central-sale-return') || request()->is('central-sale-return/*') ? 'active current-page' : '' }}">
                                 <a href="/central-sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Penjualan</span></a>
                             </li>
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('central-sale-return-transaction') || request()->is('central-sale-return-transaction/*') ? 'active current-page' : '' }}">
                                 <a href="/central-sale-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Retur</span></a>
                             </li>
                             <li class="nk-menu-item">

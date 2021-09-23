@@ -121,7 +121,7 @@
 
             if (fileName.match(_self_link)) {
                 self.closest("li")
-                    .addClass("active current-page")
+                    // .addClass("active current-page")
                     .parents()
                     .closest("li")
                     .addClass("active current-page");
@@ -140,7 +140,8 @@
                     .removeClass("active");
             }
         });
-    }; // PasswordSwitch @v1.0
+    };
+    // PasswordSwitch @v1.0
 
     NioApp.PassSwitch = function () {
         NioApp.Passcode(".passcode-switch");
