@@ -296,4 +296,49 @@
         },
     })
 </script>
+<script>
+    $(function() {
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#products-table', {
+                processing: true,
+                serverSide: true,
+                "autoWidth": false,
+                ajax: {
+                    url: '/datatables/stock-opname/products',
+                    type: 'GET',
+                },
+                columns: [{
+                        data: 'code',
+                        name: 'code'
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
+                    },
+                ],
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+
+        NioApp.DataTable.init();
+
+        $('#products-table tbody').on('click', '.btn-choose', function() {
+            const rowData = $('#products-table').DataTable().row($(this).parents('tr')).data();
+            const data = {
+                ...rowData
+            };
+            const check = app.$data.check;
+            const productIds = check.map(product => product.id);
+
+            if (productIds.indexOf(data.id) < 0) {
+                data['description'] = "";
+                check.push(data);
+            }
+        });
+    })
+</script>
 @endsection

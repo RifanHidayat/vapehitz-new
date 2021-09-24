@@ -283,7 +283,7 @@
         NioApp.DataTable.init();
 
         $('#products-table tbody').on('click', '.btn-choose', function() {
-            const rowData = productTable.row($(this).parents('tr')).data();
+            const rowData = $('#products-table').DataTable().row($(this).parents('tr')).data();
             const data = {
                 ...rowData
             };

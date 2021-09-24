@@ -334,7 +334,7 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-end mb-3">
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#cartModal">
                             <div class="d-flex align-items-center">
@@ -600,36 +600,41 @@
 </script>
 <script>
     $(function() {
-        const productsTable = $('#products-table').DataTable({
-            processing: true,
-            serverSide: true,
-            destroy: true,
-            "autoWidth": false,
-            // pageLength: 2,
-            ajax: {
-                url: '/datatables/central-purchases/products',
-                type: 'GET',
-                // length: 2,
-            },
-            columns: [{
-                    data: 'product_category.name',
-                    name: 'productCategory.name',
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#products-table', {
+                processing: true,
+                serverSide: true,
+                destroy: true,
+                "autoWidth": false,
+                // pageLength: 2,
+                ajax: {
+                    url: '/datatables/central-purchases/products',
+                    type: 'GET',
+                    // length: 2,
                 },
-                {
-                    data: 'name',
-                    name: 'products.name'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                },
-            ]
-        });
+                columns: [{
+                        data: 'product_category.name',
+                        name: 'productCategory.name',
+                    },
+                    {
+                        data: 'name',
+                        name: 'products.name'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+
+        NioApp.DataTable.init();
 
         $('#products-table tbody').on('click', '.btn-choose', function() {
-            const rowData = productsTable.row($(this).parents('tr')).data();
+            const rowData = $('#products-table').DataTable().row($(this).parents('tr')).data();
             const data = {
                 ...rowData
             };

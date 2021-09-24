@@ -63,7 +63,8 @@
                         <div class="col-lg-4">
                             <div class="nk-block-head">
                                 <div class="nk-block-head-content">
-                                    <h5 class="nk-block-title title">Gambar Yang di Upload</h5>
+                                    <!-- <h5 class="nk-block-title title">Gambar Yang di Upload</h5> -->
+                                    &nbsp;
                                 </div>
                             </div>
                             <div class="card card-bordered">
