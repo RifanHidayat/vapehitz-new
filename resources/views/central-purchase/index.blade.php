@@ -128,8 +128,6 @@
                         name: 'payAmount'
                     },
 
-
-
                     {
                         data: 'remainingAmount',
                         name: 'remainingAmount'

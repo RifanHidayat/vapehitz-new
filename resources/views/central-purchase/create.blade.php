@@ -115,7 +115,7 @@
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
                                         </div>
-                                        
+
                                         <div class="row justify-content-between align-items-center mt-3">
                                             <p class="col-md-6 mb-0">Quantity</p>
                                             <div class="col-md-6">
@@ -313,7 +313,7 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-end mb-3">
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#cartModal">
                             <div class="d-flex align-items-center">
@@ -407,7 +407,7 @@
             accountId: '',
             suppliers: JSON.parse('{!! $suppliers !!}'),
             cart: [],
-            amount:'',
+            amount: '',
             selectedProducts: [],
             cleaveCurrency: {
                 delimiter: '.',
@@ -546,33 +546,39 @@
 </script>
 <script>
     $(function() {
-        const productsTable = $('#products-table').DataTable({
-            processing: true,
-            serverSide: true,
-            destroy: true,
-            "autoWidth": false,
-            // pageLength: 2,
-            ajax: {
-                url: '/datatables/central-purchases/products',
-                type: 'GET',
-                // length: 2,
-            },
-            columns: [{
-                    data: 'product_category.name',
-                    name: 'productCategory.name',
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#products-table', {
+                processing: true,
+                serverSide: true,
+                destroy: true,
+                "autoWidth": false,
+                // pageLength: 2,
+                ajax: {
+                    url: '/datatables/central-purchases/products',
+                    type: 'GET',
+                    // length: 2,
                 },
-                {
-                    data: 'name',
-                    name: 'products.name'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                },
-            ]
-        });
+                columns: [{
+                        data: 'product_category.name',
+                        name: 'productCategory.name',
+                    },
+                    {
+                        data: 'name',
+                        name: 'products.name'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+
+        NioApp.DataTable.init();
+
 
         $('#products-table tbody').on('click', '.btn-choose', function() {
             const rowData = productsTable.row($(this).parents('tr')).data();

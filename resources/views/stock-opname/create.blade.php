@@ -1,46 +1,15 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-<style>
-    .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    }
-
-    table tr th {
-        font-size: 15px;
-        /* color: black; */
-    }
-
-    table tr td {
-        font-size: 13px;
-        /* color: black; */
-    }
-
-    .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
-    }
-</style>
 @section('content')
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
-        <div class="nk-block-head-content">
-            <div class="nk-block-head-sub">
-                <a class="back-to" href="/stock-opname"><em class="icon ni ni-arrow-left"></em>
-                    <span>Data Stok Opname</span>
-                </a>
-            </div>
-            <h2 class="nk-block-title fw-normal">Tambah Data Stok Opname</h2>
+<div class="nk-block-head nk-block-head-lg wide-sm">
+    <div class="nk-block-head-content">
+        <div class="nk-block-head-sub">
+            <a class="back-to" href="/stock-opname"><em class="icon ni ni-arrow-left"></em>
+                <span>Data Stok Opname</span>
+            </a>
         </div>
+        <h2 class="nk-block-title fw-normal">Tambah Data Stok Opname</h2>
     </div>
 </div>
 <div v-if="errors.length" class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -388,29 +357,33 @@
 </script>
 <script>
     $(function() {
-        const productTable = $('#products-table').DataTable({
-            processing: true,
-            serverSide: true,
-            autoWidth: false,
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: '{{url("/datatables/stock-opname/products")}}',
-                type: 'GET',
-            },
-            columns: [{
-                    data: 'code',
-                    name: 'code'
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#products-table', {
+                processing: true,
+                serverSide: true,
+                autoWidth: false,
+                ajax: {
+                    url: '{{url("/datatables/stock-opname/products")}}',
+                    type: 'GET',
                 },
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
-            ]
-        });
+                columns: [{
+                        data: 'code',
+                        name: 'code'
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
+                    },
+                ]
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+
+        NioApp.DataTable.init();
 
         $('#products-table tbody').on('click', '.btn-choose', function() {
             const rowData = productTable.row($(this).parents('tr')).data();

@@ -91,7 +91,7 @@
                                                         <!-- <em class="icon ni ni-user"></em> -->
                                                         <span>Rp</span>
                                                     </div>
-                                                    <input type="text" v-model="product.purchase_price"  class="form-control text-right" placeholder="Harga">
+                                                    <input type="text" v-model="product.purchase_price" class="form-control text-right" placeholder="Harga">
                                                 </div>
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
@@ -123,7 +123,7 @@
         <div class="col-lg-5 col-md-12">
             <form @submit.prevent="submitForm">
 
-            <div class="card card-bordered">
+                <div class="card card-bordered">
                     <div class="card-inner-group">
                         <div class="card-inner card-inner-md">
                             <div class="card-title-group">
@@ -158,24 +158,24 @@
                                 </div>
                             </div>
                             <div class="form-group ">
-                                    <label class="form-label" for="full-name-1">Nomor Invoice</label>
-                                    <div class="form-control-wrap">
-                                        
-                                        <input type="text" v-model="invoiceNumber"  class="form-control text-left" >
-                                    </div>
+                                <label class="form-label" for="full-name-1">Nomor Invoice</label>
+                                <div class="form-control-wrap">
+
+                                    <input type="text" v-model="invoiceNumber" class="form-control text-left">
                                 </div>
-                          
+                            </div>
+
                             <div class="collapse" id="collapseExample">
                                 <div class="card card-body">
                                     Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
                                 </div>
                             </div>
 
-                            
-                          
-                            
-                            
-                          
+
+
+
+
+
 
                             <!-- <div class="col-12">
                             <div class="form-group">
@@ -187,7 +187,7 @@
                         </div> -->
                         </div>
                     </div>
-                    
+
                 </div>
                 <div class="card card-bordered">
                     <div class="card-inner-group">
@@ -358,7 +358,7 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-end mb-3">
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#cartModal">
                             <div class="d-flex align-items-center">
@@ -451,8 +451,8 @@
             suppliers: JSON.parse('{!! $suppliers !!}'),
             cart: [],
             selectedProducts: JSON.parse('{!! $central_purchases->products !!}'),
-            invoiceNumber:'',
-            invoiceDate:'',
+            invoiceNumber: '',
+            invoiceDate: '',
             cleaveCurrency: {
                 delimiter: '.',
                 numeralDecimalMark: ',',
@@ -483,8 +483,8 @@
                         pay_amount: vm.payment,
                         payment_method: vm.paymentMethod,
                         selected_products: vm.selectedProducts,
-                        invoice_number:vm.invoiceNumber,
-                        invoice_date:vm.invoiceDate
+                        invoice_number: vm.invoiceNumber,
+                        invoice_date: vm.invoiceDate
 
                     })
                     .then(function(response) {
@@ -590,33 +590,38 @@
 </script>
 <script>
     $(function() {
-        const productsTable = $('#products-table').DataTable({
-            processing: true,
-            serverSide: true,
-            destroy: true,
-            "autoWidth": false,
-            // pageLength: 2,
-            ajax: {
-                url: '/datatables/central-purchases/products',
-                type: 'GET',
-                // length: 2,
-            },
-            columns: [{
-                    data: 'product_category.name',
-                    name: 'productCategory.name',
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#products-table', {
+                processing: true,
+                serverSide: true,
+                destroy: true,
+                "autoWidth": false,
+                // pageLength: 2,
+                ajax: {
+                    url: '/datatables/central-purchases/products',
+                    type: 'GET',
+                    // length: 2,
                 },
-                {
-                    data: 'name',
-                    name: 'products.name'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                },
-            ]
-        });
+                columns: [{
+                        data: 'product_category.name',
+                        name: 'productCategory.name',
+                    },
+                    {
+                        data: 'name',
+                        name: 'products.name'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+
+        NioApp.DataTable.init();
 
         $('#products-table tbody').on('click', '.btn-choose', function() {
             const rowData = productsTable.row($(this).parents('tr')).data();

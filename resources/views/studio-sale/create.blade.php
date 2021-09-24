@@ -600,33 +600,32 @@
 </script>
 <script>
     $(function() {
-        const productsTable = $('#products-table').DataTable({
-            processing: true,
-            serverSide: true,
-            destroy: true,
-            "autoWidth": false,
-            // pageLength: 2,
-            ajax: {
-                url: '/datatables/central-purchases/products',
-                type: 'GET',
-                // length: 2,
-            },
-            columns: [{
-                    data: 'product_category.name',
-                    name: 'productCategory.name',
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#products-table', {
+                processing: true,
+                serverSide: true,
+                "autoWidth": false,
+                ajax: {
+                    url: '/datatables/central_purchases/products',
+                    type: 'GET',
                 },
-                {
-                    data: 'name',
-                    name: 'products.name'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                },
-            ]
-        });
+                columns: [{
+                        data: 'code',
+                        name: 'code'
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
+                    },
+                ],
+            })
+            $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+        NioApp.DataTable.init();
 
         $('#products-table tbody').on('click', '.btn-choose', function() {
             const rowData = productsTable.row($(this).parents('tr')).data();

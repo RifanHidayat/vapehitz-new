@@ -75,18 +75,17 @@ if (isset($sidebar_class)) {
                             </li>
                             @endif
                             @if(in_array("view_payment_supplier", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('purchase-transaction*') ? 'active current-page' : '' }}">
                                 <a href="/purchase-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Supplier</span></a>
                             </li>
                             @endif
                             @if(in_array("view_return_product_purchase", $permission))
-                            <li class="nk-menu-item">
-
+                            <li class="nk-menu-item {{ request()->is('purchase-return*') ? 'active current-page' : '' }}">
                                 <a href="/purchase-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
                             </li>
                             @endif
                             @if(in_array("view_product_payment", $permission))
-                            <li class="nk-menu-item">
+                            <li class="nk-menu-item {{ request()->is('purchase-return-transaction*') ? 'active current-page' : '' }}">
                                 <a href="/purchase-return-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Retur</span></a>
                             </li>
                             @endif
