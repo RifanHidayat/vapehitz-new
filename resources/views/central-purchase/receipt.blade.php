@@ -10,7 +10,7 @@
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
         <div class="nk-block-head-sub"><a class="back-to" href="/central-purchase"><em class="icon ni ni-arrow-left"></em><span>Pembelian Barang</span></a></div>
-        <h2 class="nk-block-title fw-normal">Retur Pembelian Barang</h2>
+        <h2 class="nk-block-title fw-normal">Penerimaan barang</h2>
     </div>
 </div><!-- .nk-block -->
 <div class="nk-block nk-block-lg">
@@ -24,12 +24,92 @@
     </div> -->
     <div class="row g-gs align-items-start">
         <div class="col-lg-7 col-md-12">
+        <div class="card card-bordered h-100">
+                <div class="card-inner-group">
+                    <div class="card-inner card-inner-md">
+                        <div class="card-title-group">
+                            <div class="card-title" style="width:100%">
+                                <div style="float:left" >
+                                    <h6 class="title">Riwayat penerimaan Barang</h6>
+                               </div>
+                                <div style="float:right" align="right">
+                                <a href="#hostoryPurchaseReceipt" data-toggle="collapse" class="fas fa-angle-left"  >
+                            </a>
+                               
+                               </div>
+                            </div>
+                            
+                        </div>
+                    </div><!-- .card-inner -->
+                    @php $no=0 @endphp
+                    @foreach($purchase_receipt as $purchaseReceipt)
+                    @php $no++ @endphp
+                    <div  class="card-inner collapse" id="hostoryPurchaseReceipt" >
+                        <div class="table-responsive">
+                            <h5> Penerimaan barang  {{$no}}</h5>
+                            <ul class="data-list is-compact">
+                            <li class="data-item">
+                                <div class="data-col">
+                                    <div class="data-label">Tanggal</div>
+                                    <div class="data-value text-right">{{ date_format(date_create($purchaseReceipt->date), "d/m/Y") }}</div>
+                                </div>
+                            </li>
+                            <li class="data-item">
+                                <div class="data-col">
+                                    <div class="data-label">Note</div>
+                                    <div class="data-value">{{$purchaseReceipt->note}}</div>
+                                </div>
+                            </li>
+                           
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>No. produk</th>
+                                        <th>Nama</th>
+                                        <th  class="text-right">Quanitity</th>
+                                        <th class="text-right">Free</th>
+                                        <th class="text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                @php $subtotal=0; @endphp
+                                @foreach($purchaseReceipt->products as $product)
+                                @php $subtotal=($product->pivot->quantity * $product->purchase_price)+$subtotal; @endphp
+                                
+                                <tbody>
+                                    <td>{{$purchaseReceipt->code}}</td>
+                                    <td>{{$product->name}}</td>
+                                    <td  class="text-right">{{$product->pivot->quantity}}</td>
+                                    <td  class="text-right">{{$product->pivot->free}}</td>
+                                    <td  class="text-right">
+                                    {{number_format($product->pivot->quantity * $product->purchase_price)}}
+                                    </td>
+                                </tbody>
+                               
+                                @endforeach
+                                <tfoot>
+                                
+                                <tr>
+                                    <th colspan="4">Subtotal</th>
+                                    <th class="text-right">{{ number_format($subtotal) }}</th>
+                                </tr>
+                                
+                            </tfoot>
+                               
+                           
+                            </table>
+                           
+                        </div>
+                    </div><!-- .card-inner -->
+                    @endforeach
+                </div><!-- .card-inner-group -->
+            </div>
+            <br >
            <div class="card card-bordered h-100">
                 <div class="card-inner-group">
                     <div class="card-inner card-inner-md">
                         <div class="card-title-group">
                             <div class="card-title">
-                                <h6 class="title">Pilih Barang Retur</h6>
+                                <h6 class="title">Daftar Barang yang Belum Diterima</h6>
                             </div>
                             <!-- <div class="card-tools mr-n1">
                                 <ul class="btn-toolbar gx-1">
@@ -52,10 +132,7 @@
                     </div><!-- .card-inner -->
                     <div class="card-inner">
                         <div class="mb-3">
-                            <div class="alert alert-primary alert-icon alert-dismissible">
-                                <em class="icon ni ni-alert-circle"></em> Informasi yang tercantum merupakan informasi ketika pembelian
-                                <button class="close" data-dismiss="alert"></button>
-                            </div>
+                            
                         </div>
                         <!-- <div class="nk-wg-action">
                                 <div class="nk-wg-action-content">
@@ -70,7 +147,7 @@
                             <p class="mt-3">Tidak ada barang</p>
                         </div>
                         <div v-for="(product, index) in products" :key="index" class="card card-bordered">
-                            <div class="card-inner" v-if="product.return_quantity >0 " >
+                            <div class="card-inner" v-if="product.return_quantity >0 || product.remaining_free >0 " >
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-lg-1">
                                         <div class="custom-control custom-checkbox">
@@ -101,6 +178,10 @@
                                                     <p class="col-md-6 text-right mb-0"><strong>@{{ currencyFormat(product.return_quantity) }}</strong></p>
                                                 </div>
                                                 <div class="row justify-content-between">
+                                                    <p class="col-md-6 mb-0">Free</p>
+                                                    <p class="col-md-6 text-right mb-0"><strong>@{{ currencyFormat(product.remaining_free) }}</strong></p>
+                                                </div>
+                                                <div class="row justify-content-between">
                                                     <p class="col-md-6 mb-0">Amount</p>
                                                     <p class="col-md-6 text-right mb-0"><strong>@{{ currencyFormat(product.pivot.quantity * product.pivot.price) }}</strong></p>
                                                 </div>
@@ -118,14 +199,14 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-group col-lg-6 col-md-12">
-                                                    <label class="form-label" for="full-name-1">Alasan</label>
-                                                    <div class="form-control-wrap">
-                                                        <select v-model="product.cause" class="form-control" required>
-                                                            <option value="defective">Barang Cacat / Rusak</option>
-                                                            <option value="wrong">Barang Tidak Sesuai</option>
-                                                        </select>
+                                                    <label class="form-label" for="full-name-1">Free</label>
+                                                    <div class="form-control-wrap number-spinner-wrap">
+                                                        <button type="button" @click="reduceProductFree(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-minus" :disabled="product.initial_free === 0"><em class="icon ni ni-minus"></em></button>
+                                                        <input @input="validateFree(product)" type="number" v-model="product.initial_free" class="form-control number-spinner" value="0">
+                                                        <button type="button" @click="increaseProductFree(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-plus" :disabled="product.initial_free == product.remaining_free" ><em class="icon ni ni-plus"></em></button>
                                                     </div>
                                                 </div>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -143,43 +224,15 @@
             </div>
         </div>
         <div class="col-lg-5 col-md-12">
-            <div class="card card-bordered mb-4">
-                <div class="card-inner">
-                    <div class="card-title-group align-start mb-3">
-                        <div class="card-title">
-                            <h6 class="title">Summary Retur</h6>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center">
-                                <em class="icon ni ni-layers mr-2" style="font-size: 2em;"></em>
-                                <div class="info">
-                                    <span class="title">Quantity Retur</span>
-                                    <p class="amount" ><strong>@{{ currencyFormat(totalReturnQuantity) }}</strong></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center">
-                                <em class="icon ni ni-coin mr-2" style="font-size: 2em;"></em>
-                                <div class="info">
-                                    <span class="title">Nominal Retur</span>
-                                    <p class="text-lg"><strong>@{{ currencyFormat(totalReturnNominal) }}</strong></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
 
             <form @submit.prevent="submitForm">
                 <div class="card card-bordered">
                     <div class="card-inner-group">
-                        <div class="card-inner card-inner-md">
+                        <div class="card-inner card-inner">
                             <div class="card-title-group">
                                 <div class="card-title">
-                                    <h6 class="title">Informasi Retur</h6>
+                                    <h6 class="title">Penerimaan Barang</h6>
                                 </div>
                                 <!-- <div class="card-tools mr-n1">
                                 <div class="drodown">
@@ -202,39 +255,23 @@
                             </div>
                         </div> -->
 
-                            <div class="form-group">
-                                <label class="form-label" for="full-name-1">Tanggal Retur</label>
+                        <div class="form-group">
+                                <label class="form-label" for="full-name-1">Tanggal Penerimaan</label>
                                 <div class="form-control-wrap">
                                     <input type="date" v-model="date" class="form-control">
                                 </div>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group col-lg-6 col-md-12">
-                                    <label class="form-label" for="full-name-1">Cara Pembayaran</label>
-                                    <div class="form-control-wrap">
-                                        <select v-model="paymentMethod" class="form-control" required>
-                                            <option value="transfer">Transfer</option>
-                                            <option value="cash">Cash</option>
-                                            <option value="hutang" v-if="remainingPay>0">Hutang</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group col-lg-6 col-md-12">
-                                    <label class="form-label" for="full-name-1">Akun</label>
-                                    <div class="form-control-wrap">
-                                        <select v-model="accountId" class="form-control" >
-                                            <option v-for="(account, index) in accountOptions" :value="account.id">@{{ account.name }}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                            
                             <div class="form-group">
                                 <label class="form-label" for="full-name-1">Note</label>
                                 <div class="form-control-wrap">
                                     <textarea v-model="note" class="form-control" rows="3" style="min-height: auto;"></textarea>
                                 </div>
                             </div>
-                            <hr>
+
+                            
+                           
+                            
                                              <!-- Summary -->
                         <div class="card bg-light">
                             <!-- <div class="card-header">Header</div> -->
@@ -293,6 +330,9 @@
                     </div>
                 </div>
             </form>
+          
+
+          
 
         </div>
     </div><!-- .nk-block -->
@@ -334,12 +374,11 @@
                 purchaseId: '{{ $purchase->id }}',
                 netto: '{{ $purchase->netto }}',
                 remainingPay: '{{ $purchase->netto-$payAmountPurchase }}',
+                purchaseReceipts:'{{!! $purchase_receipt !!}}',
                 suppliers: [],
                 cart: [],
-
                 note: '',
                 products: JSON.parse(String.raw `{!! json_encode($selected_products) !!}`),
-               
                 checkedProducts: [],
                 loading: false,
                 cleaveCurrency: {
@@ -352,6 +391,14 @@
             methods: {
                 submitForm: function() {
                     this.sendData();
+                    // console.log(this.products);
+                    // console.log(this.totalReturnQuantity);
+                    // console.log(this.suppliersId);
+                    // console.log(this.purchaseId);
+                    // console.log(this.totalReturnFree);
+                    // console.log(this.date);
+                    // console.log(this.note);
+                  
 
                    //console.log()
                 },
@@ -361,7 +408,7 @@
                 
                    console.log('{{ $purchase->netto-$purchase->pay_amount }}')
                     vm.loading = true;
-                    axios.post('/purchase-return', {
+                    axios.post('/purchase-receipt', {
                             date: vm.date,
                             supplier_id: vm.suppliersId,
                             account_id: vm.paymentMethod=='hutang'?"3":vm.accountId,
@@ -373,6 +420,10 @@
                             total_return_amount:vm.totalReturnNominal,
                             products:vm.products,
                             remaining_pay:vm.remainingPay,
+                            total_return_free:vm.totalReturnFree,
+                            note:vm.note,
+                            date:vm.date
+
                             
 
                         })
@@ -402,17 +453,28 @@
                 },
                 increaseProductQuantity: function(product) {
                     product.initial_quantity = Number(product.initial_quantity) + 1;
+                   
                 },
                 reduceProductQuantity: function(product) {
                     if (product.initial_quantity > 1) {
-                        product.initial_quantity = Number(product.initial_quantity )- 1;
+                        product.initial_quantity = Number(product.inital_quantity )- 1;
                     }
                 },
+                increaseProductFree: function(product) {
+                product.initial_free = product.initial_free + 1;
+            },
+            reduceProductFree: function(product) {
+                if (product.initial_free >= 1) {
+                    product.initial_free = product.initial_free - 1;
+                }
+            },
                 currencyFormat: function(number) {
                     return Intl.NumberFormat('de-DE').format(number);
                 },
                 isChecked: function(id) {
                     const index = this.checkedProducts.indexOf(id);
+                    //var datta=product.free;
+                   
                     if (index > -1) {
                         return true;
                     }
@@ -420,15 +482,30 @@
                 },
                 validateReturnQuantity: function(product) {
                     console.log('validating');
-                    let returnQuantity = Number(product.initial_quantity);
+                    let initialQuantity = Number(product.initial_quantity);
                     let quantity = Number(product.return_quantity)
                     if (returnQuantity > quantity) {
                         console.log('greater than quantity');
                         product.initial_quantity = product.return_quantity;
                     }
 
+
                     if (returnQuantity < 0) {
                         product.initial_quantity = 0;
+                    }
+                    // return;
+                },
+                validateFree: function(product) {
+                    console.log('validating');
+                    let returnFree = Number(product.initial_free);
+                    let free = Number(product.remaining_free)
+                    if (returnFree > free) {
+                        console.log('greater than quantity');
+                        product.free= product.remaining_free;
+                    }
+
+                    if (returnFree < 0) {
+                        product.initial_free = 0;
                     }
                     // return;
                 }
@@ -448,11 +525,18 @@
                     return selectedProducts;
                 },
                 totalReturnQuantity: function() {
-                    let totalReturnQuantity = this.selectedProducts.map(product => Number(product.initial_quantity)).reduce((acc, cur) => {
+                    let totalReturnQuantity = this.selectedProducts.map(product => Number(product.return_quantity)).reduce((acc, cur) => {
                         return acc + cur;
                     }, 0)
 
                     return totalReturnQuantity;
+                },
+                totalReturnFree: function() {
+                    let totalReturnFree = this.selectedProducts.map(product => Number(product.free)).reduce((acc, cur) => {
+                        return acc + cur;
+                    }, 0)
+
+                    return totalReturnFree;
                 },
                 totalReturnNominal: function() {
                     let totalReturnNominal = this.selectedProducts.map(product => Number(product.pivot.price) * Number(product.return_quantity)).reduce((acc, cur) => {

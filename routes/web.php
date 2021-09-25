@@ -32,6 +32,7 @@ use App\Http\Controllers\SaleRetailController;
 use App\Http\Controllers\StockOpnameRetailController;
 use App\Http\Controllers\StockOpnameStudioController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\PurchaseReceiptController;
 use App\Http\Controllers\RetailRequestToCentralController;
 use App\Http\Controllers\RequestToStudioController;
 use App\Http\Controllers\RequestToRetailController;
@@ -154,6 +155,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::patch('/{id}', [CentralPurchaseController::class, 'update']);
         Route::delete('/{id}', [CentralPurchaseController::class, 'destroy']);
         Route::get('/show/{id}', [CentralPurchaseController::class, 'show']);
+        Route::get('/receipt/{id}', [CentralPurchaseController::class, 'receipt']);
     });
 
 
@@ -327,6 +329,20 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/{id}', [PurchaseReturnController::class, 'destroy']);
         Route::get('/show/{id}', [PurchaseReturnController::class, 'show']);
         Route::get('/pay/{id}', [PurchaseReturnController::class, 'pay']);
+       
+    });
+
+    //RoutePurchaseReceipt
+    Route::prefix('/purchase-receipt')->group(function () {
+        Route::get('/', [PurchaseReceiptController::class, 'index']);
+        Route::get('/create', [PurchaseReceiptController::class, 'create']);
+        Route::get('/edit/{id}', [PurchaseReceiptController::class, 'edit']);
+        Route::post('/', [PurchaseReceiptController::class, 'store']);
+        Route::patch('/{id}', [PurchaseReceiptController::class, 'update']);
+        Route::delete('/{id}', [PurchaseReceiptController::class, 'destroy']);
+        Route::get('/show/{id}', [PurchaseReceiptController::class, 'show']);
+        Route::get('/pay/{id}', [PurchaseReceiptController::class, 'pay']);
+       
     });
 
     //RoutePurchasereturn
@@ -360,10 +376,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/edit/{id}', [AccountController::class, 'edit']);
         Route::patch('/{id}', [AccountController::class, 'update']);
         Route::delete('/{id}', [AccountController::class, 'destroy']);
-        Route::delete('/{id}', [AccountController::class, 'show']);
+       // Route::del('/{id}', [AccountController::class, 'show']);
         Route::get('show/{id}', [AccountController::class, 'show']);
+        Route::get('print/{id}', [AccountController::class, 'print']);
+        Route::get('download/{id}', [AccountController::class, 'download']);
     });
-
 
     //RouteAccountTransaction
     Route::prefix('/account-transaction')->group(function () {
@@ -373,6 +390,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/edit/{id}', [AccountTransactionController::class, 'edit']);
         Route::patch('/{id}', [AccountTransactionController::class, 'update']);
         Route::get('show/{id}', [AccountTransactionController::class, 'show']);
+        Route::delete('/{in_id}/{out_id}', [AccountTransactionController::class, 'destroy']);
     });
 
 
@@ -690,5 +708,8 @@ Route::prefix('/datatables')->group(function () {
     Route::prefix('/reports')->group(function () {
         Route::get('/central-sale-detail', [ReportController::class, 'centralSaleByCustomerDetailData']);
         Route::get('/central-sale-summary', [ReportController::class, 'centralSaleSummaryData']);
+    });
+        Route::prefix('/accounts')->group(function () {
+        Route::get('/', [AccountController::class, 'datatableAccounts']);
     });
 });

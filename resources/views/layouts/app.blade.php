@@ -25,13 +25,13 @@
 
         /* table tr th {
         font-size: 15px;
-        color: black;
+       
     }
 
     table tr td {
         font-size: 13px;
-        color: black;
-    } */
+      
+    }
 
         /* .pull-left {
         float: left !important;

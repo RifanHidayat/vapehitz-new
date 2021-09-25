@@ -112,7 +112,7 @@
                                 <div class="card-title">
                                     <h6 class="title">Detail Pembelian</h6>
                                 </div>
-                                <br>
+                                
                                 <!-- <div class="card-tools mr-n1">
                                 <div class="drodown">
                                     <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="false"><em class="icon ni ni-more-h"></em></a>
@@ -126,7 +126,7 @@
                             </div> -->
                             </div>
                         </div><!-- .card-inner -->
-                        <br>
+                       
                         <table class="table table-striped">
                                 <thead>
                                     <tr>

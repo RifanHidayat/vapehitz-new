@@ -1,7 +1,35 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
+<style>
+    .dataTables_filter {
+        text-align: right;
+        width: 90%;
+    }
 
+    table tr th {
+        font-size: 15px;
+        color: black;
+    }
+
+    table tr td {
+        font-size: 13px;
+        color: black;
+    }
+
+    .pull-left {
+        float: left !important;
+    }
+
+    .pull-right {
+        float: right !important;
+        margin-bottom: 20px;
+    }
+
+    .bottom {
+        float: right !important;
+    }
+</style>
 @section('content')
 <div class="components-preview ">
     <div class="nk-block-head">
@@ -30,7 +58,7 @@
                         <div class="form-group col-md-6">
                             <label class="form-label" for="full-name-1">Saldo Awal</label>
                             <div class="form-control-wrap">
-                                <input type="text" v-model="init_balance" v-cleave="cleaveCurrency" class="form-control text-right" class="form-control" placeholder="0.00">
+                                <input type="text" v-model="init_balance" class="form-control text-right" class="form-control" placeholder="0.00">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
@@ -74,9 +102,9 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table class="datatable-init table table-striped" id="table-account">
+                    <table class="table table-striped" id="accounts">
                         <thead>
-                            <tr class="text-center">
+                            <tr class="text-left">
                                 <th>Nomor Kartu</th>
                                 <th>Nama</th>
                                 <th>Saldo</th>
@@ -85,23 +113,7 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr v-for="(account, index) in accounts" class="text-center">
-                                <td>@{{account.number}}</td>
-                                <td>@{{account.name}}</td>
-                                <td>@{{currencyFormat(account.init_balance)}}</td>
-                                <td>@{{account.date}}</td>
-                                <td>@{{account.type}}</td>
-                                <td>
-                                    <div class="btn-group" aria-label="Basic example">
-                                        <a href="#" @click.prevent="onEditAccount(index)" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
-                                        <a href="#" @click.prevent="deleteAccount(account.id)" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
-                                        
-                                        <a href="#" @click.prevent="showAccount(account.id)" class="btn btn-outline-light"><em class="fas fa-eye"></em></a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
+                     
                     </table>
                 </div>
             </div>
@@ -165,9 +177,14 @@
                     })
                     .then(function(response) {
                         vm.loading = false;
-                        console.log(response);
+                         console.log(response);
                         vm.accounts.push(response.data.data);
                         // console.log(response);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Data has been deleted',
+                        })
                     })
                     .catch(function(error) {
                         vm.loading = false;
@@ -288,5 +305,97 @@
             }
         }
     })
+</script>
+
+
+<script>
+    var accounts = $(function() {
+        $('#accounts').DataTable({
+            processing: true,
+            serverSide: true,
+            // dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
+            ajax: {
+                url: '/datatables/accounts',
+                type: 'GET',
+                // length: 2,
+            },
+            columns: [
+                {
+                    data: 'number',
+                    name: 'number'
+                },
+                {
+                    data: 'name',
+                    name: 'name'
+                },
+               
+                {
+                    data: 'balance',
+                    name: 'balance'
+                },
+                {
+                    data: 'date',
+                    name: 'date'
+                },
+               
+             
+                {
+                    data: 'type',
+                    name: 'type'
+                },
+                {
+                    data: 'action',
+                    name: 'action'
+                },
+
+            ]
+        });
+        $('#accounts').on('click', 'tr .btn-delete', function(e) {
+            e.preventDefault();
+            // alert('click');
+            const id = $(this).attr('data-id');
+            console.log(id)
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "The data will be deleted",
+                icon: 'warning',
+                reverseButtons: true,
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return axios.delete('/account/' + id)
+                        .then(function(response) {
+                            console.log(response.data);
+                        })
+                        .catch(function(error) {
+                            console.log(error.data);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops',
+                                text: 'Something wrong',
+                            })
+                        });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Data has been deleted',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+
+                        }
+                    })
+                }
+            })
+        })
+    });
 </script>
 @endsection

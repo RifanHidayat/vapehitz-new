@@ -69,10 +69,9 @@ class PurchaseReturnTransactionController extends Controller
         $purchaseReturnTransaction ->payment_method = $request->payment_method;
         $purchaseReturnTransaction ->note = $request->note;
         $purchaseReturnTransaction ->purchase_return_id = $request->purchase_return_id;
+        $purchaseReturnTransaction ->account_type = "in";
 
-        $accountTransaction=new AccountTransaction;
-        // $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
-        // $transactions = collect($purchase->purchaseTransactions)->sortBy('date')->values()->all();
+
          //user account
          try{
            $purchaseReturnTransaction->save();
@@ -86,22 +85,7 @@ class PurchaseReturnTransactionController extends Controller
                 ], 500);               
          }
 
-        //account Transaction
-        try{
-            $accountTransaction->account_id=$request->account_id;
-            $accountTransaction->amount=$amount;
-            $accountTransaction->type="in";
-            $accountTransaction->note=$request->note;
-            $accountTransaction->date=$request->date;
-            $accountTransaction->save();
-        }catch(Exception $e){
-            return response()->json([
-                'message' => 'Internal error',
-                 'code' => 500,
-                'error' => true,
-                'errors' => $e,
-                ], 500);               
-         }
+    
     }
 
 

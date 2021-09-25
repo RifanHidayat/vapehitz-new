@@ -18,9 +18,9 @@ class AccountTransactionController extends Controller
     public function index()
     {
         $account = Account::all();
-        $accountTransaction=DB::table('account_transactions')->where('type','=','in out')->get();
-        $payAmount=0;
-        $accountTransactions = AccountTransaction::with(['account'])->where('.number','!=',null)->get()->groupBy("number");
+      
+        $accountTransactions = AccountTransaction::with(['account'])->where('number','!=',null)->get()->groupBy("number");
+      
       //return $accountTransactions['IO/VH/160921/30'];
 
         $maxid = DB::table('account_transactions')->max('id');
@@ -64,7 +64,8 @@ class AccountTransactionController extends Controller
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = $request->amount;
         $accountTransaction->note = $request->note;
-        $accountTransaction->type = "out";
+        $accountTransaction->account_type = "out";
+       // return $request->account_in;
         try {
             $accountTransaction->save();  
         } catch (Exception $e) {
@@ -83,7 +84,7 @@ class AccountTransactionController extends Controller
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = $request->amount;
         $accountTransaction->note = $request->note;
-        $accountTransaction->type = "in";
+        $accountTransaction->account_type = "in";
         try {
             $accountTransaction->save();   
         } catch (Exception $e) {
@@ -136,7 +137,7 @@ class AccountTransactionController extends Controller
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = $request->amount;
         $accountTransaction->note = $request->note;
-        $accountTransaction->type = "in";
+        $accountTransaction->account_type = "in";
         try {
             $accountTransaction->save();
            
@@ -152,11 +153,11 @@ class AccountTransactionController extends Controller
 
         $accountTransaction = AccountTransaction::find($id);
         $accountTransaction->number = $request->number;
-        $accountTransaction->account_id = $request->account_in;
+        $accountTransaction->account_id = $request->account_out;
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = $request->amount;
         $accountTransaction->note = $request->note;
-        $accountTransaction->type = "out";
+        $accountTransaction->account_type = "out";
         try {
             $accountTransaction->save();
            
@@ -176,18 +177,14 @@ class AccountTransactionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($in_id,$out_id)
     {
-        $accountTransaction = AccountTransaction::findOrFail($id);
-        
+        $inTransaction = AccountTransaction::findOrFail($in_id);  
+        $outTransaction = AccountTransaction::findOrFail($out_id);        
         try {
-            $accountTransaction->delete();
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $accountTransaction,
-            ]);
+            $inTransaction->delete();
+            $outTransaction->delete();
+            
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
@@ -196,5 +193,7 @@ class AccountTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
+
+        
     }
 }

@@ -29,6 +29,8 @@ class AddInvoiceNumberAndInvoiceDateToCentralPurchases extends Migration
     {
         Schema::table('central_purchases', function (Blueprint $table) {
             //
+            $table->dropColumn('invoice_number');
+            $table->dropColumn('invoice_date');
         });
     }
 }

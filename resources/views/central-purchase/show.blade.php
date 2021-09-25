@@ -74,6 +74,7 @@
                                     </li>
                                 </ul>
                             </div> -->
+<<<<<<< HEAD
                     </div>
                 </div><!-- .card-inner -->
                 <table class="table table-striped">
@@ -97,6 +98,41 @@
                     </tbody>
                 </table>
             </div><!-- .card-inner-group -->
+=======
+                        </div>
+                    </div><!-- .card-inner -->
+                    <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 15%;" align="left">Nomor Produk</th>
+                                        <th style="width: 20%;" align="left">Nama Produk</th>
+                                        <td style="width: 15%;" align="right"><b>Harga</b></td>
+                                        <td style="width: 15%;" align="right"><b>Quantity</b></td>
+                                        <td style="width: 15%;" align="right"><b>Free</b></td>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                  
+                                    @foreach($centralPurchase->products as $product)
+                                    <tr>
+                                        <td class="text-left">{{ $product->code}}</td>
+                                        <td class="text-left">{{ $product->name}}</td>
+                                        <td class="text-right">{{ number_format($product->pivot->price)}}</td>
+                                        <td class="text-right">{{ $product->pivot->quantity-$product->pivot->return_quantity}}</td>
+                                        <td class="text-right">{{ $product->pivot->free}}</td>
+                                    </tr>
+                                    
+                                    
+                                   
+                                    @endforeach
+                                </tbody>
+                               
+                            </table>
+  
+                </div><!-- .card-inner-group -->
+            </div>
+>>>>>>> reques_to_studio
         </div>
     </div>
     <div class="col-lg-6 col-md-12">
@@ -127,20 +163,29 @@
                                 <div class="data-label">Biaya Pengiriman</div>
                                 <div class="data-value">{{ number_format($centralPurchase->shipping_cost) }}</div>
                             </div>
-                        </li>
-                        <li class="data-item">
-                            <div class="data-col">
-                                <div class="data-label">diskon</div>
-                                <div class="data-value">{{ number_format($centralPurchase->discount) }}</div>
-                            </div>
-                        </li>
-                        <li class="data-item">
-                            <div class="data-col">
-                                <div class="data-label">Net</div>
-                                <div class="data-value">{{ number_format($centralPurchase->netto) }}</div>
-                            </div>
-                        </li>
-                        <!-- <li class="data-item">
+                        </div><!-- .card-inner -->
+                        <div class="card card-bordered">
+                <ul class="data-list is-compact">
+                    <li class="data-item">
+                        <div class="data-col">
+                            <div class="data-label">Biaya Pengiriman</div>
+                            <div class="data-value">{{ number_format($centralPurchase->shipping_cost) }}</div>
+                        </div>
+                    </li>
+                    <li class="data-item">
+                        <div class="data-col">
+                            <div class="data-label">diskon</div>
+                            <div class="data-value">{{ number_format($centralPurchase->discount) }}</div>
+                        </div>
+                    </li>
+                    <li class="data-item">
+                        <div class="data-col" >
+                            <div class="data-label" >Net</div>
+                            <div class="data-value" style="text-align: right;" >{{ number_format($centralPurchase->netto) }}</div>
+                        </div>
+                    </li>
+
+                    <!-- <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Total</div>
                             <div class="data-value">{{ number_format($centralPurchase->total) }}</div>
@@ -181,6 +226,47 @@
                                     </div>
                                 </div>
                             </div> -->
+                            </div>
+                        </div><!-- .card-inner -->
+                        <br>
+                        <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Kode Transaksi</th>
+                                        <th class="text-left">Metode Pembayaran</th>
+                                        <th class="text-right">Jumlah Pembayaran</th>
+                                      
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $subTotal = 0; @endphp
+                                    @foreach($transactions as $transaction)
+                                    <tr>
+                                        <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
+                                        <td><a href="/purchase-transaction/show/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
+                                        <td class="text-left">{{ $transaction->payment_method }}</td>
+                                        <td class="text-right">{{ number_format($transaction->pivot->amount) }}</td>
+                                       
+                                    </tr>
+                                    @php $subTotal += $transaction->pivot->amount; @endphp
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3">Subtotal</td>
+                                        <td class="text-right">{{ number_format($subTotal) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" style="border-top: none;">Total Pembelian</td>
+                                        <td class="text-right" style="border-top: none;">{{ number_format($centralPurchase->netto) }}</td>
+                                    </tr>
+                                    <tr style="font-weight: bold;">
+                                        <td colspan="3">Sisa Hutang</td>
+                                        <td class="text-right">{{ number_format(abs($subTotal - $centralPurchase->netto)) }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                     </div>
                 </div><!-- .card-inner -->
                 <br>

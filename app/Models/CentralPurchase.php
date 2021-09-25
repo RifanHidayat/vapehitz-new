@@ -16,7 +16,7 @@ class CentralPurchase extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class)->withPivot('stock', 'price', 'quantity', 'return_quantity');
+        return $this->belongsToMany(Product::class)->withPivot('stock', 'price', 'quantity','return_quantity','free');
     }
 
     public function account()

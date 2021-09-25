@@ -49,22 +49,9 @@ class PurchaseTransactionController extends Controller
         $transaction->amount = $amount;
         $transaction->payment_method = $request->payment_method;
         $transaction->note = $request->note;
+        $transaction->account_type="out";
 
-        //Transaction account debt
-        $accountTransactionDebt=new AccountTransaction;
-        $accountTransactionDebt->account_id="3";
-        $accountTransactionDebt->amount=str_replace(".", "", $request->amount);
-        $accountTransactionDebt->type="out";
-        $accountTransactionDebt->note="Pembayaran hutang pembelian barang  dengan No.Transaksi ".$transactionNumber;
-        $accountTransactionDebt->date=$request->date;
-
-       //Transaction account
-       $accountTransaction=new AccountTransaction;
-       $accountTransaction->account_id=$request->account_id;
-       $accountTransaction->amount=str_replace(".", "", $request->amount);
-       $accountTransaction->type="out";
-       $accountTransaction->note=$transactionNumber.' | '.$request->note;
-       $accountTransaction->date=$request->date;
+   
 
        //update amount central purchase
        try{
@@ -98,29 +85,7 @@ class PurchaseTransactionController extends Controller
         }
 
         if ($request->amount>=1){
-            try{
-                $accountTransactionDebt->save();
-            }catch(Exception $e){
-                return response()->json([
-                    'message' => 'Internal error',
-                     'code' => 500,
-                    'error' => true,
-                    'errors' => $e,
-                    ], 500);
-                          
-                      }
-    
-                      try{
-                        $accountTransaction->save();
-                    }catch(Exception $e){
-                        return response()->json([
-                            'message' => 'Internal error',
-                             'code' => 500,
-                            'error' => true,
-                            'errors' => $e,
-                            ], 500);
-                                  
-                              }
+         
     
         }   
 

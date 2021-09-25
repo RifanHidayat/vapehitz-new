@@ -26,7 +26,6 @@ class PurchaseReturn extends Model
 
     public function purchaseReturnTransactions()
     {
-
         return $this->hasMany(PurchaseReturnTransaction::class);
     }
     public function account()

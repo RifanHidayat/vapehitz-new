@@ -29,4 +29,14 @@ class Account extends Model
     {
         return $this->hasMany(CentralSaleTransaction::class);
     }
+    public function purchaseTransactions()
+    {
+        return $this->hasMany(PurchaseTransaction::class);
+    }
+    public function purchaseReturnTransactions()
+    {
+        return $this->hasMany(PurchaseReturnTransaction::class);
+    }
+
+
 }

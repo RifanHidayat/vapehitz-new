@@ -105,6 +105,19 @@
                                                     <input type="number" v-model="product.quantity" class="form-control number-spinner" value="0">
                                                     <button type="button" @click="increaseProductQuantity(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-plus"><em class="icon ni ni-plus"></em></button>
                                                 </div>
+                                                
+                                            </div>
+                                            <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
+                                        </div>
+                                        <div class="row justify-content-between align-items-center mt-3">
+                                            <p class="col-md-6 mb-0">free</p>
+                                            <div class="col-md-6">
+                                                <!-- <input type="text" class="form-control form-control-sm text-right"> -->
+                                                <div class="form-control-wrap number-spinner-wrap">
+                                                    <button type="button" @click="reduceProductFree(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-minus" :disabled="product.free === 0"><em class="icon ni ni-minus"></em></button>
+                                                    <input type="number" v-model="product.free" class="form-control number-spinner" value="0">
+                                                    <button type="button" @click="increaseProductFree(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-plus"><em class="icon ni ni-plus"></em></button>
+                                                </div>
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
                                         </div>
@@ -116,7 +129,8 @@
                                 <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
                             </div>
                         </div>
-                    </div><!-- .card-inner -->
+                    </div>
+                    <!-- .card-inner -->
                 </div><!-- .card-inner-group -->
             </div>
         </div>
@@ -542,6 +556,15 @@
                     product.quantity = product.quantity - 1;
                 }
             },
+            increaseProductFree: function(product) {
+                product.free = product.free + 1;
+            },
+            reduceProductFree: function(product) {
+                if (product.free >= 1) {
+                    product.free = product.free - 1;
+                }
+            },
+            
             currencyFormat: function(number) {
                 return Intl.NumberFormat('de-DE').format(number);
             },
