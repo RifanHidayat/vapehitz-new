@@ -640,7 +640,7 @@
             // If product already in cart or selected products
             if (productIds.indexOf(data.id) < 0) {
                 data['quantity'] = 1;
-                data['price'] = data.ws_price;
+                data['price'] = data.retail_price;
                 data['free'] = 0;
                 cart.push(data);
             }

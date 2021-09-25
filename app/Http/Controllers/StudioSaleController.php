@@ -271,7 +271,39 @@ class StudioSaleController extends Controller
      */
     public function edit($id)
     {
-        //
+        $sale = StudioSale::with(['products'])->findOrFail($id);
+
+        $accounts = Account::all();
+        $suppliers = Supplier::all();
+
+        // $selectedProducts = collect($sale->products)->each(function ($product) {
+
+        // });
+        $selectedProducts = $sale->products;
+
+        foreach ($selectedProducts as $product) {
+            $productRow = Product::find($product['id']);
+
+            if ($productRow == null) {
+                continue;
+            }
+
+            $product['studio_stock'] = $productRow->studio_stock + ($product->pivot->quantity + $product->pivot->free);
+            $product['quantity'] = $product->pivot->quantity;
+            $product['free'] = $product->pivot->free;
+            $product['old_taken'] = $product->pivot->quantity + $product->pivot->free;
+            $product['price'] = $product->pivot->price;
+        }
+
+        $sidebarClass = 'compact';
+
+        return view('studio-sale.edit', [
+            'sale' => $sale,
+            'accounts' => $accounts,
+            'suppliers' => $suppliers,
+            'selected_products' => $selectedProducts,
+            'sidebar_class' => $sidebarClass,
+        ]);
     }
 
     /**
@@ -283,7 +315,212 @@ class StudioSaleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $studioSale = StudioSale::findOrFail($id);
+
+        $oldAccountId = $studioSale->account_id;
+        $oldNetTotal = $studioSale->net_total;
+        // $studioSale->code = $studioSaleNumber;
+        $studioSale->date = $request->date . ' ' . date('H:i:s');
+        $studioSale->total_weight = $request->total_weight;
+        $studioSale->discount = $this->clearThousandFormat($request->discount);
+        $studioSale->discount_type = $request->discount_type;
+        $studioSale->subtotal = $this->clearThousandFormat($request->subtotal);
+        $studioSale->shipping_cost = $this->clearThousandFormat($request->shipping_cost);
+        $studioSale->other_cost = $this->clearThousandFormat($request->other_cost);
+        $studioSale->detail_other_cost = $request->detail_other_cost;
+        $studioSale->net_total = $this->clearThousandFormat($request->net_total);
+        $studioSale->payment_amount = $this->clearThousandFormat($request->pay_amount);
+        $studioSale->payment_method = $request->payment_method;
+        $studioSale->account_id = $request->account_id;
+        $studioSale->updated_by = Auth::id();
+        $products = $request->selected_products;
+
+        try {
+            $unavailableStockProductCount = 0;
+            $newSelectedProducts = [];
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $taken = $product['quantity'] + $product['free'];
+
+                $oldTaken = 0;
+                if (array_key_exists('old_taken', $product)) {
+                    // $taken = ($productRow->quantity - $product['old_quantity']) + $product['quantity'] + $product['free'];
+                    $oldTaken = $product['old_taken'];
+                }
+
+                if ($taken > ($productRow->studio_stock + $oldTaken)) {
+                    // array_push($unavailableStockProductIds, $productRow);
+                    $product['studio_stock'] = $productRow->studio_stock;
+                    $product['quantity'] = 1;
+                    $product['free'] = 0;
+                    // $product['editable'] = 0;
+                    $product['subTotal'] = $product['retail_price'];
+                    $product['backgroundColor'] = 'bg-pink-dim';
+                    array_push($newSelectedProducts, $product);
+                    $unavailableStockProductCount++;
+                } else {
+                    array_push($newSelectedProducts, $product);
+                }
+            }
+
+            if ($unavailableStockProductCount > 0) {
+                return response()->json([
+                    'message' => 'Insufficient stock',
+                    'data' => [
+                        'selected_products' => $newSelectedProducts,
+                    ],
+                    'code' => 400,
+                    'error' => true,
+                    'error_type' => 'unsufficient_stock'
+                ], 400);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            $studioSale->save();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $studioSale,
+            // ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'stock' => $item['studio_stock'],
+                    // 'booked' => $item['booked'],
+                    // 'price' => str_replace(".", "", $item['price']),
+                    'price' => $this->clearThousandFormat($item['price']),
+                    'quantity' => $item['quantity'],
+                    'free' => $item['free'],
+                    // 'amount' => $item['subTotal'],
+                    // 'editable' => $item['editable'] == true ? 1 : 0,
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $studioSale->products()->detach();
+        } catch (Exception $e) {
+            // $studioSale->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            $studioSale->products()->attach($keyedProducts);
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $studioSale,
+            // ]);
+        } catch (Exception $e) {
+            $studioSale->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $oldTaken = 0;
+                if (array_key_exists('old_taken', $product)) {
+                    $oldTaken = $product['old_taken'];
+                }
+
+                $productRow->studio_stock = ($productRow->studio_stock + $oldTaken) - ($product['quantity'] + $product['free']);
+                $productRow->save();
+            }
+        } catch (Exception $e) {
+            $studioSale->products()->detach();
+            $studioSale->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        // Account Transaction
+        $accountTransaction = new AccountTransaction;
+        $accountTransaction->account_out = $oldAccountId;
+        $accountTransaction->amount = $this->clearThousandFormat($oldNetTotal);
+        $accountTransaction->type = "out";
+        $accountTransaction->note = "Update penjualan studio No. " . $studioSale->code;
+        $accountTransaction->date = $request->date;
+
+        try {
+            $accountTransaction->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        $accountTransaction = new AccountTransaction;
+        $accountTransaction->account_in = $request->account_id;
+        $accountTransaction->amount = $this->clearThousandFormat($request->net_total);
+        $accountTransaction->type = "in";
+        $accountTransaction->note = "Penjualan studio No. " . $studioSale->code;
+        $accountTransaction->date = $request->date;
+
+        try {
+            $accountTransaction->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Data has been saved',
+            'code' => 200,
+            'error' => false,
+            'data' => $studioSale,
+        ]);
     }
 
     /**
@@ -295,6 +532,65 @@ class StudioSaleController extends Controller
     public function destroy($id)
     {
         $sale = StudioSale::findOrFail($id);
+        $products = $sale->products;
+
+        // Update Stock
+        $saleReturns = StudioSaleReturn::with(['products'])
+            ->where('studio_sale_id', $id)
+            ->get()
+            ->flatMap(function ($return) {
+                return $return->products;
+            })
+            ->groupBy('id')
+            ->map(function ($products, $productId) {
+                $returnedQuantity = collect($products)->sum(function ($product) {
+                    return $product->pivot->quantity;
+                });
+
+                return [
+                    'id' => $productId,
+                    'returned_quantity' => $returnedQuantity,
+                ];
+            })->values()->all();
+
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $returnedQuantity = 0;
+                $productReturn = collect($saleReturns)->where('id', $product['id'])->first();
+                if ($productReturn !== null) {
+                    $returnedQuantity = $productReturn['returned_quantity'];
+                }
+
+                $productRow->studio_stock = $productRow->studio_stock + ($product->pivot->quantity - $returnedQuantity) + $product->pivot->free;
+                $productRow->save();
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        // Delete Related Return
+        try {
+            StudioSaleReturn::query()->where('studio_sale_id', $id)->delete();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error detaching products',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        // Detach Product From Intermediate Table
         try {
             $sale->products()->detach();
         } catch (Exception $e) {
@@ -306,6 +602,7 @@ class StudioSaleController extends Controller
             ], 500);
         }
 
+        // Delete Main Data
         try {
             $sale->delete();
             return response()->json([
@@ -439,7 +736,7 @@ class StudioSaleController extends Controller
                         </a>';
 
                 $button .= '<a href="/studio-sale/return/' . $row->id . '"><em class="icon fas fa-undo"></em><span>Retur</span></a>';
-                $button .= '<a href="/retail-sale/print/' . $row->id . '" target="_blank"><em class="icon fas fa-print"></em><span>Cetak</span></a>';
+                $button .= '<a href="/studio-sale/print/' . $row->id . '" target="_blank"><em class="icon fas fa-print"></em><span>Cetak</span></a>';
 
 
                 $button .= '           

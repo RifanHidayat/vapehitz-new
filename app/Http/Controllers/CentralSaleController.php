@@ -247,9 +247,9 @@ class CentralSaleController extends Controller
      */
     public function show($id)
     {
-        $centralSales = CentralSale::with('products')->findOrFail($id);
+        $centralSale = CentralSale::with('products.productCategory')->findOrFail($id);
         return view('central-sale.show', [
-            'centralSales' => $centralSales,
+            'centralSale' => $centralSale,
         ]);
     }
 

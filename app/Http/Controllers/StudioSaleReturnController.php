@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\AccountTransaction;
 use App\Models\Product;
+use App\Models\StudioSale;
 use App\Models\StudioSaleReturn;
 use Carbon\Carbon;
 use Exception;
@@ -145,12 +147,12 @@ class StudioSaleReturnController extends Controller
         }
 
         // Account Transaction
-        $saleReturn = StudioSaleReturn::find($saleId);
+        // $saleReturn = StudioSaleReturn::find($saleId);
         $accountTransaction = new AccountTransaction;
         $accountTransaction->account_in = $request->account_id;
         $accountTransaction->amount = $amount;
         $accountTransaction->type = "in";
-        $accountTransaction->note = "Retur penjualan studio No. " . $saleReturn->code;
+        $accountTransaction->note = "Retur penjualan studio No. " . $return->code;
         $accountTransaction->date = $request->date;
 
         try {
@@ -316,7 +318,67 @@ class StudioSaleReturnController extends Controller
      */
     public function edit($id)
     {
-        //
+        $return = StudioSaleReturn::with(['products'])->findOrFail($id);
+        $sale = StudioSale::with(['products'])->findOrFail($return->studio_sale_id);
+        $accounts = Account::all();
+
+        $saleReturnProducts = StudioSaleReturn::with(['products'])
+            ->where('studio_sale_id', $sale->id)
+            ->get()
+            ->flatMap(function ($saleReturn) {
+                return $saleReturn->products;
+            })->groupBy('id')
+            ->map(function ($group, $id) {
+                $returnedQuantity = collect($group)->map(function ($product) {
+                    return $product->pivot->quantity;
+                })->sum();
+                return [
+                    'id' => $id,
+                    'returned_quantity' => $returnedQuantity,
+                ];
+            })
+            ->all();
+
+        // return $saleReturnProducts;
+
+        $selectedProducts = collect($sale->products)->each(function ($product) use ($saleReturnProducts, $return) {
+            $saleReturn = collect($saleReturnProducts)->where('id', $product->id)->first();
+            $returnProduct = collect($return->products)->where('id', $product->id)->first();
+            $product['returned_quantity'] = 0;
+            $returnProductQuantity = 0;
+            $oldCause = '';
+            if ($saleReturn !== null && $returnProduct !== null) {
+                $returnProductQuantity = $returnProduct->pivot->quantity;
+                $oldCause = $returnProduct->pivot->cause;
+                $product['returned_quantity'] = $saleReturn['returned_quantity'] - $returnProductQuantity;
+            }
+            $availableQuantity = $product->pivot->quantity - $product['returned_quantity'];
+
+            $product['return_quantity'] = $returnProductQuantity;
+            $product['old_return_quantity'] = $returnProductQuantity;
+            $product['cause'] = $oldCause !== '' ? $oldCause : 'defective';
+            $product['old_cause'] = $oldCause;
+            $product['finish'] = $product['returned_quantity'] >= $product->pivot->quantity ? 1 : 0;
+        })->sortBy('finish')->values()->all();
+
+        // $totalPaid = collect($sale->centralSaleTransactions)->sum('amount');
+        $totalPaid = $sale->payment_amount <= 0 ? 0 : $sale->net_total;
+
+        $checkedProducts = collect($return->products)->pluck('id')->all();
+
+        // return $selectedProducts;
+
+        $sidebarClass = 'compact';
+
+        return view('studio-sale-return.edit', [
+            'return' => $return,
+            'sale' => $sale,
+            'accounts' => $accounts,
+            'total_paid' => $totalPaid,
+            'selected_products' => $selectedProducts,
+            'sidebar_class' => $sidebarClass,
+            'checked_products' => $checkedProducts,
+        ]);
     }
 
     /**
@@ -328,7 +390,106 @@ class StudioSaleReturnController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $amount = $this->clearThousandFormat($request->amount);
+
+        $return = StudioSaleReturn::findOrFail($id);
+        // $return->code = $returnNumber;
+        $return->date = $request->date;
+        $return->studio_sale_id = $request->sale_id;
+        $return->account_id = $request->account_id;
+        // $return->customer_id = $request->customer_id;
+        $return->payment_method = $request->payment_method;
+        $return->quantity = $request->quantity;
+        $return->amount = $amount;
+        $return->note = $request->note;
+
+        $products = $request->selected_products;
+
+        try {
+            $return->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'quantity' => $item['return_quantity'],
+                    'cause' => $item['cause'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+
+        try {
+            $return->products()->detach();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            $return->products()->attach($keyedProducts);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+                // $productRow->booked = $productRow->booked + $product['quantity'] + $product['free'];
+                if ($product['old_cause'] == 'defective') {
+                    $productRow->bad_stock -= $product['old_return_quantity'];
+                } else if ($product['old_cause'] == 'wrong') {
+                    $productRow->studio_stock -= $product['old_return_quantity'];
+                }
+
+                if ($product['cause'] == 'defective') {
+                    $productRow->bad_stock += $product['return_quantity'];
+                } else if ($product['cause'] == 'wrong') {
+                    $productRow->studio_stock += $product['return_quantity'];
+                }
+                $productRow->save();
+            }
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $return,
+            // ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Data has been saved',
+            'code' => 200,
+            'error' => false,
+            'data' => $return,
+        ]);
     }
 
     /**
@@ -340,6 +501,40 @@ class StudioSaleReturnController extends Controller
     public function destroy($id)
     {
         $return = StudioSaleReturn::findOrFail($id);
+
+        $products = $return->products;
+
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product->pivot->product_id);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                if ($product->pivot->cause == 'defective') {
+                    $productRow->bad_stock -= $product->pivot->quantity;
+                } else if ($product->pivot->cause == 'wrong') {
+                    $productRow->studio_stock -= $product->pivot->quantity;
+                }
+                // $productRow->retail_stock = 100;
+
+                $productRow->save();
+            }
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $return,
+            // ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
         try {
             $return->products()->detach();
         } catch (Exception $e) {

@@ -421,7 +421,8 @@
                         return axios.post('/central-sale/action/update-print-status/' + id)
                             .then(function(response) {
                                 // console.log(response.data);
-                                centralSaleTable.ajax.reload();
+                                // centralSaleTable.ajax.reload();
+                                $('#centralSale').DataTable().ajax.reload();
                             })
                             .catch(function(error) {
                                 console.log(error.data);

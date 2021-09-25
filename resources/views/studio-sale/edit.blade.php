@@ -10,7 +10,7 @@
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
         <div class="nk-block-head-sub"><a class="back-to" href="/central-purchase"><em class="icon ni ni-arrow-left"></em><span>Penjualan Barang</span></a></div>
-        <h2 class="nk-block-title fw-normal">Tambah Data Penjualan Barang</h2>
+        <h2 class="nk-block-title fw-normal">Edit Data Penjualan Barang</h2>
     </div>
 </div><!-- .nk-block -->
 <div class="nk-block nk-block-lg">
@@ -52,12 +52,6 @@
                         </div>
                     </div><!-- .card-inner -->
                     <div class="card-inner">
-                        <div v-if="isStockUnsufficient" class="mb-2">
-                            <div class="alert alert-info alert-dismissible alert-icon">
-                                <em class="icon ni ni-alert-circle"></em> Jumlah <strong>stok</strong> dan <strong>booking</strong> sudah diperbaharui. Sesuaikan jumlah penjualan pada produk yang ditandai.
-                                <button class="close" data-dismiss="alert"></button>
-                            </div>
-                        </div>
                         <!-- <div class="nk-wg-action">
                                 <div class="nk-wg-action-content">
                                     <em class="icon ni ni-cc-alt-fill"></em>
@@ -71,7 +65,7 @@
                             <p class="mt-3">Belum ada barang yang dipilih</p>
                         </div>
                         <div v-for="(product, index) in selectedProducts" class="card card-bordered">
-                            <div class="card-inner" :class="product.backgroundColor">
+                            <div class="card-inner">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-10">
                                         <h5 class="card-title">@{{ product.name }}</h5>
@@ -81,7 +75,7 @@
                                         </div> -->
                                         <div class="row justify-content-between">
                                             <p class="col-md-6 mb-0">Stok</p>
-                                            <p class="col-md-6 text-right mb-0"><strong>@{{ product.retail_stock }}</strong></p>
+                                            <p class="col-md-6 text-right mb-0"><strong>@{{ product.studio_stock }}</strong></p>
                                         </div>
                                         <div class="row justify-content-between align-items-center mt-3">
                                             <p class="col-md-6 mb-0">Harga Jual</p>
@@ -207,7 +201,7 @@
                                     <label class="form-label" for="full-name-1">&nbsp;</label>
                                     <div class="form-control-wrap">
                                         <select class="form-control" v-model="discount_type">
-                                            <option value="nominal">-,00</option>
+                                            <option value="nominal">Rp</option>
                                             <option value="percentage">%</option>
                                         </select>
                                     </div>
@@ -422,22 +416,22 @@
     let app = new Vue({
         el: '#app',
         data: {
-            code: '{{ $code }}',
-            date: '{{ date("Y-m-d") }}',
-            suppliersId: '',
-            shippingCost: 0,
-            discount: 0,
-            discount_type: 'nominal',
-            paymentAmount: 0,
-            otherCost: 0,
-            detail_other_cost: '',
+            code: '{{ $sale->code }}',
+            date: '{{ date("Y-m-d", strtotime($sale->date)); }}',
+            suppliersId: '{{ $sale->supplier_id }}',
+            shippingCost: '{{ $sale->shipping_cost }}',
+            discount: '{{ $sale->discount }}',
+            discount_type: '{{ $sale->discount_type }}',
+            paymentAmount: '{{ $sale->payment_amount }}',
+            otherCost: '{{ $sale->other_cost }}',
+            detail_other_cost: '{{ $sale->detail_other_cost }}',
             isPaid: false,
-            paymentMethod: '',
+            paymentMethod: '{{ $sale->payment_method }}',
             accounts: JSON.parse('{!! $accounts !!}'),
-            accountId: '',
-            suppliers: JSON.parse('{!! $suppliers !!}'),
+            accountId: '{{ $sale->account_id }}',
+            suppliers: JSON.parse(String.raw `{!! $suppliers !!}`),
             cart: [],
-            selectedProducts: [],
+            selectedProducts: JSON.parse(String.raw `{!! $selected_products !!}`),
             cleaveCurrency: {
                 delimiter: '.',
                 numeralDecimalMark: ',',
@@ -445,7 +439,6 @@
                 numeralThousandsGroupStyle: 'thousand'
             },
             loading: false,
-            isStockUnsufficient: false,
         },
         methods: {
             submitForm: function() {
@@ -455,7 +448,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/retail-sale', {
+                axios.patch('/studio-sale/{{ $sale->id }}', {
                         code: vm.code,
                         date: vm.date,
                         total_weight: vm.totalWeight,
@@ -489,22 +482,12 @@
                     })
                     .catch(function(error) {
                         vm.loading = false;
-                        if (error.response.data.error_type == 'unsufficient_stock') {
-                            Swal.fire(
-                                'Oops!',
-                                'Jumlah Penjualan Melebihi Stok',
-                                'warning'
-                            );
-                            vm.selectedProducts = error.response.data.data.selected_products;
-                            vm.isStockUnsufficient = true;
-                        } else {
-                            console.log(error);
-                            Swal.fire(
-                                'Oops!',
-                                'Something wrong',
-                                'error'
-                            )
-                        }
+                        console.log(error);
+                        Swal.fire(
+                            'Oops!',
+                            'Something wrong',
+                            'error'
+                        )
                     });
             },
             removeFromCart: function(index) {
@@ -659,7 +642,6 @@
                 data['quantity'] = 1;
                 data['price'] = data.retail_price;
                 data['free'] = 0;
-                data['backgroundColor'] = 'bg-white';
                 cart.push(data);
             }
 

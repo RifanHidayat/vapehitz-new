@@ -224,6 +224,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('/retail-sale')->group(function () {
         Route::get('/', [RetailSaleController::class, 'index']);
         Route::get('/create', [RetailSaleController::class, 'create']);
+        Route::get('/show/{id}', [RetailSaleController::class, 'show']);
         Route::get('/edit/{id}', [RetailSaleController::class, 'edit']);
         Route::get('/return/{id}', [RetailSaleController::class, 'return']);
         Route::get('/print/{id}', [RetailSaleController::class, 'print']);
