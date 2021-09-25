@@ -7,247 +7,165 @@
 <div class="container-fluid">
     <div class="nk-content-inner">
         <div class="nk-content-body">
-            <div class="nk-block-head nk-block-head-sm">
+            <div class="nk-block-head">
                 <div class="nk-block-between g-3">
                     <div class="nk-block-head-content">
-                        <h3 class="nk-block-title page-title">Detail Penjualan Barang</h3>
+                        <h3 class="nk-block-title page-title">
+                            @if($centralSale->status == 'approved')
+                            <em class="icon ni ni-check-circle-fill text-success"></em>
+                            @elseif($centralSale->status == 'rejected')
+                            <em class="icon ni ni-cross-circle-fill text-danger"></em>
+                            @else
+                            <em class="icon ni ni-clock-fill text-warning"></em>
+                            @endif
+                            Penjualan No. <strong class="text-primary small">#{{ $centralSale->code }}</strong>
+                        </h3>
+                        <div class="nk-block-des text-soft">
+                            <ul class="list-inline">
+                                <li>Created At: <span class="text-base">{{ \Carbon\Carbon::parse($centralSale->created_at)->isoFormat('LLL') }}</span></li>
+                                <li>Created By:
+                                    @if($centralSale->createdBy !== null)
+                                    <span class="text-base">{{ $centralSale->createdBy->name }}</span>
+                                    @else
+                                    <span class="text-base">-</span>
+                                    @endif
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="nk-block-head-content">
                         <a href="/central-sale" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
+                        <a href="html/invoice-list.html" class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none"><em class="icon ni ni-arrow-left"></em></a>
                     </div>
                 </div>
-            </div>
-            <div class="card card-bordered">
-                <div class="card-inner">
-                    <div class=" form-group col-md-6">
-                        <label class="form-label" for="full-name-1">Nomor Invoice</label>
-                        <div class="form-control-wrap">
-                            <input type="text" v-model="code" class="form-control" readonly>
+            </div><!-- .nk-block-head -->
+            <div class="nk-block">
+                <div class="invoice">
+                    <div class="invoice-action">
+                        <a class="btn btn-icon btn-lg btn-white btn-dim btn-outline-primary" href="/central-sale/print/{{ $centralSale->id }}" target="_blank"><em class="icon ni ni-printer-fill"></em></a>
+                    </div><!-- .invoice-actions -->
+                    <div class="invoice-wrap">
+                        <div class="invoice-brand text-center">
+                            <img src="./images/logo-dark.png" srcset="./images/logo-dark2x.png 2x" alt="">
                         </div>
-                    </div>
-                    <div class=" form-group col-md-6">
-                        <label class="form-label" for="full-name-1">Tanggal Invoice</label>
-                        <div class="form-control-wrap">
-                            <input type="text" v-model="date" class="form-control" readonly>
-                        </div>
-                    </div>
-                    <div class=" form-group col-md-6">
-                        <label class="form-label" for="full-name-1">Shipment</label>
-                        <div class="form-control-wrap">
-                            <input type="text" v-model="shipmentId" class="form-control" readonly>
-                        </div>
-                    </div>
-                    <div class=" form-group col-md-6">
-                        <label class="form-label" for="full-name-1">Nama Pelanggan</label>
-                        <div class="form-control-wrap">
-                            <input type="text" v-model="customerId" class="form-control" readonly>
-                        </div>
-                    </div>
-                    <div class=" form-group col-md-6">
-                        <label class="form-label" for="full-name-1">Termin Hutang</label>
-                        <div class="form-control-wrap">
-                            <input type="text" v-model="debt" class="form-control" readonly>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card card-bordered">
-                <div class="card-inner">
-                    <div class="table-responsive">
-                        <table class="table table stripped">
-                            <thead>
-                                <tr class="text-center">
-                                    <th>Jenis Barang</th>
-                                    <th>Kode Barang</th>
-                                    <th>Nama Barang</th>
-                                    <th>Berat (gr)</th>
-                                    <th>Booking</th>
-                                    <th>Stok</th>
-                                    <th>Harga Jual</th>
-                                    <th>Qty</th>
-                                    <th>Free</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card-inner">
-                    <div class="table-responsive">
-                        <table width="100%">
-                            <tbody>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Total Berat</span></td>
-                                    <td width="20%"><input type="text" v-model="total_weight" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Total Biaya</span></td>
-                                    <td width="20%"><input type="text" v-model="total_cost" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5"></td>
-                                    <td><span style="font-size: 12px; font-weight: bold;">Diskon</span></td>
-                                    <td><input type="text" v-model="discount" class="form-control input-sm" readonly>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Sub Total</span></td>
-                                    <td width="20%">
-                                        <div class="input-group mb-2">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">Rp.</div>
-                                            </div>
-                                            <input type="text" v-model="subtotal" class="form-control text-right" readonly>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Biaya Kirim</span></td>
-                                    <td width="20%"><input type="number" v-model="shipping_cost" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Biaya Lainnya</span></td>
-                                    <td width="20%"><input type="number" v-model="other_cost" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;"></span></td>
-                                    <td width="20%"><input type="text" v-model="detail_other_cost" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Deposit Customer</span></td>
-                                    <td width="20%"><input type="number" v-model="deposit_customer" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Net Total</span></td>
-                                    <td width="20%"><input type="text" v-model="net_total" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Sumber Penerimaan 1</span></td>
-                                    <td width="20%">
-                                        <input type="text" v-model="receipt_1" class="form-control" readonly>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Rp.</span></td>
-                                    <td width="20%"><input type="number" v-model="receive_1" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Sumber Penerimaan 2</span></td>
-                                    <td width="20%">
-                                        <input type="text" v-model="receipt_2" class="form-control" readonly>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Rp.</span></td>
-                                    <td width="20%"><input type="number" v-model="receive_2" class="form-control"></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Jumlah Pembayaran</span></td>
-                                    <td width="20%"><input type="text" v-model="payment_amount" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Sisa Pembayaran</span></td>
-                                    <td width="20%"><input type="text" v-model="remaining_payment" class="form-control" readonly></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Nama Penerima</span></td>
-                                    <td width="20%"><input type="text" v-model="recipient" class="form-control"></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Alamat Penerima</span></td>
-                                    <td width="20%"><textarea v-model="address_recipient" cols="30" rows="1"></textarea></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Keterangan</span></td>
-                                    <td width="20%"><input type="text" v-model="detail" class="form-control"></td>
-                                </tr>
-                                <tr>
-                                    <td>&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5" width="60%">&nbsp;</td>
-                                    <td width="20%"><span style="font-size: 12px; font-weight: bold;">Status</span></td>
-                                    <td width="20%"><input type="text" v-model="status" class="form-control"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p></p>
-                        <div class="text-right">
-                            <button class="btn btn-primary">Simpan</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <div class="invoice-head">
+                            <div class="invoice-contact">
+                                <!-- <span class="overline-title">Invoice To</span> -->
+                                <div class="invoice-contact-info">
+                                    @if($centralSale->customer !== null)
+                                    <h4 class="title">{{ $centralSale->customer->name }}</h4>
+                                    <ul class="list-plain">
+                                        <li><em class="icon ni ni-map-pin-fill"></em><span>{{ $centralSale->customer->address }}</span></li>
+                                        <li><em class="icon ni ni-call-fill"></em><span>{{ $centralSale->customer->handphone }}</span></li>
+                                    </ul>
+                                    @else
+                                    <h4 class="title text-danger">Deleted Customer</h4>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="invoice-desc">
+                                <!-- <h3 class="title">Invoice</h3> -->
+                                <ul class="list-plain">
+                                    <li class="invoice-id"><span>Sale ID</span>:<span>{{ $centralSale->code }}</span></li>
+                                    <li class="invoice-date"><span>Date</span>:<span>{{ \Carbon\Carbon::parse($centralSale->date)->isoFormat('L') }}</span></li>
+                                    @if($centralSale->shipment !== null)
+                                    <li class="invoice-date"><span>Shipment</span>:<span>{{ $centralSale->shipment->name }}</span></li>
+                                    @endif
+                                    <li class="invoice-date"><span>Penerima</span>:<span>{{ $centralSale->recipient }}</span></li>
+                                    <!-- <li class="invoice-date"><span>Alamat Penerima</span>:<span>26 Jan, 2020</span></li> -->
+                                    <li class="invoice-date"><span>Due Date</span>:<span>{{ \Carbon\Carbon::parse($centralSale->due_date)->isoFormat('L') }}</span></li>
+                                </ul>
+                            </div>
+                        </div><!-- .invoice-head -->
+                        <div class="invoice-bills">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="w-150px">Item ID</th>
+                                            <th class="w-60">Description</th>
+                                            <th>Price</th>
+                                            <th>Qty</th>
+                                            <th>Free</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($centralSale->products as $product)
+                                        <tr>
+                                            <td>{{ $product->code }}</td>
+                                            <td>
+                                                {{ $product->name }}
+                                            </td>
+                                            <td>{{ number_format($product->pivot->price, 0, ',', '.') }}</td>
+                                            <td>{{ $product->pivot->quantity }}</td>
+                                            <td>{{ $product->pivot->free }}</td>
+                                            <td>{{ number_format($product->pivot->amount, 0, ',', '.') }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="2"></td>
+                                            <td colspan="3">Total Amount</td>
+                                            <td>{{ number_format($centralSale->total_cost, 0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"></td>
+                                            <td colspan="3">Diskon</td>
+                                            <td>
+                                                @if($centralSale->discount !== null)
+                                                @if($centralSale->discount_type == 'nominal')
+                                                {{ number_format(0 - $centralSale->discount, 0, ',', '.') }}
+                                                @else
+                                                @php
+                                                $discount = $centralSale->total_cost * ($centralSale->discount / 100)
+                                                @endphp
+                                                {{ number_format(0 - $discount, 0, ',', '.') }}
+                                                @endif
+                                                @else
+                                                0
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"></td>
+                                            <td colspan="3">Subtotal</td>
+                                            <td>{{ number_format($centralSale->subtotal, 0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"></td>
+                                            <td colspan="3">Biaya Kirim</td>
+                                            <td>{{ number_format($centralSale->shipping_cost, 0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"></td>
+                                            <td colspan="3">
+                                                Biaya Lainnya
+                                                @if($centralSale->detail_other_cost !== null)
+                                                {{ '(' . $centralSale->detail_other_cost . ')' }}
+                                                @endif
+                                            </td>
+                                            <td>{{ number_format($centralSale->other_cost, 0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"></td>
+                                            <td colspan="3">Deposit Pelanggan</td>
+                                            <td>{{ number_format($centralSale->customer_deposit, 0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"></td>
+                                            <td colspan="3">Total</td>
+                                            <td>{{ number_format($centralSale->net_total, 0, ',', '.') }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <!-- <div class="nk-notes ff-italic fs-12px text-soft"> Invoice was created on a computer and is valid without the signature and seal. </div> -->
+                            </div>
+                        </div><!-- .invoice-bills -->
+                    </div><!-- .invoice-wrap -->
+                </div><!-- .invoice -->
+            </div><!-- .nk-block -->
         </div>
     </div>
 </div>
@@ -257,30 +175,30 @@
     let app = new Vue({
         el: '#app',
         data: {
-            code: '{{$centralSales->code}}',
-            date: '{{$centralSales->date}}',
-            shipmentId: '{{$centralSales->shipment_id}}',
-            customerId: '{{$centralSales->customer_id}}',
-            total_weight: '{{$centralSales->total_weight}}',
-            total_cost: '{{$centralSales->total_cost}}',
-            subtotal: '{{$centralSales->subtotal}}',
-            net_total: '{{$centralSales->net_total}}',
-            debt: '{{$centralSales->debt}}',
-            discount: '{{$centralSales->discount}}',
-            shipping_cost: '{{$centralSales->shipping_cost}}',
-            other_cost: '{{$centralSales->other_cost}}',
-            detail_other_cost: '{{$centralSales->detail_other_cost}}',
-            deposit_customer: '{{$centralSales->deposit_customer}}',
-            receipt_1: '{{$centralSales->receipt_1}}',
-            receive_1: '{{$centralSales->receive_1}}',
-            receipt_2: '{{$centralSales->receipt_2}}',
-            receive_2: '{{$centralSales->receive_2}}',
-            payment_amount: '{{$centralSales->payment_amount}}',
-            remaining_payment: '{{$centralSales->remaining_payment}}',
-            recipient: '{{$centralSales->recipient}}',
-            address_recipient: '{{$centralSales->address_recipient}}',
-            detail: '{{$centralSales->detail}}',
-            status: '{{$centralSales->status}}',
+            code: '{{$centralSale->code}}',
+            date: '{{$centralSale->date}}',
+            shipmentId: '{{$centralSale->shipment_id}}',
+            customerId: '{{$centralSale->customer_id}}',
+            total_weight: '{{$centralSale->total_weight}}',
+            total_cost: '{{$centralSale->total_cost}}',
+            subtotal: '{{$centralSale->subtotal}}',
+            net_total: '{{$centralSale->net_total}}',
+            debt: '{{$centralSale->debt}}',
+            discount: '{{$centralSale->discount}}',
+            shipping_cost: '{{$centralSale->shipping_cost}}',
+            other_cost: '{{$centralSale->other_cost}}',
+            detail_other_cost: '{{$centralSale->detail_other_cost}}',
+            deposit_customer: '{{$centralSale->deposit_customer}}',
+            receipt_1: '{{$centralSale->receipt_1}}',
+            receive_1: '{{$centralSale->receive_1}}',
+            receipt_2: '{{$centralSale->receipt_2}}',
+            receive_2: '{{$centralSale->receive_2}}',
+            payment_amount: '{{$centralSale->payment_amount}}',
+            remaining_payment: '{{$centralSale->remaining_payment}}',
+            recipient: '{{$centralSale->recipient}}',
+            address_recipient: '{{$centralSale->address_recipient}}',
+            detail: '{{$centralSale->detail}}',
+            status: '{{$centralSale->status}}',
         }
     })
 </script>

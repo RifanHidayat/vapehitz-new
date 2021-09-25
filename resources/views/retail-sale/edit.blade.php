@@ -9,8 +9,8 @@
 @section('content')
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
-        <div class="nk-block-head-sub"><a class="back-to" href="/central-purchase"><em class="icon ni ni-arrow-left"></em><span>Pembelian Barang</span></a></div>
-        <h2 class="nk-block-title fw-normal">Tambah Data Pembelian Barang</h2>
+        <div class="nk-block-head-sub"><a class="back-to" href="/central-purchase"><em class="icon ni ni-arrow-left"></em><span>Penjualan Barang</span></a></div>
+        <h2 class="nk-block-title fw-normal">Edit Data Penjualan Barang</h2>
     </div>
 </div><!-- .nk-block -->
 <div class="nk-block nk-block-lg">
@@ -75,7 +75,7 @@
                                         </div> -->
                                         <div class="row justify-content-between">
                                             <p class="col-md-6 mb-0">Stok</p>
-                                            <p class="col-md-6 text-right mb-0"><strong>@{{ product.studio_stock }}</strong></p>
+                                            <p class="col-md-6 text-right mb-0"><strong>@{{ product.retail_stock }}</strong></p>
                                         </div>
                                         <div class="row justify-content-between align-items-center mt-3">
                                             <p class="col-md-6 mb-0">Harga Jual</p>
@@ -201,7 +201,7 @@
                                     <label class="form-label" for="full-name-1">&nbsp;</label>
                                     <div class="form-control-wrap">
                                         <select class="form-control" v-model="discount_type">
-                                            <option value="nominal">-,00</option>
+                                            <option value="nominal">Rp</option>
                                             <option value="percentage">%</option>
                                         </select>
                                     </div>
@@ -416,22 +416,22 @@
     let app = new Vue({
         el: '#app',
         data: {
-            code: '{{ $code }}',
-            date: '{{ date("Y-m-d") }}',
-            suppliersId: '',
-            shippingCost: 0,
-            discount: 0,
-            discount_type: 'nominal',
-            paymentAmount: 0,
-            otherCost: 0,
-            detail_other_cost: '',
+            code: '{{ $sale->code }}',
+            date: '{{ date("Y-m-d", strtotime($sale->date)); }}',
+            suppliersId: '{{ $sale->supplier_id }}',
+            shippingCost: '{{ $sale->shipping_cost }}',
+            discount: '{{ $sale->discount }}',
+            discount_type: '{{ $sale->discount_type }}',
+            paymentAmount: '{{ $sale->payment_amount }}',
+            otherCost: '{{ $sale->other_cost }}',
+            detail_other_cost: '{{ $sale->detail_other_cost }}',
             isPaid: false,
-            paymentMethod: '',
+            paymentMethod: '{{ $sale->payment_method }}',
             accounts: JSON.parse('{!! $accounts !!}'),
-            accountId: '',
-            suppliers: JSON.parse('{!! $suppliers !!}'),
+            accountId: '{{ $sale->account_id }}',
+            suppliers: JSON.parse(String.raw `{!! $suppliers !!}`),
             cart: [],
-            selectedProducts: [],
+            selectedProducts: JSON.parse(String.raw `{!! $selected_products !!}`),
             cleaveCurrency: {
                 delimiter: '.',
                 numeralDecimalMark: ',',
@@ -448,7 +448,7 @@
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
-                axios.post('/studio-sale', {
+                axios.patch('/retail-sale/{{ $sale->id }}', {
                         code: vm.code,
                         date: vm.date,
                         total_weight: vm.totalWeight,
@@ -600,35 +600,36 @@
 </script>
 <script>
     $(function() {
-        NioApp.DataTable.init = function() {
-            NioApp.DataTable('#products-table', {
-                processing: true,
-                serverSide: true,
-                "autoWidth": false,
-                ajax: {
-                    url: '/datatables/central_purchases/products',
-                    type: 'GET',
+        const productsTable = $('#products-table').DataTable({
+            processing: true,
+            serverSide: true,
+            destroy: true,
+            "autoWidth": false,
+            // pageLength: 2,
+            ajax: {
+                url: '/datatables/central-purchases/products',
+                type: 'GET',
+                // length: 2,
+            },
+            columns: [{
+                    data: 'product_category.name',
+                    name: 'productCategory.name',
                 },
-                columns: [{
-                        data: 'code',
-                        name: 'code'
-                    },
-                    {
-                        data: 'name',
-                        name: 'name'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action'
-                    },
-                ],
-            })
-            $.fn.DataTable.ext.pager.numbers_length = 7;
-        }
-        NioApp.DataTable.init();
+                {
+                    data: 'name',
+                    name: 'products.name'
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                },
+            ]
+        });
 
         $('#products-table tbody').on('click', '.btn-choose', function() {
-            const rowData = $('#products-table').DataTable().row($(this).parents('tr')).data();
+            const rowData = productsTable.row($(this).parents('tr')).data();
             const data = {
                 ...rowData
             };

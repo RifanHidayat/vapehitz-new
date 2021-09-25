@@ -9,8 +9,8 @@
 @section('content')
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
-        <div class="nk-block-head-sub"><a class="back-to" href="/central-purchase"><em class="icon ni ni-arrow-left"></em><span>Pembelian Barang</span></a></div>
-        <h2 class="nk-block-title fw-normal">Tambah Data Pembelian Barang</h2>
+        <div class="nk-block-head-sub"><a class="back-to" href="/central-purchase"><em class="icon ni ni-arrow-left"></em><span>Penjualan Barang</span></a></div>
+        <h2 class="nk-block-title fw-normal">Tambah Data Penjualan Barang</h2>
     </div>
 </div><!-- .nk-block -->
 <div class="nk-block nk-block-lg">
@@ -52,6 +52,12 @@
                         </div>
                     </div><!-- .card-inner -->
                     <div class="card-inner">
+                        <div v-if="isStockUnsufficient" class="mb-2">
+                            <div class="alert alert-info alert-dismissible alert-icon">
+                                <em class="icon ni ni-alert-circle"></em> Jumlah <strong>stok</strong> dan <strong>booking</strong> sudah diperbaharui. Sesuaikan jumlah penjualan pada produk yang ditandai.
+                                <button class="close" data-dismiss="alert"></button>
+                            </div>
+                        </div>
                         <!-- <div class="nk-wg-action">
                                 <div class="nk-wg-action-content">
                                     <em class="icon ni ni-cc-alt-fill"></em>
@@ -65,7 +71,7 @@
                             <p class="mt-3">Belum ada barang yang dipilih</p>
                         </div>
                         <div v-for="(product, index) in selectedProducts" class="card card-bordered">
-                            <div class="card-inner">
+                            <div class="card-inner" :class="product.backgroundColor">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-10">
                                         <h5 class="card-title">@{{ product.name }}</h5>
@@ -439,6 +445,7 @@
                 numeralThousandsGroupStyle: 'thousand'
             },
             loading: false,
+            isStockUnsufficient: false,
         },
         methods: {
             submitForm: function() {
@@ -482,12 +489,22 @@
                     })
                     .catch(function(error) {
                         vm.loading = false;
-                        console.log(error);
-                        Swal.fire(
-                            'Oops!',
-                            'Something wrong',
-                            'error'
-                        )
+                        if (error.response.data.error_type == 'unsufficient_stock') {
+                            Swal.fire(
+                                'Oops!',
+                                'Jumlah Penjualan Melebihi Stok',
+                                'warning'
+                            );
+                            vm.selectedProducts = error.response.data.data.selected_products;
+                            vm.isStockUnsufficient = true;
+                        } else {
+                            console.log(error);
+                            Swal.fire(
+                                'Oops!',
+                                'Something wrong',
+                                'error'
+                            )
+                        }
                     });
             },
             removeFromCart: function(index) {
@@ -647,6 +664,7 @@
                 data['quantity'] = 1;
                 data['price'] = data.retail_price;
                 data['free'] = 0;
+                data['backgroundColor'] = 'bg-white';
                 cart.push(data);
             }
 
