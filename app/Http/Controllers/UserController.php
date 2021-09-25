@@ -184,3 +184,48 @@ class UserController extends Controller
             ->make(true);
     }
 }
+
+
+
+
+// $saleReturnProducts = PurchaseReturn::with(['products'])
+// ->where('central_purchase_id', $id)
+// ->get()
+// ->flatMap(function ($saleReturn) {
+//     return $saleReturn->products;
+// })->groupBy('id')
+// ->map(function ($group, $id) {
+//     $returnedQuantity = collect($group)->map(function ($product) {
+//         return $product->pivot->quantity;
+//     })->sum();
+//     return [
+//         'id' => $id,
+//         'returned_quantity' => $returnedQuantity,
+//     ];
+// })
+// ->all();
+// // return $purchase->products;
+// // return $saleReturnProducts;
+
+// $selectedProducts = collect($purchase->products)->each(function ($product) use ($saleReturnProducts,$purchaseReceiptProducts) {
+// $saleReturn = collect($saleReturnProducts)->where('id', $product['id'])->first();
+// $receipt=collect($purchaseReceiptProducts)->where('id', $product['id'])->first();
+// $product['returned_quantity'] = 0;
+// if ($saleReturn !== null) {
+//     $product['returned_quantity'] = $saleReturn['returned_quantity'];
+// }
+// if ($receipt!==null){
+//     $product['received_quantity']=$receipt['received_quantity'];
+    
+// }
+// $product['received_quantity']=$receipt['received_quantity'];
+//  $availableQuantity = $product->pivot->quantity - $product['returned_quantity'];
+// //$availableQuantity = $product['received_quantity'] - $product['returned_quantity'];
+
+// //$product['received_product'] = $purchaseReceiptProducts->po;
+// $product['return_quantity'] = $availableQuantity;
+// $product['initial_quantity'] = 0;
+// $product['cause'] = 'defective';
+//  $product['finish'] = $product['returned_quantity'] >= $product->pivot->quantity ? 1 : 0;
+// //$product['finish'] = $product['returned_quantity'] >= $product['received_quantity'] ? 1 : 0;
+// })->sortBy('finish')->values()->all();

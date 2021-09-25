@@ -192,7 +192,7 @@
                                         <th>Nama Produk</th>
                                         <td align="right" ><b>Quantity retur</b></td>
                                         <td align="right" ><b>Amount</b></td>
-                                        <td align="right" ><b>Alasan</b></td>
+                                        <td ><b>Alasan</b></td>
                                         
                                     </tr>
                                 </thead>
@@ -203,8 +203,14 @@
                                         <td>{{ $products->code }}</td>
                                         <td>{{$products->name}}</td>
                                         <td align="right" class="text-right">{{ $products->pivot->quantity}}</td>
-                                        <td align="right" class="text-right">{{ $products->purchase_price}}</td>
-                                        <td align="right" class="text-right">{{ $products->pivot->cause}}</td>
+                                        <td align="right" class="text-right">
+                                            {{ number_format($products->purchase_price)}}</td>
+                                        <td>
+                                            {{ $products->pivot->cause=="defective"?
+                                            "Barang Cacat / Rusak":
+                                            "Barang Tidak Sesuai"
+                                            }}
+                                        </td>
                                     </tr>
                                     @php  @endphp
                                     @endforeach

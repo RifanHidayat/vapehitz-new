@@ -122,19 +122,26 @@
     <div class="card card-bordered">
         <div class="card-inner overflow-hidden">
             <!-- <div class="card-head">
+
+
+
+       
+        <div class="card card-bordered">
+            <div class="card-inner overflow-hidden">
+                <!-- <div class="card-head">
                     <h5 class="card-title">Form</h5>
                 </div> -->
             <div class="table-responsive">
                 <table style="width: 100%;" class="table table-striped" id="accountTransactions">
                     <thead>
                         <tr>
-                            <th>Tanggal</th>
-                            <th>Catatan </th>
+                            <th style="width:6%">Tanggal</th>
+                            <th style="width:20%">Deskripsi </th>
                             <!-- <th>Nomor Order</th> -->
-                            <th>Type</th>
-                            <th>In</th>
-                            <th>Out</th>
-                            <th>Saldo</th>
+                            <th style="width:25%">Catatan</th>
+                            <th style="width:13%" style="text-align: right;">In</th>
+                            <th style="width:13%" style="text-align: right;">Out</th>
+                            <th style="width:15%" style="text-align: right;">Saldo</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -225,13 +232,14 @@
                     data: 'date',
                     name: 'date'
                 },
+               
+                {
+                    data: 'description',
+                    name: 'description'
+                },
                 {
                     data: 'note',
                     name: 'note'
-                },
-                {
-                    data: 'type',
-                    name: 'type'
                 },
                 {
                     data: 'in',

@@ -116,6 +116,9 @@
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
                                         </div>
 
+                                     
+                                        
+                                        
                                         <div class="row justify-content-between align-items-center mt-3">
                                             <p class="col-md-6 mb-0">Quantity</p>
                                             <div class="col-md-6">
@@ -124,6 +127,18 @@
                                                     <button type="button" @click="reduceProductQuantity(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-minus" :disabled="product.quantity === 1"><em class="icon ni ni-minus"></em></button>
                                                     <input type="number" v-model="product.quantity" class="form-control number-spinner" value="0">
                                                     <button type="button" @click="increaseProductQuantity(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-plus"><em class="icon ni ni-plus"></em></button>
+                                                </div>
+                                            </div>
+                                            <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
+                                        </div>
+                                        <div class="row justify-content-between align-items-center mt-3">
+                                            <p class="col-md-6 mb-0">Free</p>
+                                            <div class="col-md-6">
+                                                <!-- <input type="text" class="form-control form-control-sm text-right"> -->
+                                                <div class="form-control-wrap number-spinner-wrap">
+                                                    <button type="button" @click="reduceProductFree(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-minus" :disabled="product.free === 0"><em class="icon ni ni-minus"></em></button>
+                                                    <input type="number" v-model="product.free" class="form-control number-spinner" value="0">
+                                                    <button type="button" @click="increaseProductFree(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-plus"><em class="icon ni ni-plus"></em></button>
                                                 </div>
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
@@ -420,6 +435,7 @@
         methods: {
             submitForm: function() {
                 this.sendData();
+                //console.log(this.selectedProducts);
             },
             sendData: function() {
 
@@ -449,7 +465,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '/central-purchase';
+                             //   window.location.href = '/central-purchase';
                             }
                         })
                         // console.log(response);
@@ -475,6 +491,7 @@
                     .forEach(productId => {
                         const index = selectedProductIds.findIndex((id) => id == productId);
                         this.selectedProducts[index].quantity += 1;
+                        this.selectedProducts[index].free += 1;
                     })
                 // console.log(arr);
 
@@ -493,6 +510,14 @@
             reduceProductQuantity: function(product) {
                 if (product.quantity > 1) {
                     product.quantity = product.quantity - 1;
+                }
+            },
+            increaseProductFree: function(product) {
+                product.free = product.free + 1;
+            },
+            reduceProductFree: function(product) {
+                if (product.free >= 1) {
+                    product.free = product.free - 1;
                 }
             },
             currencyFormat: function(number) {
@@ -592,6 +617,7 @@
             // If product already in cart or selected products
             if (productIds.indexOf(data.id) < 0) {
                 data['quantity'] = 1;
+                data['free'] = 0;
                 cart.push(data);
             }
 

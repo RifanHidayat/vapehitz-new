@@ -7,7 +7,8 @@
     <div class="nk-block-head-content">
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
-                <form @submit.prevent="is_edit_accountTransaction ? editAccountTransaction(accountTransactions_edit_id, accountTransactions_edit_index):submitForm()">
+                <!-- <form @submit.prevent="is_edit_accountTransaction ? editAccountTransaction(accountTransactions_edit_id, accountTransactions_edit_index):submitForm()"> -->
+                <form @submit.prevent="submitForm()">
                     <div class="row">
                         <div class=" form-group col-md-4">
                             <label class="form-label" for="full-name-1">Nomor</label>
@@ -95,7 +96,7 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
             <div class="table-responsive">
-                <table class="datatable-init table table-striped" id="table-account">
+                <table class="table table-striped" id="inOutTransactions">
                     <thead>
                         <tr class="text-center">
                             <th>Nomor</th>
@@ -118,7 +119,7 @@
                             <td>
                                 <div class="btn-group" aria-label="Basic example">
                                     <a href="#" @click.prevent="onEditAccountTransaction(index)" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
-                                    <a href="#" @click.prevent="deleteAccountTransaction(accountTransaction.id)" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
+                                    <a href="#" @click.prevent="deleteAccountTransaction(accountTransaction[0].id,accountTransaction[1].id)" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
                                 </div>
                             </td>
                         </tr>
@@ -250,8 +251,9 @@
                 this.amount = "";
                 this.note = "";
             },
-            deleteAccountTransaction: function(id) {
+            deleteAccountTransaction: function(in_id,out_id) {
                 // let vm = this;
+                console.log(in_id,out_id)
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "The data will be deleted",
@@ -264,7 +266,7 @@
                     cancelButtonText: 'Cancel',
                     showLoaderOnConfirm: true,
                     preConfirm: () => {
-                        return axios.delete('/account-transaction/' + id)
+                        return axios.delete(`/account-transaction/`+in_id+'/'+out_id)
                             .then(function(response) {
                                 console.log(response.data);
                             })
@@ -296,5 +298,14 @@
             },
         }
     })
+</script>
+
+<script>
+    var accounts = $(function() {
+        $('#inOutTransactions').DataTable({
+            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
+        });
+        
+    });
 </script>
 @endsection

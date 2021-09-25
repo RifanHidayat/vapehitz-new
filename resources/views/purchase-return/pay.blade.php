@@ -107,7 +107,7 @@
                         <div class="card-inner card-inner-md">
                             <div class="card-title-group">
                                 <div class="card-title">
-                                    <h6 class="title">Riwayat penyelesaian retur</h6>
+                                    <h6 class="title">Riwayat pembayaran retur</h6>
                                 </div>
                            
                                 
@@ -119,6 +119,7 @@
                                     <tr>
                                         <th>Tanggal</th>
                                         <th>Kode Transaksi</th>
+                                        <th>Metode pembayaran</th>
                                         <th class="text-right">Jumlah bayar</th>
                                     </tr>
                                 </thead>
@@ -127,7 +128,8 @@
                                     @foreach($transactions as $transaction)
                                     <tr>
                                         <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
-                                        <td>{{ $transaction->code }}</td>
+                                        <td><a href="/purchase-return-transaction/show/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
+                                        <td>{{ $transaction->payment_method }}</td>
                                         <td class="text-right">{{ number_format($transaction->amount) }}</td>
                                     </tr>
                                     @php $subTotal += $transaction->amount; $remainingPay=$subTotal - $purchaseReturn->amount; @endphp
@@ -135,15 +137,15 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="2">Subtotal</td>
+                                        <td colspan="3">Subtotal</td>
                                         <td class="text-right">{{ number_format($subTotal) }}</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2" style="border-top: none;">Total Retur</td>
+                                        <td colspan="3" style="border-top: none;">Total Retur</td>
                                         <td class="text-right" style="border-top: none;">{{ number_format($purchaseReturn->amount) }}</td>
                                     </tr>
                                     <tr style="font-weight: bold;">
-                                        <td colspan="2">Sisa Pembayaran Retur</td>
+                                        <td colspan="3">Sisa Pembayaran Retur</td>
                                         <td class="text-right">{{ number_format(abs($subTotal - $purchaseReturn->amount)) }}</td>
                                     </tr>
                                 </tfoot>
