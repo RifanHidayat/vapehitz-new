@@ -448,7 +448,7 @@ class PurchaseReturnController extends Controller
                 if ($productRow == null) {
                     continue;
                 }
-                $productRow->central_stock = $productRow->central_stock - ($product['pivot']['quantity']) ;
+                $productRow->central_stock = $productRow->central_stock + ($product['pivot']['quantity']) ;
                 $productRow->save();
             }
         } catch (Exception $e) {
@@ -544,21 +544,23 @@ class PurchaseReturnController extends Controller
             })
 
             // button delete
-            // <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
-            // <span>Delete</span>
-            // </a>
+          
             ->addColumn('action', function ($row) {
                 $button = '
             <div class="drodown">
             <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
             <div class="dropdown-menu dropdown-menu-right">
                 <ul class="link-list-opt no-bdr">
+                <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                <span>Delete</span>
+                </a>
                    
                  
                     <a href="/purchase-return/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
                     <span>Detail</span>
                  
                 </a>
+                
                    
                     <a href="/purchase-return/pay/' . $row->id . '"><em class="icon fas fa-credit-card"></em>
                     <span>bayar</span>
