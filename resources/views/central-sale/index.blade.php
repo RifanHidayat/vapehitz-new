@@ -1,7 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-
+@section('pagestyle')
+<style>
+    .datatable-wrap {
+        border: none;
+    }
+</style>
+@endsection
 @section('content')
 @php $permission = json_decode(Auth::user()->group->permission);@endphp
 <div class="nk-block-head nk-block-head-sm">

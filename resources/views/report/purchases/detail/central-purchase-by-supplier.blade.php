@@ -126,7 +126,11 @@
                     </div> -->
                 </div>
                 <div class="divider"></div>
-                <div class="table-responsive">
+                <div class="text-center">
+                    <em class="icon ni ni-share-alt" style="font-size: 5em;"></em>
+                    <p class="text-soft mt-2">Report preview is under construction</p>
+                </div>
+                <!-- <div class="table-responsive">
                     <table class="table table-striped" id="centralSale">
                         <thead>
                             <tr class="text-center">
@@ -134,7 +138,7 @@
                                 <th>Tanggal Invoice</th>
                                 <th>Supplier</th>
                                 <th>Shipment</th>
-                                <!-- <th>Sales</th> -->
+                             
                                 <th>Penerima</th>
                                 <th>Subtotal</th>
                                 <th>Discount</th>
@@ -146,13 +150,13 @@
                                 <th>Berat (gr)</th>
                                 <th>Status</th>
                                 <th>Status Cetak</th>
-                                <!-- <th>Action</th> -->
+                              
                             </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

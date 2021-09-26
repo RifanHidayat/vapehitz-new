@@ -728,11 +728,12 @@ class CentralSaleController extends Controller
         if ($sale->status == 'approved') {
             // Delete and detach transaction
             try {
-                $initTransactions = collect($sale->centralSaleTransactions)->pluck('id');
-                if (count($initTransactions) > 0) {
-                    CentralSaleTransaction::query()->whereIn('id', $initTransactions)->delete();
-                    $sale->centralSaleTransactions()->detach();
-                }
+                // $initTransactions = collect($sale->centralSaleTransactions)->pluck('id');
+                // if (count($initTransactions) > 0) {
+                //     CentralSaleTransaction::query()->whereIn('id', $initTransactions)->delete();
+                //     $sale->centralSaleTransactions()->detach();
+                // }
+                $sale->centralSaleTransactions()->detach();
             } catch (Exception $e) {
                 return response()->json([
                     'message' => 'Internal error',

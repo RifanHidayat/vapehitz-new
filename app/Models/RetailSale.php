@@ -23,4 +23,9 @@ class RetailSale extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function retailSaleTransactions()
+    {
+        return $this->belongsToMany(RetailSaleTransaction::class)->withPivot('amount');
+    }
 }

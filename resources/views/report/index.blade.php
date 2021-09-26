@@ -22,7 +22,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="/report/central-sale/detail">
+                                    <a href="/report/central-sale/customer/detail">
                                         <p><strong>Central Sales By Customer Detail</strong></p>
                                     </a>
                                 </div>
@@ -36,7 +36,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/central-sale/customer/summary">
                                         <p><strong>Central Sales By Customer Summary</strong></p>
                                     </a>
                                 </div>
@@ -50,7 +50,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/central-sale/product/detail">
                                         <p><strong>Central Sales By Product Detail</strong></p>
                                     </a>
                                 </div>
@@ -64,7 +64,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/central-sale/product/summary">
                                         <p><strong>Central Sales By Product Detail</strong></p>
                                     </a>
                                 </div>
@@ -78,7 +78,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/retail-sale/detail">
                                         <p><strong>Retail Sales</strong></p>
                                     </a>
                                 </div>
@@ -92,7 +92,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/studio-sale/detail">
                                         <p><strong>Studio Sales</strong></p>
                                     </a>
                                 </div>
@@ -112,7 +112,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/central-purchase/supplier/detail">
                                         <p><strong>Central Purchase By Supplier Detail</strong></p>
                                     </a>
                                 </div>
@@ -126,7 +126,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/central-purchase/supplier/summary">
                                         <p><strong>Central Purchase By Supplier Summary</strong></p>
                                     </a>
                                 </div>
@@ -140,7 +140,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/central-purchase/product/detail">
                                         <p><strong>Central Purchase By Product Detail</strong></p>
                                     </a>
                                 </div>
@@ -154,7 +154,7 @@
                         <div class="border py-1 px-3 round">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
-                                    <a href="">
+                                    <a href="/report/central-purchase/product/summary">
                                         <p><strong>Central Purchase By Product Summary</strong></p>
                                     </a>
                                 </div>

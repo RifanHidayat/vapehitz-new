@@ -8,6 +8,7 @@ use App\Models\AccountTransaction;
 use App\Models\Product;
 use App\Models\RetailSale;
 use App\Models\RetailSaleReturn;
+use App\Models\RetailSaleTransaction;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Exception;
@@ -222,29 +223,66 @@ class RetailSaleController extends Controller
 
         // Account Transaction
         // $saleReturn = CentralSaleReturn::find($saleReturnId);
-        $accountTransaction = new AccountTransaction;
-        $accountTransaction->account_in = $request->account_id;
-        $accountTransaction->amount = $this->clearThousandFormat($request->net_total);
-        $accountTransaction->type = "in";
-        $accountTransaction->note = "Penjualan retail No. " . $retailSaleNumber;
-        $accountTransaction->date = $request->date;
+        // $accountTransaction = new AccountTransaction;
+        // $accountTransaction->account_in = $request->account_id;
+        // $accountTransaction->amount = $this->clearThousandFormat($request->net_total);
+        // $accountTransaction->type = "in";
+        // $accountTransaction->note = "Penjualan retail No. " . $retailSaleNumber;
+        // $accountTransaction->date = $request->date;
 
-        try {
-            $accountTransaction->save();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $transaction,
-            // ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
+        // try {
+        //     $accountTransaction->save();
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'message' => 'Internal error',
+        //         'code' => 500,
+        //         'error' => true,
+        //         'errors' => $e,
+        //     ], 500);
+        // }
+
+        // 
+        // $date = $request->date;
+        // $transactionsByCurrentDateCount = RetailSaleTransaction::query()->where('date', $date)->get()->count();
+        // $saleId = $retailSale->id;
+        // $transactionNumber = 'RST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+        // $amount = $this->clearThousandFormat($request->receive_1);
+
+        // $transaction = new RetailSaleTransaction;
+        // $transaction->code = $transactionNumber;
+        // $transaction->date = $date;
+        // $transaction->account_id = $request->account_id;
+        // $transaction->amount = $amount;
+        // $transaction->payment_method = $request->payment_method;
+
+        // try {
+        //     $transaction->save();
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'message' => 'Internal error',
+        //         'code' => 500,
+        //         'error' => true,
+        //         'errors' => $e,
+        //     ], 500);
+        // }
+
+        // try {
+        //     $transaction->centralSales()->attach([
+        //         $saleId => [
+        //             'amount' => $amount,
+        //             'created_at' => Carbon::now()->toDateTimeString(),
+        //             'updated_at' => Carbon::now()->toDateTimeString(),
+        //         ]
+        //     ]);
+        // } catch (Exception $e) {
+        //     $transaction->delete();
+        //     return response()->json([
+        //         'message' => 'Internal error',
+        //         'code' => 500,
+        //         'error' => true,
+        //         'errors' => $e,
+        //     ], 500);
+        // }
 
         return response()->json([
             'message' => 'Data has been saved',

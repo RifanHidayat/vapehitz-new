@@ -59,11 +59,51 @@
                 </div>
             </div>
         </div> -->
+    <!-- <div class="card card-bordered">
+        <div class="card-inner overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="text-center">
+                            <th>Code</th>
+                            <th>Nama</th>
+                            <th>Alamat</th>
+                            <th>No.Tlp/HP/WA</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <tr>
+                            <td>C-RT</td>
+                            <td>Retail</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>
+                                <a href="/customer/pay/' . $row->id . '" class="btn btn-outline-primary"><em class="icon fas fa-credit-card"></em>
+                                    <span>Bayar</span>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>C-ST</td>
+                            <td>Studio</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div> -->
     <div class="card card-bordered">
         <div class="card-inner overflow-hidden">
-            <!-- <div class="card-head">
-                    <h5 class="card-title">Form</h5>
-                </div> -->
             <div class="table-responsive">
                 <table class="table table-striped" id="customers">
                     <thead>
@@ -228,7 +268,7 @@
                 allowOutsideClick: () => !Swal.isLoading()
             }).then((result) => {
                 if (result.isConfirmed) {
-                   // customerTable.ajax.reload();
+                    // customerTable.ajax.reload();
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
