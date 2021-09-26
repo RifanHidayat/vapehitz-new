@@ -255,7 +255,7 @@
         </div>
         <div class="card-inner p-0">
             <div v-if="isStockUnsufficient" class="px-4 mb-2">
-                <div class="alert alert-info alert-dismissible alert-icon">
+                <div class="alert alert-warning alert-dismissible alert-icon">
                     <em class="icon ni ni-alert-circle"></em> Jumlah <strong>stok</strong> dan <strong>booking</strong> sudah diperbaharui. Sesuaikan jumlah penjualan pada produk yang ditandai.
                     <button class="close" data-dismiss="alert"></button>
                 </div>

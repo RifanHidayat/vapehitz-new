@@ -611,6 +611,18 @@ class RetailSaleController extends Controller
             ], 500);
         }
 
+        // Detach Return
+        try {
+            $sale->retailSaleReturns()->detach();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error detaching products',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
         // Detach Product From Intermediate Table
         try {
             $sale->products()->detach();

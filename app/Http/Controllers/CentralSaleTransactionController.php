@@ -325,7 +325,6 @@ class CentralSaleTransactionController extends Controller
      */
     public function edit($id)
     {
-        //
     }
 
     /**
