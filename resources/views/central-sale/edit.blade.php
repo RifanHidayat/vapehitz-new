@@ -255,7 +255,7 @@
         </div>
         <div class="card-inner p-0">
             <div v-if="isStockUnsufficient" class="px-4 mb-2">
-                <div class="alert alert-info alert-dismissible alert-icon">
+                <div class="alert alert-warning alert-dismissible alert-icon">
                     <em class="icon ni ni-alert-circle"></em> Jumlah <strong>stok</strong> dan <strong>booking</strong> sudah diperbaharui. Sesuaikan jumlah penjualan pada produk yang ditandai.
                     <button class="close" data-dismiss="alert"></button>
                 </div>
@@ -496,13 +496,13 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <button type="button" @click="reject" class="btn btn-danger" :disabled="loadingReject || loading">
+                        <!-- <button type="button" @click="reject" class="btn btn-danger" :disabled="loadingReject || loading">
                             <span v-if="loadingReject" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span>Reject</span>
-                        </button>
-                        <button type="submit" class="btn btn-success" :disabled="loading || loadingReject">
+                        </button> -->
+                        <button type="submit" class="btn btn-primary" :disabled="loading">
                             <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <span>Approve</span>
+                            <span>Simpan</span>
                         </button>
                         <!-- <button class="btn btn-primary" type="button" disabled>
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -764,28 +764,28 @@
         },
         methods: {
             submitForm: function() {
-                Swal.fire({
-                    title: 'Apakah anda yakin?',
-                    text: "Penjualan akan disetujui",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Batalkan',
-                    reverseButtons: true,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.sendData();
-                    }
-                })
+                // Swal.fire({
+                //     title: 'Apakah anda yakin?',
+                //     text: "Penjualan akan disetujui",
+                //     icon: 'warning',
+                //     showCancelButton: true,
+                //     confirmButtonColor: '#3085d6',
+                //     cancelButtonColor: '#d33',
+                //     confirmButtonText: 'Ya',
+                //     cancelButtonText: 'Batalkan',
+                //     reverseButtons: true,
+                // }).then((result) => {
+                //     if (result.isConfirmed) {
+                //     }
+                // })
+                this.sendData();
             },
             sendData: function() {
                 // console.log('submitted');
                 let vm = this;
                 vm.loading = true;
                 vm.loadingReject = true;
-                axios.post('/central-sale/approval/{{ $central_sale->id }}/approve', {
+                axios.patch('/central-sale/{{ $central_sale->id }}', {
                         shipment_id: vm.shipmentId,
                         customer_id: vm.customerId,
                         code: vm.code,
