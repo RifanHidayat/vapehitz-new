@@ -25,6 +25,7 @@ class AccountTransactionController extends Controller
 
         $maxid = DB::table('account_transactions')->max('id');
         $number = "IO/VH/" . date('dmy') . "/" . sprintf($maxid + 1);
+        
 
         return view('account-transaction.index', [
             'account' => $account,
@@ -58,6 +59,7 @@ class AccountTransactionController extends Controller
     public function store(Request $request)
     {
 
+        //account out
         $accountTransaction = new AccountTransaction();
         $accountTransaction->number = $request->number;
         $accountTransaction->account_id = $request->account_out;
@@ -78,6 +80,7 @@ class AccountTransactionController extends Controller
             ], 500);
         
         }
+        //account in
         $accountTransaction = new AccountTransaction();
         $accountTransaction->number = $request->number;
         $accountTransaction->account_id = $request->account_in;
@@ -131,7 +134,7 @@ class AccountTransactionController extends Controller
     public function update(Request $request, $id)
     {
         //account in
-        $accountTransaction = AccountTransaction::find($id);
+        $accountTransaction = AccountTransaction::find($request->in_id);
         $accountTransaction->number = $request->number;
         $accountTransaction->account_id = $request->account_in;
         $accountTransaction->date = $request->date;
@@ -150,9 +153,9 @@ class AccountTransactionController extends Controller
             ], 500);
         }
 
-
-        $accountTransaction = AccountTransaction::find($id);
-        $accountTransaction->number = $request->number;
+        //acccount out
+        $accountTransaction = AccountTransaction::find($request->out_id);
+      
         $accountTransaction->account_id = $request->account_out;
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = $request->amount;

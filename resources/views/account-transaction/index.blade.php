@@ -7,8 +7,8 @@
     <div class="nk-block-head-content">
         <div class="card card-bordered">
             <div class="card-inner overflow-hidden">
-                <!-- <form @submit.prevent="is_edit_accountTransaction ? editAccountTransaction(accountTransactions_edit_id, accountTransactions_edit_index):submitForm()"> -->
-                <form @submit.prevent="submitForm()">
+                <form @submit.prevent="is_edit_accountTransaction ? editAccountTransaction(accountTransactions_edit_id, accountTransactions_edit_index):submitForm()">
+                <!-- <form @submit.prevent="submitForm()"> -->
                     <div class="row">
                         <div class=" form-group col-md-4">
                             <label class="form-label" for="full-name-1">Nomor</label>
@@ -101,8 +101,8 @@
                         <tr class="text-center">
                             <th>Nomor</th>
                             <th>Tanggal Transaksi</th>
-                            <th>In</th>
-                            <th>Out</th>
+                            <th>Akun In</th>
+                            <th>Akun Out</th>
                             <th>Nominal</th>
                             <th>Catatan</th>
                             <th>Action</th>
@@ -112,8 +112,26 @@
                         <tr v-for="(accountTransaction, index) in accountTransactions" class="text-center">
                             <td>@{{accountTransaction[0]['number']}}</td>
                             <td>@{{accountTransaction[0]['date']}}</td>
-                            <td>@{{accountTransaction[0]['account']!=null?accountTransaction[0]['account']['name']:""}}</td>
-                            <td>@{{accountTransaction[0]['account']!=null?accountTransaction[1]['account']['name']:""}}</td>
+                            <td>
+                                @{{accountTransaction[0]['account']!=null?
+                                    (
+                                        accountTransaction[0]['account']['account_type']=="out"
+                                        ?accountTransaction[0]['account']['name']
+                                        :accountTransaction[1]['account']['name']
+                                    )
+                                :""
+                                }}
+                            </td>
+                            <td>
+                                 @{{accountTransaction[1]['account']!=null?
+                                    (
+                                        accountTransaction[1]['account']['account_type']=="in"
+                                        ?accountTransaction[1]['account']['name']
+                                        :accountTransaction[0]['account']['name']
+                                    )
+                                :""
+                                    }}
+                            </td>
                             <td>@{{accountTransaction[0]['amount']}}</td>
                             <td>@{{accountTransaction[0]['note']}}</td>
                             <td>
@@ -196,51 +214,75 @@
                     });
             },
             editAccountTransaction: function(id, index) {
-                let vm = this;
-                vm.loading = true;
-                axios.patch('/account-transaction/' + id, {
-                        number: this.number,
-                        account_in: this.account_in,
-                        account_out: this.account_out,
-                        date: this.date,
-                        amount: this.amount,
-                        note: this.note,
-                    })
-                    .then(function(response) {
-                        vm.loading = false;
-                        console.log(response);
-                        const {
-                            data
-                        } = response.data
-                        vm.accountTransactions[index].number = data.number;
-                        vm.accountTransactions[index].account_in = data.account_in;
-                        vm.accountTransactions[index].account_out = data.account_out;
-                        vm.accountTransactions[index].date = data.date;
-                        vm.accountTransactions[index].amount = data.amount;
-                        vm.accountTransactions[index].note = data.note;
-                    })
-                    .catch(function(error) {
-                        vm.loading = false;
-                        console.log(error);
-                        Swal.fire(
-                            'Oops!',
-                            'Something wrong',
-                            'error'
-                        )
-                    });
+                    let vm = this;
+                    console.log('w',id)
+                    //vm.loading = true;
+                    console.log(vm.accountTransactions[index][0].account_type);
+                    axios.patch('/account-transaction/' + 1, {
+                            number: this.number,
+                            account_in: this.account_in,
+                            account_out: this.account_out,
+                            date: this.date,
+                            amount: this.amount,
+                            note: this.note,
+                            out_id:
+                            vm.accountTransactions[index][0].account_type=="out"
+                            ?vm.accountTransactions[index][0].id
+                            :vm.accountTransactions[index][1].id,
+                            in_id:
+                            vm.accountTransactions[index][1].account_type=="in"
+                            ?vm.accountTransactions[index][1].id
+                            :vm.accountTransactions[index][0].id
+                           
+                        })
+                        .then(function(response) {
+                            vm.loading = false;
+                            Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Data has been deleted',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                                // invoicesTable.ajax.reload();
+                            }
+                        })
+                           
+                        })
+                        .catch(function(error) {
+                            vm.loading = false;
+                            console.log(error);
+                            Swal.fire(
+                                'Oops!',
+                                'Something wrong',
+                                'error'
+                            )
+                        });
+                        
             },
             onEditAccountTransaction: function(index) {
                 const accountTransaction = this.accountTransactions[index];
-                this.number = accountTransaction.number;
-                this.account_in = accountTransaction.account_in;
-                this.account_out = accountTransaction.account_out;
-                this.date = accountTransaction.date;
-                this.amount = accountTransaction.amount;
-                this.note = accountTransaction.note;
+                console.log(accountTransaction)
+                
+                this.number = accountTransaction[0].number;
+                
+                this.account_out = 
+                    accountTransaction[0].account_type=="out"
+                    ? accountTransaction[0].account_id
+                    :accountTransaction[1].account_id;
+
+                this.account_in = 
+                    accountTransaction[1].account_type=="in"
+                    ? accountTransaction[1].account_id
+                    :accountTransaction[0].account_id;
+
+                this.date = accountTransaction[0].date;
+                this.amount = accountTransaction[0].amount;
+                this.note = accountTransaction[0].note;
                 this.accountTransactions_edit_id = accountTransaction.id;
                 this.accountTransactions_edit_index = index;
                 this.is_edit_accountTransaction = true;
-                console.log(account);
+                //console.log(account);
             },
             onCloseEdit: function() {
                 this.is_edit_accountTransaction = false;
@@ -301,11 +343,12 @@
 </script>
 
 <script>
-    var accounts = $(function() {
-        $('#inOutTransactions').DataTable({
-            dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
+  NioApp.DataTable.init = function() {
+            NioApp.DataTable('#inOutTransactions', {
+         
         });
-        
-    });
+    
+}
+
 </script>
 @endsection

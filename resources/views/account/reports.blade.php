@@ -144,13 +144,11 @@
                         <td align="right" valign="top">{{ $transaction->account_type=="out"?$transaction->amount:"" }}</td>
                         <td align="right" valign="top">{{ $balance}}</td>
                     </tr>
-                 
-                
                    </tbody>
+                   @endforeach
                     
                  
-                   
-                    </tbody>
+            
         </table>
         </div>
 
