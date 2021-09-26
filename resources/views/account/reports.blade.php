@@ -145,8 +145,9 @@
                         <td align="right" valign="top">{{ $balance}}</td>
                     </tr>
                  
-                    @endforeach
-                                </tbody>
+                
+                   </tbody>
+                    
                  
                    
                     </tbody>

@@ -17,44 +17,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/libs/fontawesome-icons.css') }}">
     @yield('head')
-    <style>
-        /* .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    } */
 
-        /* table tr th {
-        font-size: 15px;
-       
-    }
-
-    table tr td {
-        font-size: 13px;
-      
-    }
-
-        /* .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
-    } */
-        .datatable-wrap {
-            border: none;
-            /* overflow-x: scroll; */
-        }
-
-        /* 
-        .table-responsive {
-            overflow-x: hidden;
-        } */
-    </style>
     @yield('pagestyle')
 </head>
 

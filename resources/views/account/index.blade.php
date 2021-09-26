@@ -40,25 +40,25 @@
                         <div class=" form-group col-md-6">
                             <label class="form-label" for="full-name-1">Nomor Akun</label>
                             <div class="form-control-wrap">
-                                <input type="number" v-model="number" class="form-control" placeholder="Nomor Akun">
+                                <input require type="number" v-model="number"  class="form-control number" placeholder="Nomor Akun">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
                             <label class="form-label" for="full-name-1">Nama</label>
                             <div class="form-control-wrap">
-                                <input type="text" v-model="name" class="form-control" placeholder="Nama">
+                                <input type="text" v-model="name" class="form-control name" placeholder="Nama">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
                             <label class="form-label" for="full-name-1">Tanggal Saldo Awal</label>
                             <div class="form-control-wrap">
-                                <input type="date" v-model="date" class="form-control" class="form-control">
+                                <input type="date" v-model="date" class="form-control" class="form-control date">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
                             <label class="form-label" for="full-name-1">Saldo Awal</label>
                             <div class="form-control-wrap">
-                                <input type="text" v-model="init_balance" class="form-control text-right" class="form-control" placeholder="0.00">
+                                <input type="text" v-model="init_balance" class="form-control text-right init_balance" class="form-control" placeholder="0.00">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
@@ -102,7 +102,7 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                    <table class="table table-striped" id="accounts">
+                <table style="width: 100%;" class="table table-striped" id="accounts">
                         <thead>
                             <tr class="text-left">
                                 <th>Nomor Kartu</th>
@@ -179,12 +179,19 @@
                         vm.loading = false;
                          console.log(response);
                         vm.accounts.push(response.data.data);
-                        // console.log(response);
+                       
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: 'Data has been deleted',
-                        })
+                                title: 'Success',
+                                text: 'Data has been saved',
+                                icon: 'success',
+                                allowOutsideClick: false,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.reload();
+                                }
+                            })
+                        
+
                     })
                     .catch(function(error) {
                         vm.loading = false;
@@ -229,6 +236,7 @@
                     });
             },
             onEditAccount: function(index) {
+                console.log("tes");
                 const account = this.accounts[index];
                 this.number = account.number;
                 this.name = account.name;
@@ -286,7 +294,7 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 // window.location.reload();
-                                // invoicesTable.ajax.reload();
+                                 invoicesTable.ajax.reload();
                             }
                         })
                     }
@@ -310,9 +318,11 @@
 
 <script>
     var accounts = $(function() {
-        $('#accounts').DataTable({
-            processing: true,
-            serverSide: true,
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#accounts', {
+                processing: true,
+                serverSide: true,
+                autoWidth: false,
             // dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
             ajax: {
                 url: '/datatables/accounts',
@@ -350,6 +360,10 @@
 
             ]
         });
+        $.fn.DataTable.ext.pager.numbers_length = 5;
+
+        }
+        NioApp.DataTable.init();
         $('#accounts').on('click', 'tr .btn-delete', function(e) {
             e.preventDefault();
             // alert('click');
@@ -396,6 +410,18 @@
                 }
             })
         })
+        $('#accounts').on('click', 'tr .btn-edit', function(e) {
+            e.preventDefault();
+            // alert('click');
+            const id = $(this).attr('data-id');
+            console.log(id);
+
+
+
+          
+        
+        })
     });
+    
 </script>
 @endsection

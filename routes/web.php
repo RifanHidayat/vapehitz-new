@@ -379,8 +379,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/{id}', [AccountController::class, 'destroy']);
        // Route::del('/{id}', [AccountController::class, 'show']);
         Route::get('show/{id}', [AccountController::class, 'show']);
-        Route::get('print/{id}', [AccountController::class, 'print']);
-        Route::get('download/{id}', [AccountController::class, 'download']);
+        Route::get('reports/{id}', [AccountController::class, 'reports']);
+        Route::get('/export/{id}', [AccountController::class, 'export']);
     });
 
     //RouteAccountTransaction

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CentralPurchaseBySupplierDetailExport;
+use App\Exports\TransactionAccountExport;
 use Illuminate\Http\Request;
 use App\Models\Account;
 use App\Models\AccountTransaction;
@@ -13,6 +15,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -121,7 +124,6 @@ class AccountController extends Controller
  
          //checked shpping account
          $id!="1"
- 
          ? $transactionMerge = 
          ($account
          ->merge(collect($purchaseTransactions->purchaseTransactions)
@@ -130,7 +132,7 @@ class AccountController extends Controller
                 "Pembayaran retur dengan No. Transaksi".$purchaseTransaction['code'];
             }))
             
-         ->merge(collect($purchaseTransactions->purchaseReturnTransactions)
+         ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
             ->each(function($purchaseReturnTransaction){
                 $purchaseReturnTransaction['description']=
                     "Pembayaran retur dengan No. Transaksi ".$purchaseReturnTransaction['code'];
@@ -138,7 +140,7 @@ class AccountController extends Controller
          ->merge($InOutTransactionAccount->accountTransactions))
  
          : $transactionMerge = $centralPurchases;
-         
+
         $accountTransactions=collect($transactionMerge)->sortBy('date')->all();
        
         $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
@@ -172,7 +174,7 @@ class AccountController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function print($id)
+    public function reports($id)
     {
           //purchase transactions
           $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($id);
@@ -213,7 +215,7 @@ class AccountController extends Controller
                  "Pembayaran retur dengan No. Transaksi".$purchaseTransaction['code'];
              }))
              
-          ->merge(collect($purchaseTransactions->purchaseReturnTransactions)
+          ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
              ->each(function($purchaseReturnTransaction){
                  $purchaseReturnTransaction['description']=
                      "Pembayaran retur dengan No. Transaksi ".$purchaseReturnTransaction['code'];
@@ -235,7 +237,7 @@ class AccountController extends Controller
             'margin_bottom' => '10',
             'margin_top' => '6',
           ]);
-          $data = view('account.print',[
+          $data = view('account.reports',[
               'transactions'=>$accountTransactions,
               'inTotal'=>$cashIn,
               "outTotal"=>$cashOut,
@@ -327,6 +329,11 @@ class AccountController extends Controller
         }
     }
 
+    public function export($id){
+        $account=Account::with('purchaseTransactions')->findOrfail($id);
+        return Excel::download(new TransactionAccountExport($id), 'Detail akun ' . $account->name . '( ' .$account->number. ' )' . "" . '.xlsx');
+    }
+
 
     public function datatableAccountTransactions($id)
     {
@@ -357,9 +364,6 @@ class AccountController extends Controller
             $centralPurchase['description'] = $centralPurchase['note'];
             $centralPurchase['amount']=$centralPurchase['shipping_cost'];
         });
-        
-        
-       
 
         //checked shpping account
         $id!="1"
@@ -369,10 +373,10 @@ class AccountController extends Controller
         ->merge(collect($purchaseTransactions->purchaseTransactions)
            ->each(function($purchaseTransaction){
                $purchaseTransaction['description']=
-               "Pembayaran retur dengan No. Transaksi".$purchaseTransaction['code'];
+               "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
            }))
 
-        ->merge(collect($purchaseTransactions->purchaseReturnTransactions)
+        ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
            ->each(function($purchaseReturnTransaction){
                $purchaseReturnTransaction['description']=
                    "Pembayaran retur dengan No. Transaksi ".$purchaseReturnTransaction['code'];
@@ -422,32 +426,58 @@ class AccountController extends Controller
         return DataTables::eloquent($accounts)
             ->addIndexColumn()
             ->addColumn('balance', function ($row) {
-                $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($row->id);
-                $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')->findOrfail($row->id);
-                $InOutTransactionAccount=Account::with('accountTransactions')->find($row->id);
-                $account=collect(Account::where('id','=',$row->id)->get())->each(function($account){
-                    $account['account_type'] = 'in';
-                    $account['note'] = 'Saldo Awal';
-                    $account['amount'] = $account['init_balance'];
-                });
-        
-                $centralPurchases=collect(CentralPurchase::where('shipping_cost','>',0,)->get())->each(function($centralPurchase){
-                    $centralPurchase['account_type'] = 'in';
-                    $centralPurchases['account_id']="1";
-                    $centralPurchase['note'] = 'Biaya kirim Pembelian barang dengan No. Order'.$centralPurchase['code'];
-                    $centralPurchase['amount']=$centralPurchase['shipping_cost'];
-                });
-                  
-                $transactionMerge = 
-                     ($purchaseTransactions->purchaseTransactions
-                     ->merge($account)
-                     ->merge($centralPurchases)
-                     ->merge($purchaseReturnTransactions->purchaseReturnTransactions))
-                     ->merge($InOutTransactionAccount->accountTransactions);
-                 
-                $accountTransactions=collect($transactionMerge)->sortBy('date')->all();
-                $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
-                $cashOut=collect($accountTransactions)->where('account_type','==','out')->sum('amount'); 
+                        //purchase transactions
+          $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($row->id);
+
+          //purchase rertun transactions      
+          $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
+          ->findOrfail($row->id);
+  
+          //in out transaction
+          $InOutTransactionAccount=Account::with('accountTransactions')->find($row->id);
+          
+          //opening balance
+          $account=collect(Account::where('id','=',$row->id)->get())->each(function($account){
+              $account['account_type'] = 'in';
+              $account['Description'] = 'Saldo Awal';
+              $account['amount'] = $account['init_balance'];
+          });
+          
+          //supping cost
+          $centralPurchases=collect(CentralPurchase::where('shipping_cost','>',0,)->get())->each(function
+          ($centralPurchase){
+              $centralPurchase['account_type'] = 'in';
+              $centralPurchases['account_id']="1";
+              $centralPurchase['description'] = 'Biaya kirim Pembelian barang dengan No. Order'.$centralPurchase['code'];
+              $centralPurchase['note'] = $centralPurchase['note'];
+              $centralPurchase['amount']=$centralPurchase['shipping_cost'];
+          });
+          
+
+          //checked shpping account
+          $row->id!="1"
+  
+          ? $transactionMerge = 
+          ($account
+          ->merge(collect($purchaseTransactions->purchaseTransactions)
+             ->each(function($purchaseTransaction){
+                 $purchaseTransaction['description']=
+                 "Pembayaran retur dengan No. Transaksi".$purchaseTransaction['code'];
+             }))
+             
+          ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
+             ->each(function($purchaseReturnTransaction){
+                 $purchaseReturnTransaction['description']=
+                     "Pembayaran retur dengan No. Transaksi ".$purchaseReturnTransaction['code'];
+              }))
+          ->merge($InOutTransactionAccount->accountTransactions))
+  
+          : $transactionMerge = $centralPurchases;
+         
+
+        $accountTransactions=collect($transactionMerge)->sortBy('date')->all();
+        $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
+        $cashOut=collect($accountTransactions)->where('account_type','==','out')->sum('amount');
 
                 return number_format($cashIn-$cashOut);
                 
@@ -463,7 +493,7 @@ class AccountController extends Controller
                     <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                     <span>Delete</span>
                     </a>
-                    <a href="#" class="btn-delete" data-id="' . $row->type . '"><em class="icon fas fa-edit"></em>
+                    <a  onclick="onEditAccount('.$row.')"><em class="icon fas fa-edit"></em>
                     <span>Edit</span>
                  
                 </a>

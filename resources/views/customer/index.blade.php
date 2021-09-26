@@ -228,7 +228,7 @@
                 allowOutsideClick: () => !Swal.isLoading()
             }).then((result) => {
                 if (result.isConfirmed) {
-                    customerTable.ajax.reload();
+                   // customerTable.ajax.reload();
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
