@@ -250,7 +250,7 @@
                                         <select v-model="paymentMethod" class="form-control">
                                             <option value="transfer">Transfer</option>
                                             <option value="cash">Cash</option>
-                                            <option value="hutang">Hutang</option>
+                                            <!-- <option value="hutang">Hutang</option> -->
                                         </select>
                                     </div>
                                 </div>
