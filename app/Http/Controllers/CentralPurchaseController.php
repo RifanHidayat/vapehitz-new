@@ -520,20 +520,20 @@ class CentralPurchaseController extends Controller
         }
 
         try {
-            foreach ($products as $product) {
-                $productRow = Product::find($product['id']);
-                if ($productRow == null) {
-                    continue;
-                }
+            // foreach ($products as $product) {
+            //     $productRow = Product::find($product['id']);
+            //     if ($productRow == null) {
+            //         continue;
+            //     }
 
-                // Calculate average purchase price
-                $newPrice = (($productRow->central_stock * $productRow->purchase_price) + ($product['quantity'] * $product['purchase_price'])) / ($productRow->central_stock + $product['quantity']);
-                $productRow->purchase_price = round($newPrice);
-                //$productRow->central_stock = $productRow->central_stock + $product['quantity'];
-                $productRow->save();
+            //     // Calculate average purchase price
+            //     $newPrice = (($productRow->central_stock * $productRow->purchase_price) + ($product['quantity'] * $product['purchase_price'])) / ($productRow->central_stock + $product['quantity']);
+            //     $productRow->purchase_price = round($newPrice);
+            //     //$productRow->central_stock = $productRow->central_stock + $product['quantity'];
+            //     $productRow->save();
 
-                // rumus=(((central stok lama) * (harga lama))+ (quantity lama * harga baru) )/(stok lama * quantity) 
-            }
+            //     // rumus=(((central stok lama) * (harga lama))+ (quantity lama * harga baru) )/(stok lama * quantity) 
+            // }
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -560,10 +560,74 @@ class CentralPurchaseController extends Controller
      */
     public function destroy($id)
     {
-
-        return $id;
+        $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
         $centralPurchase = CentralPurchase::findOrFail($id);
-        $products = $centralPurchase->products;
+
+        $purchaseReceiptProducts = PurchaseReceipt::with(['products'])->where("central_purchase_id",$id)
+        ->get()
+        ->flatMap(function($receipt) {
+            return $receipt->products;
+        })->groupBy('id')
+        ->map(function($product, $key) {
+            $receivedQuantity = collect($product)->sum(function($item) {
+                return $item->pivot->quantity;
+            });
+            $freeQuantity = collect($product)->map(function ($product) {
+                return $product->pivot->free;
+            })->sum();
+
+            return [
+                'id' => $key,
+                'received_quantity' => $receivedQuantity,
+                'free' => $freeQuantity,
+            ];
+        })->values()->all();
+        
+        $saleReturnProducts = PurchaseReturn::with(['products'])
+        ->where('central_purchase_id', $id)
+        ->get()
+        ->flatMap(function ($saleReturn) {
+            return $saleReturn->products;
+        })->groupBy('id')
+        ->map(function ($group, $id) {
+            $returnedQuantity = collect($group)->map(function ($product) {
+                return $product->pivot->quantity;
+            })->sum();
+            $freeQuantity = collect($group)->map(function ($product) {
+                return $product->pivot->free;
+            })->sum();
+            return [
+                'id' => $id,
+                'returned_quantity' => $returnedQuantity,
+                'free' => $freeQuantity,
+            ];
+        })
+        ->all();
+       
+        // return $purchase->products;
+        // return $saleReturnProducts;
+        $selectedProducts = collect($purchase->products)->each(function ($product) use ($saleReturnProducts,$purchaseReceiptProducts) {
+        $saleReturn = collect($saleReturnProducts)->where('id', $product['id'])->first();
+        $receipt=collect($purchaseReceiptProducts)->where('id', $product['id'])->first();
+        $product['returned_quantity'] = 0;
+        if ($saleReturn !== null) {
+            $product['returned_quantity'] = $saleReturn['returned_quantity'];
+        }
+        if ($receipt!==null){
+            $product['received_quantity']=$receipt['received_quantity'];
+            
+        }else{
+            $product['received_quantity']=0;
+
+        }
+        $availableQuantity = $product['received_quantity'] - $product['returned_quantity'];
+        $product['free'] = $receipt['free'];
+        $product['return_quantity'] = $availableQuantity;
+        $product['initial_quantity'] = 0;
+        $product['cause'] = 'defective';
+        $product['finish'] = $product['returned_quantity'] >= $product['received_quantity'] ? 1 : 0;
+        })->sortBy('finish')->values()->all();
+       
 
         //purchase Return
         try{
@@ -605,7 +669,7 @@ class CentralPurchaseController extends Controller
 
         }
 
-         //product purchase Receipt
+        //product purchase Receipt
         //  try{
         //     // $purchase->purchaseTransactions()->detach();
         //     DB::table('product_purchase_receipt')->where('central_purchase_id', $id)->delete();
@@ -634,13 +698,16 @@ class CentralPurchaseController extends Controller
         }
 
     
+
         try {    
-            foreach ($products as $product) {
+            foreach ($selectedProducts as $product) {
                 $productRow = Product::find($product['id']);
                 if ($productRow == null) {
                     continue;
                 }
-                $productRow->central_stock = $productRow->central_stock - ($product['pivot']['quantity']) ;
+                $productRow->central_stock = 
+                    $productRow->central_stock - ($product['return_quantity']-$product['free'])
+                     ;
                 $productRow->save();
             }
         } catch (Exception $e) {
@@ -693,10 +760,6 @@ class CentralPurchaseController extends Controller
         
         $accounts = Account::all();
 
-        // $selectedProducts = collect($purchase->products)->each(function ($product) {
-        //     $product['return_quantity'] = 0;
-        //     $product['cause'] = 'defective';
-        // });
 
         $purchaseReceiptProducts = PurchaseReceipt::with(['products'])->where("central_purchase_id",$id)
         ->get()
@@ -707,18 +770,18 @@ class CentralPurchaseController extends Controller
             $receivedQuantity = collect($product)->sum(function($item) {
                 return $item->pivot->quantity;
             });
+            $freeQuantity = collect($product)->map(function ($product) {
+                return $product->pivot->free;
+            })->sum();
 
             return [
                 'id' => $key,
                 'received_quantity' => $receivedQuantity,
+                'free' => $freeQuantity,
             ];
             // $product = collect($product)->values()->all();
         })->values()->all();
         
-        $payAmountPurchase = collect($purchase->purchaseTransactions)->sum('pivot.amount');
-
-      
-
         $saleReturnProducts = PurchaseReturn::with(['products'])
         ->where('central_purchase_id', $id)
         ->get()
@@ -729,15 +792,19 @@ class CentralPurchaseController extends Controller
             $returnedQuantity = collect($group)->map(function ($product) {
                 return $product->pivot->quantity;
             })->sum();
+            $freeQuantity = collect($group)->map(function ($product) {
+                return $product->pivot->free;
+            })->sum();
             return [
                 'id' => $id,
                 'returned_quantity' => $returnedQuantity,
+                'free' => $freeQuantity,
             ];
         })
         ->all();
+       
         // return $purchase->products;
         // return $saleReturnProducts;
-        
         $selectedProducts = collect($purchase->products)->each(function ($product) use ($saleReturnProducts,$purchaseReceiptProducts) {
         $saleReturn = collect($saleReturnProducts)->where('id', $product['id'])->first();
         $receipt=collect($purchaseReceiptProducts)->where('id', $product['id'])->first();
@@ -756,15 +823,17 @@ class CentralPurchaseController extends Controller
         //$availableQuantity = $product->pivot->quantity - $product['returned_quantity'];
         $availableQuantity = $product['received_quantity'] - $product['returned_quantity'];
         
-
+        $product['free'] = $receipt['free'];
         $product['return_quantity'] = $availableQuantity;
         $product['initial_quantity'] = 0;
         $product['cause'] = 'defective';
         // $product['finish'] = $product['returned_quantity'] >= $product->pivot->quantity ? 1 : 0;
         $product['finish'] = $product['returned_quantity'] >= $product['received_quantity'] ? 1 : 0;
         })->sortBy('finish')->values()->all();
+
+       
         
-         
+        $payAmountPurchase = collect($purchase->purchaseTransactions)->sum('pivot.amount');
         return view('central-purchase.return', [
             'purchase' => $purchase,
             'accounts' => $accounts,
