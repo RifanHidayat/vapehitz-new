@@ -249,7 +249,7 @@
                                 
                                     @php $subTotal = 0; $remainingPay=0; @endphp
                                     @foreach($transactions as $transaction)
-                                    @if($transaction->account_id!="3")
+                                 
                                     <tr>
                                         <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
                                         <td><a href="/purchase-return-transaction/show/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
@@ -257,7 +257,7 @@
                                         <td class="text-right">{{ number_format($transaction->amount) }}</td>
                                     </tr>
                                     @php $subTotal += $transaction->amount; $remainingPay=$subTotal - $purchaseReturn->amount; @endphp
-                                    @endif
+                               
                                     @endforeach
                                 </tbody>
                                 <tfoot>

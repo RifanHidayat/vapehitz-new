@@ -17,13 +17,10 @@
         </tr>
     </thead>
     <tbody>
-       
-
+    
         @php $balance=0; @endphp
         @foreach($transactions as $transaction)
-
         @php $transaction->account_type=="in"?$balance+=$transaction->amount:$balance-=$transaction->amount   @endphp
-        
         <tr>
             <td data-format="#,##0_-" style="width:10%">{{$transaction->date}}</td>
             <td style="width:25%" >{{ $transaction->description }}</td>
