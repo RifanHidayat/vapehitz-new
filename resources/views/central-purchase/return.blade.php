@@ -455,8 +455,8 @@
                     return totalReturnQuantity;
                 },
                 totalReturnNominal: function() {
-                    let totalReturnNominal = this.selectedProducts.map(product => Number(product.pivot.price) * Number(product.return_quantity)).reduce((acc, cur) => {
-                        return acc + cur;
+                    let totalReturnNominal = this.selectedProducts.map(product => Number(product.pivot.price) * Number(product.initial_quantity)).reduce((acc, cur) => {
+                        return acc + cur; 
                     }, 0)
 
                     return totalReturnNominal;

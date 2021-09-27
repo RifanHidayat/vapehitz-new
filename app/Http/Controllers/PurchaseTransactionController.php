@@ -50,6 +50,7 @@ class PurchaseTransactionController extends Controller
             $transaction->payment_method = $request->payment_method;
             $transaction->note = $request->note;
             $transaction->account_id = "3";
+            $transaction->account_type="out";
             $transaction->save();
         }catch(Exception $e){
             return response()->json([
@@ -81,6 +82,12 @@ class PurchaseTransactionController extends Controller
        
 
         try {
+            $date = $request->date;
+            $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
+            $transactionNumber = 'PT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+            $purchaseId = $request->purchase_id;
+            $amount = $this->clearThousandFormat($request->amount);
+            
             $transaction = new PurchaseTransaction;
             $transaction->code = $transactionNumber;
             $transaction->date = $request->date;
@@ -89,6 +96,7 @@ class PurchaseTransactionController extends Controller
             $transaction->payment_method = $request->payment_method;
             $transaction->note = $request->note;
             $transaction->account_id = $request->account_id;
+            $transaction->account_type = "out";
             $transaction->save();
 
         } catch (Exception $e) {

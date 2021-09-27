@@ -64,7 +64,7 @@ class AccountTransactionController extends Controller
         $accountTransaction->number = $request->number;
         $accountTransaction->account_id = $request->account_out;
         $accountTransaction->date = $request->date;
-        $accountTransaction->amount = $request->amount;
+        $accountTransaction->amount = str_replace(".", "", $request->amount);
         $accountTransaction->note = $request->note;
         $accountTransaction->account_type = "out";
        // return $request->account_in;
@@ -85,7 +85,7 @@ class AccountTransactionController extends Controller
         $accountTransaction->number = $request->number;
         $accountTransaction->account_id = $request->account_in;
         $accountTransaction->date = $request->date;
-        $accountTransaction->amount = $request->amount;
+        $accountTransaction->amount = str_replace(".", "", $request->amount);
         $accountTransaction->note = $request->note;
         $accountTransaction->account_type = "in";
         try {
@@ -138,7 +138,7 @@ class AccountTransactionController extends Controller
         $accountTransaction->number = $request->number;
         $accountTransaction->account_id = $request->account_in;
         $accountTransaction->date = $request->date;
-        $accountTransaction->amount = $request->amount;
+        $accountTransaction->amount = str_replace(".", "", $request->amount);
         $accountTransaction->note = $request->note;
         $accountTransaction->account_type = "in";
         try {
@@ -158,7 +158,7 @@ class AccountTransactionController extends Controller
       
         $accountTransaction->account_id = $request->account_out;
         $accountTransaction->date = $request->date;
-        $accountTransaction->amount = $request->amount;
+        $accountTransaction->amount = str_replace(".", "", $request->amount);
         $accountTransaction->note = $request->note;
         $accountTransaction->account_type = "out";
         try {
@@ -198,5 +198,15 @@ class AccountTransactionController extends Controller
         }
 
         
+    }
+
+    private function formatDate($date = "", $format = "Y-m-d")
+    {
+        return date_format(date_create($date), $format);
+    }
+
+    private function clearThousandFormat($number = 0)
+    {
+        return str_replace(".", "", $number);
     }
 }

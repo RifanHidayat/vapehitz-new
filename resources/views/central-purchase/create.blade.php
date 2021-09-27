@@ -503,6 +503,7 @@
             removeFromCart: function(index) {
                 this.cart.splice(index, 1);
             },
+            
             moveFromCart: function() {
                 const selectedProductIds = this.selectedProducts.map(product => product.id);
                 const productsInCart = this.cart.filter(product => selectedProductIds.indexOf(product.id) < 0);
@@ -513,7 +514,6 @@
                         this.selectedProducts[index].quantity += 1;
                         this.selectedProducts[index].free += 1;
                     })
-                // console.log(arr);
 
                 this.selectedProducts = this.selectedProducts.concat(productsInCart);
                 this.cart = [];

@@ -96,13 +96,35 @@
                                             </div>
                                             <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
                                         </div>
+
+                                     
+
+                                        <div class="row justify-content-between align-items-center mt-3">
+                                            <p class="col-md-6 mb-0">amount</p>
+                                            <div class="col-md-6">
+                                                <!-- <div class="form-control-wrap">
+                                                        <input type="text" class="form-control" id="default-05" placeholder="Input placeholder">
+                                                        <div class="form-text-hint">
+                                                            <span class="overline-title">IDR</span>
+                                                        </div>
+                                                    </div> -->
+                                                <div class="form-control-wrap">
+                                                    <div class="form-icon form-icon-left">
+                                                        <!-- <em class="icon ni ni-user"></em> -->
+                                                        <span>Rp</span>
+                                                    </div>
+                                                    <input type="text" v-model="product.amount_product"  class="form-control text-right" readonly >
+                                                </div>
+                                            </div>
+                                            <!-- <p class="col-md-6 text-right mb-0"><strong>{{ number_format(120000) }}</strong></p> -->
+                                        </div>
                                         <div class="row justify-content-between align-items-center mt-3">
                                             <p class="col-md-6 mb-0">Quantity</p>
                                             <div class="col-md-6">
                                                 <!-- <input type="text" class="form-control form-control-sm text-right"> -->
                                                 <div class="form-control-wrap number-spinner-wrap">
                                                     <button type="button" @click="reduceProductQuantity(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-minus" :disabled="product.quantity === 1"><em class="icon ni ni-minus"></em></button>
-                                                    <input type="number" v-model="product.quantity" class="form-control number-spinner" value="0">
+                                                    <input type="number" v-model="product.quantity" class="form-control number-spinner" value="0" @input="calculateAmountProduct(product)">
                                                     <button type="button" @click="increaseProductQuantity(product)" class="btn btn-icon btn-outline-light number-spinner-btn number-plus"><em class="icon ni ni-plus"></em></button>
                                                 </div>
                                                 
@@ -550,11 +572,13 @@
             },
             increaseProductQuantity: function(product) {
                 product.quantity = product.quantity + 1;
+                this.calculateAmountProduct(product);  
             },
             reduceProductQuantity: function(product) {
                 if (product.quantity > 1) {
                     product.quantity = product.quantity - 1;
                 }
+                this.calculateAmountProduct(product);  
             },
             increaseProductFree: function(product) {
                 product.free = product.free + 1;
@@ -574,6 +598,10 @@
                 }
                 return number.replaceAll(".", "");
             },
+            calculateAmountProduct:function(product){
+                product.amount_product=product.quantity * product.purchase_price;
+ 
+            }
         },
         computed: {
             subTotal: function() {
@@ -597,6 +625,7 @@
 
                 return 0;
             },
+            
             changePayment: function() {
                 return this.netTotal - this.payment;
             },
@@ -605,7 +634,6 @@
                 if (this.paymentMethod !== '') {
                     return this.accounts.filter(account => account.type == vm.paymentMethod);
                 }
-
                 return this.accounts;
             }
         }
@@ -654,6 +682,7 @@
 
             const cart = app.$data.cart;
             const productIds = cart.map(product => product.id);
+            data['amount_product']=rowData.purchase_price;
 
             // If product already in cart or selected products
             if (productIds.indexOf(data.id) < 0) {

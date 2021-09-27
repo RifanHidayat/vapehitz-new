@@ -101,7 +101,7 @@ class PurchaseReturnController extends Controller
                  $purchaseReturnTransaction ->date = $request->date;
                  $purchaseReturnTransaction ->account_id = "2";
                  $purchaseReturnTransaction ->supplier_id = $request->supplier_id;
-                 $purchaseReturnTransaction ->amount =$remaining_pay ;
+                 $purchaseReturnTransaction ->amount =$total_return_amount-$remaining_pay ;
                  $purchaseReturnTransaction ->payment_method = $request->payment_method;
                  $purchaseReturnTransaction ->note = $request->note;
                  $purchaseReturnTransaction ->purchase_return_id = $purchaseReturn->id;
@@ -569,12 +569,8 @@ class PurchaseReturnController extends Controller
             $payAmount = collect($purchase->purchaseTransactions)->sum('pivot.amount');
         }
 
-        $transactions = collect($purchaseReturn->purchaseReturnTransactions)->sortBy('date')->values()->all();
-        // return $transactions;
-
-       // return $transactions;
-       
-          
+        $transactions = collect($purchaseReturn->purchaseReturnTransactions)->where('account_id','!=',2)->sortBy('date')->values()->all();
+   
         return view('purchase-return.pay', [
             'purchaseReturn' => $purchaseReturn,
             'accounts' => $accounts,
@@ -600,7 +596,10 @@ class PurchaseReturnController extends Controller
             })
             ->addColumn('payAmount', function ($row) {
                 $purchase = PurchaseReturn::with(['supplier'])->findOrFail($row->id);
-                $payAmount = collect($purchase->purchaseReturnTransactions)->sum('amount');
+                $payAmount = collect($purchase->purchaseReturnTransactions)
+                ->where('account_id','!=',2)
+                ->sum('amount');
+
                 return number_format($payAmount);
             })
             ->addColumn('amount', function ($row) {
@@ -609,7 +608,10 @@ class PurchaseReturnController extends Controller
             })
             ->addColumn('remainingAmount', function ($row) {
                 $purchase = PurchaseReturn::with(['supplier'])->findOrFail($row->id);
-                $payAmount = collect($purchase->purchaseReturnTransactions)->sum('amount');
+                $payAmount = collect($purchase->purchaseReturnTransactions)
+                ->where('account_id','!=',2)
+                ->sum('amount');
+                
                 return number_format($row->amount - $payAmount);
             })
 

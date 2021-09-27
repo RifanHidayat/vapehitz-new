@@ -1,35 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-<style>
-    .dataTables_filter {
-        text-align: right;
-        width: 90%;
-    }
 
-    table tr th {
-        font-size: 15px;
-        color: black;
-    }
-
-    table tr td {
-        font-size: 13px;
-        color: black;
-    }
-
-    .pull-left {
-        float: left !important;
-    }
-
-    .pull-right {
-        float: right !important;
-        margin-bottom: 20px;
-    }
-
-    .bottom {
-        float: right !important;
-    }
-</style>
 @section('content')
 <div class="components-preview ">
     <div class="nk-block-head">
@@ -58,7 +30,7 @@
                         <div class="form-group col-md-6">
                             <label class="form-label" for="full-name-1">Saldo Awal</label>
                             <div class="form-control-wrap">
-                                <input type="text" v-model="init_balance" class="form-control text-right init_balance" class="form-control" placeholder="0.00">
+                                <input type="text" v-model="init_balance" class="form-control text-right init_balance" class="form-control" placeholder="0.00" v-cleave="cleaveCurrency" >
                             </div>
                         </div>
                         <div class="form-group col-md-6">
@@ -102,7 +74,7 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                <table style="width: 100%;" class="table table-striped" id="accounts">
+                <!-- <table style="width: 100%;" class="table table-striped" id="accounts">
                         <thead>
                             <tr class="text-left">
                                 <th>Nomor Kartu</th>
@@ -114,7 +86,73 @@
                             </tr>
                         </thead>
                      
-                    </table>
+                    </table> -->
+
+                    <table class="table table-striped" id="accounts" >
+                    <thead>
+                        <tr>
+                            <th>Nomor Akun</th>
+                            <th>Nama</th>
+                            <th>Saldo</th>
+                            <th>Tanggo Saldo awal</th>
+                           
+                            <th>Jenis Transaksi</th>
+                            <th></th>
+                            <th>Account</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @php $index=0; @endphp
+                    @foreach ($accounts as $account)
+                        <tr>  
+                                <td>{{$account->number}}</td>
+                                <td>{{$account->name}}</td>
+                                <td>{{number_format($account->balance)}}</td>
+                                <td>{{$account->date}}</td>
+                                <td >{{$account->type}}<td>
+                               
+                            
+                            <td>
+                                <!-- <div class="btn-group" aria-label="Basic example">
+                                    <a href="#" @click.prevent="onEditAccount({{$index}})" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em></a>
+                                    <a href="#" @click.prevent="deleteAccount({{$account->id}})" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em></a>
+                                </div> -->
+
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <ul class="link-list-opt no-bdr">
+                
+                        
+                        <a href="#" @click.prevent="deleteAccount({{$account->id}})" class="btn btn-outline-light"><em class="fas fa-trash-alt"></em>
+                            <span>Delete</span>
+                            </a>
+                          
+                            <a  href="#" @click.prevent="onEditAccount({{$index}})" class="btn btn-outline-light"><em class="fas fa-pencil-alt"></em>
+                            <span>Edit</span>
+                        
+                        </a>
+                            <a href="/account/show/{{$account->id}}"><em class="icon fas fa-eye"></em>
+                            <span>Detail</span>
+                        
+                        </a>
+                       
+                        
+                            
+                        
+                        </ul>
+                    </div>
+            </div>
+
+                    
+                            </td>
+                          
+                        </tr>
+                        @php $index++ @endphp
+                        @endforeach
+                    </tbody>
+                </table>
+
                 </div>
             </div>
         </div>
@@ -125,6 +163,16 @@
 <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
 @endsection
 @section('pagescript')
+
+<script>
+  NioApp.DataTable.init = function() {
+            NioApp.DataTable('#accounts', {
+         
+        }); 
+}
+
+</script>
+
 <script>
     Vue.directive('cleave', {
         inserted: (el, binding) => {
@@ -215,7 +263,16 @@
                     })
                     .then(function(response) {
                         vm.loading = false;
-                        console.log(response);
+                        Swal.fire({
+                                title: 'Success',
+                                text: 'Data has been saved',
+                                icon: 'success',
+                                allowOutsideClick: false,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.reload();
+                                }
+                            })
                         const {
                             data
                         } = response.data
@@ -293,7 +350,7 @@
                             text: 'Data has been deleted',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                // window.location.reload();
+                                 window.location.reload();
                                  invoicesTable.ajax.reload();
                             }
                         })
@@ -316,112 +373,4 @@
 </script>
 
 
-<script>
-    var accounts = $(function() {
-        NioApp.DataTable.init = function() {
-            NioApp.DataTable('#accounts', {
-                processing: true,
-                serverSide: true,
-                autoWidth: false,
-            // dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: '/datatables/accounts',
-                type: 'GET',
-                // length: 2,
-            },
-            columns: [
-                {
-                    data: 'number',
-                    name: 'number'
-                },
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-               
-                {
-                    data: 'balance',
-                    name: 'balance'
-                },
-                {
-                    data: 'date',
-                    name: 'date'
-                },
-               
-             
-                {
-                    data: 'type',
-                    name: 'type'
-                },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
-
-            ]
-        });
-        $.fn.DataTable.ext.pager.numbers_length = 5;
-
-        }
-        NioApp.DataTable.init();
-        $('#accounts').on('click', 'tr .btn-delete', function(e) {
-            e.preventDefault();
-            // alert('click');
-            const id = $(this).attr('data-id');
-            console.log(id)
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "The data will be deleted",
-                icon: 'warning',
-                reverseButtons: true,
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                showLoaderOnConfirm: true,
-                preConfirm: () => {
-                    return axios.delete('/account/' + id)
-                        .then(function(response) {
-                            console.log(response.data);
-                        })
-                        .catch(function(error) {
-                            console.log(error.data);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops',
-                                text: 'Something wrong',
-                            })
-                        });
-                },
-                allowOutsideClick: () => !Swal.isLoading()
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: 'Data has been deleted',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.reload();
-
-                        }
-                    })
-                }
-            })
-        })
-        $('#accounts').on('click', 'tr .btn-edit', function(e) {
-            e.preventDefault();
-            // alert('click');
-            const id = $(this).attr('data-id');
-            console.log(id);
-
-
-
-          
-        
-        })
-    });
-    
-</script>
 @endsection

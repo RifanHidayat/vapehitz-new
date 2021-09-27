@@ -31,7 +31,40 @@ class AccountController extends Controller
      */
     public function index()
     {
-        $accounts = Account::all();
+        $accounts = collect(Account::all())->each(Function($account){
+            
+
+        //purchase transactions
+         $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($account['id']);
+         
+
+         //purchase rertun transactions      
+         $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
+         ->findOrfail($account['id']);
+         
+ 
+         //in out transaction
+         $InOutTransactionAccount=Account::with('accountTransactions')->find($account['id']);
+         
+        
+         //supping cost
+         $centralPurchases=CentralPurchase::where('shipping_cost','>',0,)->get();
+         
+         $transactionMerge = 
+         (($purchaseTransactions->purchaseTransactions)
+         ->merge($purchaseReturnTransactions->purchaseReturnTransactions)
+         ->merge($centralPurchases)
+         ->merge($InOutTransactionAccount->accountTransactions));
+
+
+        $accountTransactions=collect($transactionMerge)->sortBy('date')->all();
+        $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
+        $cashOut=collect($accountTransactions)->where('account_type','==','out')->sum('amount'); 
+        $account['balance']=$cashIn+$account['init_balance']-$cashOut;
+            
+        });
+        
+        //return $accounts;
         return view('account.index', [
             'accounts' => $accounts,
         ]);
@@ -44,6 +77,8 @@ class AccountController extends Controller
      */
     public function create()
     {
+
+        
         $accounts = Account::All();
         return view('account.create', [
             'accounts' => $accounts,
@@ -114,14 +149,13 @@ class AccountController extends Controller
          ($centralPurchase){
              $centralPurchase['account_type'] = 'in';
              $centralPurchases['account_id']="1";
-             $centralPurchase['description'] = 'Biaya kirim Pembelian barang dengan No. Order'.$centralPurchase['code'];
+             $centralPurchase['description'] = 'Biaya kirim Pembelian barang dengan No. Transaksi'.$centralPurchase['code'];
              $centralPurchase['note'] = $centralPurchase['note'];
              $centralPurchase['amount']=$centralPurchase['shipping_cost'];
          });
          
-         
         
- 
+
          //checked shpping account
          $id!="1"
          ? $transactionMerge = 
@@ -350,9 +384,11 @@ class AccountController extends Controller
         
         //opening balance
         $account=collect(Account::where('id','=',$id)->get())->each(function($account){
+            $account['tes'] = 22;
             $account['account_type'] = 'in';
-            $account['note'] = 'Saldo Awal';
+            $account['description'] = 'Saldo Awal';
             $account['amount'] = $account['init_balance'];
+           
         });
         
         //supping cost
@@ -367,19 +403,22 @@ class AccountController extends Controller
 
         //checked shpping account
         $id!="1"
-
         ? $transactionMerge = 
         ($account
         ->merge(collect($purchaseTransactions->purchaseTransactions)
            ->each(function($purchaseTransaction){
-               $purchaseTransaction['description']=
-               "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
-           }))
+            $purchaseTransaction['description']=
+            $purchaseTransaction['account_id']==3
+            ?"Transaksi Hutang dengan No. Transaksi ".$purchaseTransaction['code']
+            :"pembayaran supplier dengan No. Transaksi ".$purchaseTransaction['code'];  
+        }))
 
         ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
            ->each(function($purchaseReturnTransaction){
                $purchaseReturnTransaction['description']=
-                   "Pembayaran retur dengan No. Transaksi ".$purchaseReturnTransaction['code'];
+               $purchaseReturnTransaction['account_id']==2?
+               "Transaksi piutang dengan No. Transaksi ".$purchaseReturnTransaction['code']
+               :"Pembayaran retur dengan No. Transaksi ".$purchaseReturnTransaction['code'];
             }))
         ->merge($InOutTransactionAccount->accountTransactions))
 
@@ -439,7 +478,7 @@ class AccountController extends Controller
           //opening balance
           $account=collect(Account::where('id','=',$row->id)->get())->each(function($account){
               $account['account_type'] = 'in';
-              $account['Description'] = 'Saldo Awal';
+              $account['description '] = 'Saldo Awal';
               $account['amount'] = $account['init_balance'];
           });
           

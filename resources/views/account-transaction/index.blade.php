@@ -43,7 +43,7 @@
                         <div class="form-group col-md-4">
                             <label class="form-label" for="full-name-1">Nominal</label>
                             <div class="form-control-wrap">
-                                <input type="number" v-model="amount" class="form-control text-right" class="form-control" placeholder="0.00">
+                                <input type="text" v-model="amount" class="form-control text-right" class="form-control"  v-cleave="cleaveCurrency" placeholder="0.00">
                             </div>
                         </div>
                         <div class=" form-group col-md-4">
@@ -149,8 +149,25 @@
 </div><!-- .nk-block -->
 </div>
 @endsection
+@section('script')
+<script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+@endsection
 @section('pagescript')
 <script>
+    Vue.directive('cleave', {
+        inserted: (el, binding) => {
+            el.cleave = new Cleave(el, binding.value || {})
+        },
+        update: (el) => {
+            const event = new Event('input', {
+                bubbles: true
+            });
+            setTimeout(function() {
+                el.value = el.cleave.properties.result
+                el.dispatchEvent(event)
+            }, 100);
+        }
+    });
     let app = new Vue({
         el: '#app',
         data: {

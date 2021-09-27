@@ -42,10 +42,18 @@ class CentralPurchaseController extends Controller
      */
     public function index()
     {
+
         $permission = json_decode(Auth::user()->group->permission);
         if (!in_array("view_purchase_product", $permission)) {
             return view("dashboard.index");
         }
+
+        // $centralPurchase = CentralPurchase::with(['purchaseReturns' => function($q) {
+        //     $q->with(['purchaseReturnTransactions']);
+        // }])->findOrFail(47);
+        
+
+       
         $centralpurchases = CentralPurchase::all();
         $suppliers = Supplier::all();
         return view('central-purchase.index', [
@@ -132,6 +140,7 @@ class CentralPurchaseController extends Controller
             $transaction->amount = $amount;
             $transaction->payment_init = 1;
             $transaction->central_purchase_id = $centralPurchase->id;
+            $transaction->account_type = "in";
               
             try {
                 $transaction->save();
@@ -286,15 +295,10 @@ class CentralPurchaseController extends Controller
         
         $accounts = Account::all();
 
-        // $selectedProducts = collect($purchase->products)->each(function ($product) {
-        //     $product['return_quantity'] = 0;
-        //     $product['free'] = 0;
-        //     $product['cause'] = 'defective';
-        // });
 
        // return $selectedProducts;
         $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
-        $payAmountPurchase = collect($purchase->purchaseTransactions)->sum('pivot.amount');
+        $payAmountPurchase = collect($purchase->purchaseTransactions)->where('account_id','!=',3)->sum('pivot.amount');
 
         
 
@@ -408,14 +412,18 @@ class CentralPurchaseController extends Controller
             $product['free'] = $product->pivot->free;
             $product['stock'] = $product->pivot->stock;
             $product['purchase_price'] = $product->pivot->price;
-            $product['cause'] = 'defective';
+            $product['amount_product'] = $product->pivot->price *$product->pivot->quantity ;
+           
         });
+        //return $selectedProducts;
+     
 
     
         return view('central-purchase.edit', [
             'central_purchases' => $centralpurchases,
             'suppliers' => $suppliers,
             'accounts' => $accounts,
+            'selectedProducts'=>$selectedProducts
         ]);
     }
 
@@ -553,9 +561,11 @@ class CentralPurchaseController extends Controller
      */
     public function destroy($id)
     {
+
         $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
         $centralPurchase = CentralPurchase::findOrFail($id);
 
+        //product
         $purchaseReceiptProducts = PurchaseReceipt::with(['products'])->where("central_purchase_id",$id)
         ->get()
         ->flatMap(function($receipt) {
@@ -624,7 +634,7 @@ class CentralPurchaseController extends Controller
 
         //purchase Return
         try{
-            DB::table('purchase_returns')->where('central_purchase_id', $id)->delete();
+            PurchaseReturn::query()->where('central_purchase_id', $id)->delete();
         }catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
@@ -634,7 +644,7 @@ class CentralPurchaseController extends Controller
          
             ], 500);
         }
-         //purchase Return Transactions
+       //  purchase Return Transactions
         //  try{
         //     DB::table('purchase_return_transactions')->where('central_purchase_id', $id)->delete();
         // }catch (Exception $e) {
@@ -650,7 +660,7 @@ class CentralPurchaseController extends Controller
          //purchase Receipt
          try{
             // $purchase->purchaseTransactions()->detach();
-            DB::table('purchase_receipts')->where('central_purchase_id', $id)->delete();
+            PurchaseReceipt::query()->where('central_purchase_id', $id)->delete();
         }catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
@@ -662,19 +672,19 @@ class CentralPurchaseController extends Controller
 
         }
 
-        //product purchase Receipt
-        //  try{
-        //     // $purchase->purchaseTransactions()->detach();
-        //     DB::table('product_purchase_receipt')->where('central_purchase_id', $id)->delete();
-        // }catch (Exception $e) {
-        //     return response()->json([
-        //         'message' => 'Internal error',
-        //         'code' => 500,
-        //         'error' => true,
-        //         'errors' => $e,
+    //    // product purchase Receipt
+    //      try{
+    //         // $purchase->purchaseTransactions()->detach();
+    //         DB::table('product_purchase_receipt')->where('central_purchase_id', $id)->delete();
+    //     }catch (Exception $e) {
+    //         return response()->json([
+    //             'message' => 'Internal error',
+    //             'code' => 500,
+    //             'error' => true,
+    //             'errors' => $e,
          
-        //     ], 500);
-        // }
+    //         ], 500);
+    //     }
        
 
         try{
@@ -738,7 +748,7 @@ class CentralPurchaseController extends Controller
         $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
         $accounts = Account::all();
 
-        $transactions = collect($purchase->purchaseTransactions)->sortBy('date')->values()->all();
+        $transactions = collect($purchase->purchaseTransactions)->where('account_id','!=',3)->sortBy('date')->values()->all();
         //return $transactions;
         return view('central-purchase.pay', [
             'purchase' => $purchase,
@@ -753,7 +763,7 @@ class CentralPurchaseController extends Controller
         
         $accounts = Account::all();
 
-
+        $payAmountPurchase = collect($purchase->purchaseTransactions)->where('account_id','!=',3)->sum('pivot.amount');
         $purchaseReceiptProducts = PurchaseReceipt::with(['products'])->where("central_purchase_id",$id)
         ->get()
         ->flatMap(function($receipt) {
@@ -826,7 +836,7 @@ class CentralPurchaseController extends Controller
 
        
         
-        $payAmountPurchase = collect($purchase->purchaseTransactions)->sum('pivot.amount');
+       
         return view('central-purchase.return', [
             'purchase' => $purchase,
             'accounts' => $accounts,
@@ -958,7 +968,10 @@ class CentralPurchaseController extends Controller
             })
             ->addColumn('payAmount', function ($row) {
                 $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($row->id);
-                $transactions = collect($purchase->purchaseTransactions)->sum('pivot.amount');
+                $transactions = collect($purchase->purchaseTransactions)
+                ->where('account_id','!=',3)
+                ->sum('pivot.amount');
+                
                 return (number_format($transactions));
             })
             ->addColumn('action', function ($row) {
@@ -995,9 +1008,9 @@ class CentralPurchaseController extends Controller
             ->addColumn('remainingAmount', function ($row) {
                 $paidOff='<div><span class="badge badge-sm badge-dim badge-outline-success d-none d-md-inline-flex">Lunas</span></div>';
                 $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($row->id);
-                $transactions = collect($purchase->purchaseTransactions)->sum('pivot.amount');
-                // return ((($row->netto)-($transactions))==0?
-                // $paidOff:number_format(($row->netto)-($transactions))); 
+                $transactions = collect($purchase->purchaseTransactions)
+                ->where('account_id','!=',3)
+                ->sum('pivot.amount');
 
                 return number_format(($row->netto)-($transactions));
             })

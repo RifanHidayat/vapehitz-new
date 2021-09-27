@@ -1255,13 +1255,6 @@ class CentralSaleController extends Controller
         $sale = CentralSale::with(['customer', 'products'])->findOrFail($id);
         $accounts = Account::all();
 
-        // return $purchase;
-
-        // foreach($purchase->products)
-        // $selectedProducts = collect($purchase->products)->each(function ($product) {
-        //     $product['quantity'] = $product->pivot->quantity;
-        //     $product['purchase_price'] = $product->pivot->price;
-        // });
 
         // return $selectedProducts;
         $transactions = collect($sale->centralSaleTransactions)->sortBy('date')->values()->all();
