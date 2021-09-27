@@ -25,6 +25,7 @@ use App\Http\Controllers\PurchaseReturnTransactionController;
 use App\Http\Controllers\CentralSaleReturnController;
 use App\Http\Controllers\CentralSaleReturnTransactionController;
 use App\Http\Controllers\CentralSaleTransactionController;
+use App\Http\Controllers\ChangelogController;
 use App\Http\Controllers\ReqToRetailController;
 use App\Http\Controllers\RetailSaleController;
 use App\Http\Controllers\ReturSupplierController;
@@ -633,6 +634,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/central-purchase/supplier/summary', [ReportController::class, 'centralPurchaseBySupplierSummary']);
         Route::get('/central-purchase/product/detail', [ReportController::class, 'centralPurchaseByProductDetail']);
         Route::get('/central-purchase/product/summary', [ReportController::class, 'centralPurchaseByProductSummary']);
+    });
+
+    Route::prefix('/changelog')->group(function () {
+        Route::get('/', [ChangelogController::class, 'index']);
     });
 });
 
