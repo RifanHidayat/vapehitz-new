@@ -129,7 +129,7 @@ class AccountController extends Controller
          ->merge(collect($purchaseTransactions->purchaseTransactions)
             ->each(function($purchaseTransaction){
                 $purchaseTransaction['description']=
-                "Pembayaran retur dengan No. Transaksi".$purchaseTransaction['code'];
+                "Pembayaran retur dengan No. Transaksi ".$purchaseTransaction['code'];
             }))
             
          ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
@@ -462,7 +462,7 @@ class AccountController extends Controller
           ->merge(collect($purchaseTransactions->purchaseTransactions)
              ->each(function($purchaseTransaction){
                  $purchaseTransaction['description']=
-                 "Pembayaran retur dengan No. Transaksi".$purchaseTransaction['code'];
+                 "Pembayaran retur dengan No. Transaksi ".$purchaseTransaction['code'];
              }))
              
           ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
