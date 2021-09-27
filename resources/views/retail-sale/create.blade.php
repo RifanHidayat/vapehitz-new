@@ -240,7 +240,7 @@
                                         <!-- <em class="icon ni ni-user"></em> -->
                                         <span>Rp</span>
                                     </div>
-                                    <input type="text" v-model="paymentAmount" v-cleave="cleaveCurrency" class=" form-control text-right" placeholder="Biaya Kirim" :readonly="paymentMethod == 'hutang'">
+                                    <input type="text" v-model="paymentAmount" v-cleave="cleaveCurrency" class=" form-control text-right" placeholder="Jumlah Bayar" :readonly="paymentMethod == 'hutang'">
                                 </div>
                             </div>
                             <!-- <div class="form-group">
@@ -256,7 +256,7 @@
                                         <select v-model="paymentMethod" @change="onChangePaymentMethod" class="form-control">
                                             <option value="transfer">Transfer</option>
                                             <option value="cash">Cash</option>
-                                            <!-- <option value="hutang">Hutang</option> -->
+                                            <option value="hutang">Hutang</option>
                                         </select>
                                     </div>
                                 </div>

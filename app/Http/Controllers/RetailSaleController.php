@@ -76,6 +76,9 @@ class RetailSaleController extends Controller
         $retailSalesByCurrentDateCount = RetailSale::query()->where('date', $date)->get()->count();
         $retailSaleNumber = 'RS/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $retailSalesByCurrentDateCount + 1);
 
+        $netTotal = $this->clearThousandFormat($request->net_total);
+        $paymentAmount = $this->clearThousandFormat($request->pay_amount);
+
         $retailSale = new RetailSale;
         $retailSale->code = $retailSaleNumber;
         $retailSale->date = $request->date . ' ' . date('H:i:s');
@@ -241,48 +244,51 @@ class RetailSaleController extends Controller
         //     ], 500);
         // }
 
-        // 
-        // $date = $request->date;
-        // $transactionsByCurrentDateCount = RetailSaleTransaction::query()->where('date', $date)->get()->count();
-        // $saleId = $retailSale->id;
-        // $transactionNumber = 'RST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
-        // $amount = $this->clearThousandFormat($request->receive_1);
+        // Retail Sale Transaction
+        if ($request->payment_method !== 'hutang') {
+            $date = $request->date;
+            $transactionsByCurrentDateCount = RetailSaleTransaction::query()->where('date', $date)->get()->count();
+            $saleId = $retailSale->id;
+            $transactionNumber = 'RST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+            $transactionAmount = $paymentAmount > $netTotal ? $netTotal : $paymentAmount;
+            // $amount = $this->clearThousandFormat($transactionAmount);
 
-        // $transaction = new RetailSaleTransaction;
-        // $transaction->code = $transactionNumber;
-        // $transaction->date = $date;
-        // $transaction->account_id = $request->account_id;
-        // $transaction->amount = $amount;
-        // $transaction->payment_method = $request->payment_method;
+            $transaction = new RetailSaleTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $date;
+            $transaction->account_id = $request->account_id;
+            $transaction->amount = $transactionAmount;
+            $transaction->payment_method = $request->payment_method;
 
-        // try {
-        //     $transaction->save();
-        // } catch (Exception $e) {
-        //     return response()->json([
-        //         'message' => 'Internal error',
-        //         'code' => 500,
-        //         'error' => true,
-        //         'errors' => $e,
-        //     ], 500);
-        // }
+            try {
+                $transaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
 
-        // try {
-        //     $transaction->centralSales()->attach([
-        //         $saleId => [
-        //             'amount' => $amount,
-        //             'created_at' => Carbon::now()->toDateTimeString(),
-        //             'updated_at' => Carbon::now()->toDateTimeString(),
-        //         ]
-        //     ]);
-        // } catch (Exception $e) {
-        //     $transaction->delete();
-        //     return response()->json([
-        //         'message' => 'Internal error',
-        //         'code' => 500,
-        //         'error' => true,
-        //         'errors' => $e,
-        //     ], 500);
-        // }
+            try {
+                $transaction->retailSales()->attach([
+                    $saleId => [
+                        'amount' => $transactionAmount,
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ]);
+            } catch (Exception $e) {
+                $transaction->delete();
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
+        }
 
         return response()->json([
             'message' => 'Data has been saved',

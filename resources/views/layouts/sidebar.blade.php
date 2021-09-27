@@ -100,6 +100,12 @@ if (isset($sidebar_class)) {
                             <li class="nk-menu-item {{ request()->is('central-sale-transaction') || request()->is('central-sale-transaction/*') ? 'active current-page' : '' }}">
                                 <a href="/central-sale-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Pelanggan</span></a>
                             </li>
+                            <li class="nk-menu-item {{ request()->is('retail-sale-transaction') || request()->is('retail-sale-transaction/*') ? 'active current-page' : '' }}">
+                                <a href="/retail-sale-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Retail</span></a>
+                            </li>
+                            <li class="nk-menu-item {{ request()->is('studio-sale-transaction') || request()->is('studio-sale-transaction/*') ? 'active current-page' : '' }}">
+                                <a href="/studio-sale-transaction" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Pembayaran Studio</span></a>
+                            </li>
                             <li class="nk-menu-item {{ request()->is('central-sale-return') || request()->is('central-sale-return/*') ? 'active current-page' : '' }}">
                                 <a href="/central-sale-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Penjualan</span></a>
                             </li>
