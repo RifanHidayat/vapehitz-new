@@ -302,7 +302,15 @@ class StudioSaleController extends Controller
      */
     public function show($id)
     {
-        //
+        $sale = StudioSale::with('products.productCategory')->findOrFail($id);
+        $transactions = collect($sale->studioSaleTransactions)->sortBy('date')->values()->all();
+        $returns = collect($sale->studioSaleReturns)->sortBy('date')->values()->all();
+        // $returns = CentralSaleReturn::with(['products'])->where('central_sale_id', $id)->get();
+        return view('studio-sale.show', [
+            'sale' => $sale,
+            'transactions' => $transactions,
+            'returns' => $returns,
+        ]);
     }
 
     /**

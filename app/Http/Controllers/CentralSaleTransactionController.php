@@ -314,7 +314,11 @@ class CentralSaleTransactionController extends Controller
      */
     public function show($id)
     {
-        //
+        $transaction = CentralSaleTransaction::with(['centralSales', 'customer', 'centralSaleReturn'])->findOrFail($id);
+
+        return view('central-sale-transaction.show', [
+            'transaction' => $transaction,
+        ]);
     }
 
     /**
@@ -388,13 +392,11 @@ class CentralSaleTransactionController extends Controller
                 <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <ul class="link-list-opt no-bdr">
-                        <a href="/central-sale/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
-                            <span>Edit</span>
-                        </a>
+                        
                         <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                         <span>Delete</span>
                         </a>
-                        <a href="/central-sale/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                        <a href="/central-sale-transaction/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
                             <span>Detail</span>
                         </a>';
 

@@ -307,7 +307,10 @@ class RetailSaleReturnController extends Controller
      */
     public function show($id)
     {
-        //
+        $return = RetailSaleReturn::with(['products', 'account'])->findOrFail($id);
+        return view('retail-sale-return.show', [
+            'return' => $return,
+        ]);
     }
 
     /**

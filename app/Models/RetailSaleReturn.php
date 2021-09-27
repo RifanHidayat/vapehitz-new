@@ -18,4 +18,9 @@ class RetailSaleReturn extends Model
     {
         return $this->belongsTo(RetailSale::class);
     }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
 }

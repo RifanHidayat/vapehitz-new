@@ -236,7 +236,11 @@ class RetailSaleTransactionController extends Controller
      */
     public function show($id)
     {
-        //
+        $transaction = RetailSaleTransaction::with(['retailSales'])->findOrFail($id);
+
+        return view('retail-sale-transaction.show', [
+            'transaction' => $transaction,
+        ]);
     }
 
     /**
@@ -315,7 +319,7 @@ class RetailSaleTransactionController extends Controller
                         <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                         <span>Delete</span>
                         </a>
-                        <a href="/retail-sale/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                        <a href="/retail-sale-transaction/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
                             <span>Detail</span>
                         </a>';
 

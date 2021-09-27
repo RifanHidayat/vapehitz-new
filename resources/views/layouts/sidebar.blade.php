@@ -80,7 +80,7 @@ if (isset($sidebar_class)) {
                             </li>
                             @endif
                             @if(in_array("view_return_product_purchase", $permission))
-                            <li class="nk-menu-item {{ request()->is('purchase-return*') ? 'active current-page' : '' }}">
+                            <li class="nk-menu-item {{ request()->is('purchase-return') || request()->is('purchase-return/*') ? 'active current-page' : '' }}">
                                 <a href="/purchase-return" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Retur Barang Pembelian</span></a>
                             </li>
                             @endif
@@ -264,20 +264,17 @@ if (isset($sidebar_class)) {
                             <span class="nk-menu-text">Laporan</span>
                         </a>
                     </li>
-                    <!-- <li class="nk-menu-item has-sub">
+                    <li class="nk-menu-item has-sub">
                         <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
-                            <span class="nk-menu-icon"><em class="icon ni ni-tile-thumb"></em></span>
-                            <span class="nk-menu-text">Product</span>
+                            <span class="nk-menu-icon"><em class="icon ni ni-alert-circle"></em></span>
+                            <span class="nk-menu-text">About</span>
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             <li class="nk-menu-item">
-                                <a href="/product" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Product</span></a>
-                            </li>
-                            <li class="nk-menu-item">
-                                <a href="/product-category" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Category</span></a>
+                                <a href="/change-log" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Changelog</span></a>
                             </li>
                         </ul>
-                    </li> -->
+                    </li>
                 </ul><!-- .nk-menu -->
             </div><!-- .nk-sidebar-menu -->
         </div><!-- .nk-sidebar-content -->
