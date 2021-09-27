@@ -143,6 +143,14 @@
                             attributes: ['view_customer_payment', 'add_customer_payment', null, null, 'print_customer_payment', null],
                         },
                         {
+                            subtitle: 'Pembayaran Retail',
+                            attributes: ['view_customer_payment', 'add_customer_payment', null, null, 'print_customer_payment', null],
+                        },
+                        {
+                            subtitle: 'Pembayaran Studio',
+                            attributes: ['view_customer_payment', 'add_customer_payment', null, null, 'print_customer_payment', null],
+                        },
+                        {
                             subtitle: 'Retur Barang Penjualan',
                             attributes: ['view_return_product_sell', 'add_return_product_sell', null, null, 'print_return_product_sell', null],
                         },

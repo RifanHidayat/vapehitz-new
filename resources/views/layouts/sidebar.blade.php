@@ -65,7 +65,7 @@ if (isset($sidebar_class)) {
                     @if(in_array("view_purchase_product", $permission) || in_array("view_payment_supplier", $permission) || in_array("view_return_product_purchase", $permission) || in_array("view_product_payment", $permission) || in_array("view_product_sell", $permission) || in_array("view_customer_payment", $permission) || in_array("view_return_product_sell", $permission) || in_array("view_sell_return_settlement", $permission) || in_array("view_stock_opname", $permission) || in_array("view_badstock_release", $permission) || in_array("view_request_to_retail", $permission) || in_array("view_request_to_studio", $permission) || in_array("view_confirm_request", $permission))
                     <li class="nk-menu-item has-sub">
                         <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
-                            <span class="nk-menu-icon"><em class="icon ni ni-tranx"></em></span>
+                            <span class="nk-menu-icon"><em class="icon ni ni-link-group"></em></span>
                             <span class="nk-menu-text">Transaksi Pusat</span>
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
@@ -156,7 +156,7 @@ if (isset($sidebar_class)) {
                     @if(in_array("view_retail_sell",$permission) || in_array("view_request_to_central_retail", $permission) || in_array("view_return_retail_sell", $permission) || in_array("view_sop_retail", $permission))
                     <li class="nk-menu-item has-sub">
                         <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
-                            <span class="nk-menu-icon"><em class="icon ni ni-book"></em></span>
+                            <span class="nk-menu-icon"><em class="icon ni ni-swap-alt"></em></span>
                             <span class="nk-menu-text">Transaksi Retail</span>
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
@@ -187,7 +187,7 @@ if (isset($sidebar_class)) {
                     @if(in_array("view_sop_studio", $permission) || in_array("view_studio_sell", $permission))
                     <li class="nk-menu-item has-sub">
                         <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
-                            <span class="nk-menu-icon"><em class="icon ni ni-book"></em></span>
+                            <span class="nk-menu-icon"><em class="icon ni ni-share-alt"></em></span>
                             <span class="nk-menu-text">Transaksi Studio</span>
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
