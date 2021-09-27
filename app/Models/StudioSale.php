@@ -23,4 +23,9 @@ class StudioSale extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function studioSaleTransactions()
+    {
+        return $this->belongsToMany(StudioSaleTransaction::class)->withPivot('amount');
+    }
 }

@@ -192,7 +192,7 @@
         },
         methods: {
             submitForm: function() {
-                this.sendData();
+               // this.sendData();
             },
             sendData: function() {
                 // console.log('submitted');

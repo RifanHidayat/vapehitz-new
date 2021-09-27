@@ -8,6 +8,7 @@ use App\Models\AccountTransaction;
 use App\Models\Product;
 use App\Models\StudioSale;
 use App\Models\StudioSaleReturn;
+use App\Models\StudioSaleTransaction;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Exception;
@@ -71,7 +72,10 @@ class StudioSaleController extends Controller
         $date = $request->date;
 
         $salesByCurrentDateCount = StudioSale::query()->where('date', $date)->get()->count();
-        $saleNumber = 'RS/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $salesByCurrentDateCount + 1);
+        $saleNumber = 'SS/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $salesByCurrentDateCount + 1);
+
+        $netTotal = $this->clearThousandFormat($request->net_total);
+        $paymentAmount = $this->clearThousandFormat($request->pay_amount);
 
         $sale = new StudioSale;
         $sale->code = $saleNumber;
@@ -218,38 +222,76 @@ class StudioSaleController extends Controller
             ], 500);
         }
 
-        // Account Transaction
-        // $saleReturn = CentralSaleReturn::find($saleReturnId);
-        $accountTransaction = new AccountTransaction;
-        $accountTransaction->account_in = $request->account_id;
-        $accountTransaction->amount = $this->clearThousandFormat($request->net_total);
-        $accountTransaction->type = "in";
-        $accountTransaction->note = "Penjualan studio No. " . $saleNumber;
-        $accountTransaction->date = $request->date;
+        if ($request->payment_method !== 'hutang') {
+            $date = $request->date;
+            $transactionsByCurrentDateCount = StudioSaleTransaction::query()->where('date', $date)->get()->count();
+            $saleId = $sale->id;
+            $transactionNumber = 'SST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+            $transactionAmount = $paymentAmount > $netTotal ? $netTotal : $paymentAmount;
+            // $amount = $this->clearThousandFormat($transactionAmount);
 
-        try {
-            $accountTransaction->save();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $transaction,
-            // ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
+            $transaction = new StudioSaleTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $date;
+            $transaction->account_id = $request->account_id;
+            $transaction->amount = $transactionAmount;
+            $transaction->payment_method = $request->payment_method;
+
+            try {
+                $transaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
+
+            try {
+                $transaction->studioSales()->attach([
+                    $saleId => [
+                        'amount' => $transactionAmount,
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ]);
+            } catch (Exception $e) {
+                $transaction->delete();
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
         }
 
-        return response()->json([
-            'message' => 'Data has been saved',
-            'code' => 200,
-            'error' => false,
-            'data' => $sale,
-        ]);
+        // Account Transaction
+        // $accountTransaction = new AccountTransaction;
+        // $accountTransaction->account_in = $request->account_id;
+        // $accountTransaction->amount = $this->clearThousandFormat($request->net_total);
+        // $accountTransaction->type = "in";
+        // $accountTransaction->note = "Penjualan studio No. " . $saleNumber;
+        // $accountTransaction->date = $request->date;
+
+        // try {
+        //     $accountTransaction->save();
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'message' => 'Internal error',
+        //         'code' => 500,
+        //         'error' => true,
+        //         'errors' => $e,
+        //     ], 500);
+        // }
+
+        // return response()->json([
+        //     'message' => 'Data has been saved',
+        //     'code' => 200,
+        //     'error' => false,
+        //     'data' => $sale,
+        // ]);
     }
 
     /**

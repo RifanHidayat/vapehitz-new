@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RetailSaleTransaction extends Model
+class StudioSaleTransaction extends Model
 {
     use HasFactory;
 
-    public function retailSales()
+    public function studioSales()
     {
-        return $this->belongsToMany(RetailSale::class)->withPivot('amount');
+        return $this->belongsToMany(StudioSale::class)->withPivot('amount');
     }
 
     public function account()

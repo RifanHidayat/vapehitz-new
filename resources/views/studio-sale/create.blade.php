@@ -227,14 +227,14 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div v-if="paymentMethod !== 'hutang'" class="form-group">
                                 <label class="form-label" for="full-name-1">Jumlah Bayar</label>
                                 <div class="form-control-wrap">
                                     <div class="form-icon form-icon-left">
                                         <!-- <em class="icon ni ni-user"></em> -->
                                         <span>Rp</span>
                                     </div>
-                                    <input type="text" v-model="paymentAmount" v-cleave="cleaveCurrency" class=" form-control text-right" placeholder="Biaya Kirim">
+                                    <input type="text" v-model="paymentAmount" v-cleave="cleaveCurrency" class=" form-control text-right" placeholder="Jumlah Bayar">
                                 </div>
                             </div>
                             <!-- <div class="form-group">
@@ -247,10 +247,10 @@
                                 <div class="form-group col-lg-6 col-md-12">
                                     <label class="form-label" for="full-name-1">Cara Pembayaran</label>
                                     <div class="form-control-wrap">
-                                        <select v-model="paymentMethod" class="form-control">
+                                        <select v-model="paymentMethod" @change="onChangePaymentMethod" class="form-control">
                                             <option value="transfer">Transfer</option>
                                             <option value="cash">Cash</option>
-                                            <!-- <option value="hutang">Hutang</option> -->
+                                            <option value="hutang">Hutang</option>
                                         </select>
                                     </div>
                                 </div>
@@ -538,6 +538,11 @@
                 }
                 return number.replaceAll(".", "");
             },
+            onChangePaymentMethod: function() {
+                if (this.paymentMethod == 'hutang') {
+                    this.paymentAmount = 0;
+                }
+            }
         },
         computed: {
             totalWeight: function() {
@@ -606,7 +611,7 @@
                 serverSide: true,
                 "autoWidth": false,
                 ajax: {
-                    url: '/datatables/central_purchases/products',
+                    url: '/datatables/central-purchases/products',
                     type: 'GET',
                 },
                 columns: [{
