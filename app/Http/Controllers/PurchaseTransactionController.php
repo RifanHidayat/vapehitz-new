@@ -37,41 +37,58 @@ class PurchaseTransactionController extends Controller
         $date = $request->date;
         $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
         $transactionNumber = 'PT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
-
         $purchaseId = $request->purchase_id;
         $amount = $this->clearThousandFormat($request->amount);
 
-        $transaction = new PurchaseTransaction;
-        $transaction->code = $transactionNumber;
-        $transaction->date = $request->date;
-        $transaction->account_id = $request->account_id;
-        $transaction->supplier_id = $request->supplier_id;
-        $transaction->amount = $amount;
-        $transaction->payment_method = $request->payment_method;
-        $transaction->note = $request->note;
-        $transaction->account_type="out";
+ 
+        try{
+            $transaction = new PurchaseTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $request->date;
+            $transaction->supplier_id = $request->supplier_id;
+            $transaction->amount = $amount;
+            $transaction->payment_method = $request->payment_method;
+            $transaction->note = $request->note;
+            $transaction->account_id = "3";
+            $transaction->save();
+        }catch(Exception $e){
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'table'=>'Central Purchase',
+                'errors' => $e,
+               
+            ], 500);
+        }
+        
+        //update amount central purchase
+        try{
+            $centralPurchase = CentralPurchase::find($purchaseId);
+            $centralPurchase->pay_amount=$centralPurchase->pay_amount + (str_replace(".", "", $request->amount)) ;
+            $centralPurchase->save();
 
-   
+        }catch(Exception $e){
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'table'=>'Central Purchase',
+                'errors' => $e,
+            ], 500);
+        }
 
-       //update amount central purchase
-       try{
-        $centralPurchase = CentralPurchase::find($purchaseId);
-        $centralPurchase->pay_amount=$centralPurchase->pay_amount + (str_replace(".", "", $request->amount)) ;
-        $centralPurchase->save();
-
-       }catch(Exception $e){
-        return response()->json([
-            'message' => 'Internal error',
-            'code' => 500,
-            'error' => true,
-            'table'=>'Central Purchase',
-            'errors' => $e,
-           
-        ], 500);
-
-       }
+       
 
         try {
+            $transaction = new PurchaseTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $request->date;
+            $transaction->supplier_id = $request->supplier_id;
+            $transaction->amount = $amount;
+            $transaction->payment_method = $request->payment_method;
+            $transaction->note = $request->note;
+            $transaction->account_id = $request->account_id;
             $transaction->save();
 
         } catch (Exception $e) {
@@ -84,10 +101,6 @@ class PurchaseTransactionController extends Controller
             ], 500);
         }
 
-        if ($request->amount>=1){
-         
-    
-        }   
 
         // $keyedQuotations = collect($quotations)->mapWithKeys(function ($item) {
         //     return [
@@ -167,7 +180,7 @@ class PurchaseTransactionController extends Controller
 
     public function datatablePurchaseTransaction()
     {
-        $PurchaseTransaction = PurchaseTransaction::with(['supplier','account', 'centralPurchases'])->select('purchase_transactions.*');
+        $PurchaseTransaction = PurchaseTransaction::with(['supplier','account', 'centralPurchases'])->select('purchase_transactions.*')->where('account_id','!=','3');
         return DataTables::eloquent($PurchaseTransaction)
             ->addIndexColumn()
             ->addColumn('supplier_name', function ($row) {

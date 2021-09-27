@@ -145,7 +145,6 @@ class SupplierController extends Controller
         $supplier = Supplier::with(['centralPurchases', 'purchaseTransactions'])->find($id);
         $payAmountentralPurchase = collect($supplier->purchaseTransactions)->sum('amount');
         $grandTotalCentralPurchase = collect($supplier->centralPurchases)->sum('netto');
-
         return view('supplier.pay', [
 
             'payRemaining' => $grandTotalCentralPurchase - $payAmountentralPurchase,
@@ -171,6 +170,7 @@ class SupplierController extends Controller
         $purchaseTransaction->payment_method = $request->payment_method;
         $purchaseTransaction->note = $request->note;
         $centralPurchaseSelected = $request->central_purchase_selected;
+        $purchaseTransaction->account_type = "out";
         $accountTransaction = new AccountTransaction;
         // return $centralPurchaseSelected;
         //purchase transaction
@@ -187,22 +187,22 @@ class SupplierController extends Controller
 
 
         //account transaction
-        try {
-            $accountTransaction = new AccountTransaction;
-            $accountTransaction->account_id = $request->account_id;
-            $accountTransaction->amount = $amount;
-            $accountTransaction->type = "out";
-            $accountTransaction->note = $transactionNumber . ' | ' . $request->note;
-            $accountTransaction->date = $request->date;
-            $accountTransaction->save();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
+        // try {
+        //     $accountTransaction = new AccountTransaction;
+        //     $accountTransaction->account_id = $request->account_id;
+        //     $accountTransaction->amount = $amount;
+        //     $accountTransaction->type = "out";
+        //     $accountTransaction->note = $transactionNumber . ' | ' . $request->note;
+        //     $accountTransaction->date = $request->date;
+        //     $accountTransaction->save();
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'message' => 'Internal error',
+        //         'code' => 500,
+        //         'error' => true,
+        //         'errors' => $e,
+        //     ], 500);
+        // }
 
         //central purchase purchase transaction
         $purchaseTransactionId = $purchaseTransaction->id;

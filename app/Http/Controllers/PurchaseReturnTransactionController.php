@@ -85,6 +85,46 @@ class PurchaseReturnTransactionController extends Controller
                 ], 500);               
          }
 
+
+         $date = $request->date;
+         $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
+         $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+ 
+         $purchaseId = $request->purchase_id;
+         $amount = $this->clearThousandFormat($request->amount);
+         $debt = $this->clearThousandFormat($request->debt);
+ 
+         $purchaseReturnTransaction = new PurchaseReturnTransaction;
+         $purchaseReturnTransaction ->code = $transactionNumber;
+         $purchaseReturnTransaction ->date = $request->date;
+         $purchaseReturnTransaction ->account_id = "2";
+         $purchaseReturnTransaction->supplier_id = $request->supplier_id;
+         $purchaseReturnTransaction->amount = $amount;
+         $purchaseReturnTransaction ->payment_method = $request->payment_method;
+         $purchaseReturnTransaction ->note = $request->note;
+         $purchaseReturnTransaction ->purchase_return_id = $request->purchase_return_id;
+         $purchaseReturnTransaction ->account_type = "out";
+ 
+ 
+          //user account
+          try{
+            $purchaseReturnTransaction->save();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => null,
+            ]);
+            
+         }catch(Exception $e){
+             return response()->json([
+                 'message' => 'Internal error',
+                  'code' => 500,
+                 'error' => true,
+                 'errors' => $e,
+                 ], 500);               
+          }
+
     
     }
 
@@ -169,7 +209,7 @@ class PurchaseReturnTransactionController extends Controller
 
     public function datatablePurchaseReturnTransactions()
     {
-        $purchaseReturnTransaction = PurchaseReturnTransaction::with(['account','supplier'])->select('purchase_return_transactions.*');
+        $purchaseReturnTransaction = PurchaseReturnTransaction::with(['account','supplier'])->select('purchase_return_transactions.*')->where('account_id','!=','2');
         return DataTables::eloquent($purchaseReturnTransaction)
             ->addIndexColumn()
             ->addColumn('supplier_name', function ($row) {
