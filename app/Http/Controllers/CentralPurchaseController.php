@@ -373,16 +373,9 @@ class CentralPurchaseController extends Controller
         }
         $centralPurchase = CentralPurchase::with(['products','supplier'])->findOrFail($id);
         $payAmount = collect($centralPurchase->purchaseTransactions)->sum('pivot.amount');
-        
+
         $transactions = collect($centralPurchase->purchaseTransactions)->sortBy('date')->values()->all();
-
-      
-
-        // return  $transactions;
-
-  
-    
-       return view('central-purchase.show', [
+        return view('central-purchase.show', [
             'centralPurchase' => $centralPurchase,
             'payAmount'=>$payAmount,
             'transactions'=>$transactions,
@@ -406,7 +399,7 @@ class CentralPurchaseController extends Controller
         if (!in_array("edit_purchase_product", $permission)) {
             return view("dashboard.index");
         }
-
+        
         $suppliers = Supplier::all();
         $accounts = Account::all();
         $centralpurchases = CentralPurchase::with(['products'])->findOrFail($id);
