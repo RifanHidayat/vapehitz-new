@@ -30,7 +30,7 @@
                         </li>
                         @if(in_array("add_data_group", $permission))
                         <li>
-                            <a href="/customer/create" class="btn btn-primary">
+                            <a href="/group/create" class="btn btn-primary">
                                 <em class="icon ni ni-plus"></em>
                                 <span>New Group</span>
                             </a>

@@ -752,7 +752,7 @@ class RetailSaleController extends Controller
     public function print($id)
     {
         // return view('central-sale.print');
-        $sale = RetailSale::with(['products'])->findOrFail($id);
+        $sale = RetailSale::with(['products', 'createdBy'])->findOrFail($id);
 
         $data = [
             'sale' => $sale,

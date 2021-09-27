@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Vapehitz')
-<style>
+<!-- <style>
     .dataTables_filter {
         text-align: right;
         width: 90%;
@@ -29,7 +29,7 @@
     .bottom {
         float: right !important;
     }
-</style>
+</style> -->
 @section('content')
 <div class="components-preview ">
     <div class="nk-block-head">
@@ -40,7 +40,7 @@
                         <div class=" form-group col-md-6">
                             <label class="form-label" for="full-name-1">Nomor Akun</label>
                             <div class="form-control-wrap">
-                                <input require type="number" v-model="number"  class="form-control number" placeholder="Nomor Akun">
+                                <input require type="number" v-model="number" class="form-control number" placeholder="Nomor Akun">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
@@ -102,7 +102,7 @@
                     <h5 class="card-title">Form</h5>
                 </div> -->
                 <div class="table-responsive">
-                <table style="width: 100%;" class="table table-striped" id="accounts">
+                    <table style="width: 100%;" class="table table-striped" id="accounts">
                         <thead>
                             <tr class="text-left">
                                 <th>Nomor Kartu</th>
@@ -113,7 +113,7 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                     
+
                     </table>
                 </div>
             </div>
@@ -177,20 +177,20 @@
                     })
                     .then(function(response) {
                         vm.loading = false;
-                         console.log(response);
+                        console.log(response);
                         vm.accounts.push(response.data.data);
-                       
+
                         Swal.fire({
-                                title: 'Success',
-                                text: 'Data has been saved',
-                                icon: 'success',
-                                allowOutsideClick: false,
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.reload();
-                                }
-                            })
-                        
+                            title: 'Success',
+                            text: 'Data has been saved',
+                            icon: 'success',
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                            }
+                        })
+
 
                     })
                     .catch(function(error) {
@@ -294,14 +294,14 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 // window.location.reload();
-                                 invoicesTable.ajax.reload();
+                                invoicesTable.ajax.reload();
                             }
                         })
                     }
                 })
             },
-            showAccount:function(id){
-                window.location.href = '/account/show/'+id;
+            showAccount: function(id) {
+                window.location.href = '/account/show/' + id;
 
 
             },
@@ -323,44 +323,43 @@
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
-            // dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
-            ajax: {
-                url: '/datatables/accounts',
-                type: 'GET',
-                // length: 2,
-            },
-            columns: [
-                {
-                    data: 'number',
-                    name: 'number'
+                // dom: '<"pull-left"f><"pull-right"l>ti<"bottom"p>',
+                ajax: {
+                    url: '/datatables/accounts',
+                    type: 'GET',
+                    // length: 2,
                 },
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-               
-                {
-                    data: 'balance',
-                    name: 'balance'
-                },
-                {
-                    data: 'date',
-                    name: 'date'
-                },
-               
-             
-                {
-                    data: 'type',
-                    name: 'type'
-                },
-                {
-                    data: 'action',
-                    name: 'action'
-                },
+                columns: [{
+                        data: 'number',
+                        name: 'number'
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
 
-            ]
-        });
-        $.fn.DataTable.ext.pager.numbers_length = 5;
+                    {
+                        data: 'balance',
+                        name: 'balance'
+                    },
+                    {
+                        data: 'date',
+                        name: 'date'
+                    },
+
+
+                    {
+                        data: 'type',
+                        name: 'type'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
+                    },
+
+                ]
+            });
+            $.fn.DataTable.ext.pager.numbers_length = 5;
 
         }
         NioApp.DataTable.init();
@@ -418,10 +417,9 @@
 
 
 
-          
-        
+
+
         })
     });
-    
 </script>
 @endsection
