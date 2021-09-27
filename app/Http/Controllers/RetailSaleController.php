@@ -306,25 +306,15 @@ class RetailSaleController extends Controller
      */
     public function show($id)
     {
-        $saleReturns = RetailSaleReturn::with(['products'])
-            ->where('retail_sale_id', $id)
-            ->get()
-            ->flatMap(function ($return) {
-                return $return->products;
-            })
-            ->groupBy('id')
-            ->map(function ($products, $productId) {
-                $returnedQuantity = collect($products)->sum(function ($product) {
-                    return $product->pivot->quantity;
-                });
-
-                return [
-                    'id' => $productId,
-                    'returned_quantity' => $returnedQuantity,
-                ];
-            })->values()->all();
-
-        return collect($saleReturns)->where('id', 1)->first();
+        $sale = RetailSale::with('products.productCategory')->findOrFail($id);
+        $transactions = collect($sale->retailSaleTransactions)->sortBy('date')->values()->all();
+        $returns = collect($sale->retailSaleReturns)->sortBy('date')->values()->all();
+        // $returns = CentralSaleReturn::with(['products'])->where('central_sale_id', $id)->get();
+        return view('retail-sale.show', [
+            'sale' => $sale,
+            'transactions' => $transactions,
+            'returns' => $returns,
+        ]);
     }
 
     /**

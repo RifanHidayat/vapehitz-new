@@ -248,8 +248,13 @@ class CentralSaleController extends Controller
     public function show($id)
     {
         $centralSale = CentralSale::with('products.productCategory')->findOrFail($id);
+        $transactions = collect($centralSale->centralSaleTransactions)->sortBy('date')->values()->all();
+        $returns = collect($centralSale->centralSaleReturns)->sortBy('date')->values()->all();
+        // $returns = CentralSaleReturn::with(['products'])->where('central_sale_id', $id)->get();
         return view('central-sale.show', [
             'centralSale' => $centralSale,
+            'transactions' => $transactions,
+            'returns' => $returns,
         ]);
     }
 

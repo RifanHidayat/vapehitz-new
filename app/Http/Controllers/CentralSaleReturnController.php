@@ -329,7 +329,10 @@ class CentralSaleReturnController extends Controller
      */
     public function show($id)
     {
-        //
+        $return = CentralSaleReturn::with(['products', 'account', 'centralSaleReturnTransactions', 'centralSale'])->findOrFail($id);
+        return view('central-sale-return.show', [
+            'return' => $return,
+        ]);
     }
 
     /**

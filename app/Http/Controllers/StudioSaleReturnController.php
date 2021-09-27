@@ -307,7 +307,10 @@ class StudioSaleReturnController extends Controller
      */
     public function show($id)
     {
-        //
+        $return = StudioSaleReturn::with(['products', 'account'])->findOrFail($id);
+        return view('studio-sale-return.show', [
+            'return' => $return,
+        ]);
     }
 
     /**

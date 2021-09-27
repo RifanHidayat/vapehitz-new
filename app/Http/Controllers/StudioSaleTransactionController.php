@@ -236,7 +236,11 @@ class StudioSaleTransactionController extends Controller
      */
     public function show($id)
     {
-        //
+        $transaction = StudioSaleTransaction::with(['studioSales'])->findOrFail($id);
+
+        return view('studio-sale-transaction.show', [
+            'transaction' => $transaction,
+        ]);
     }
 
     /**
@@ -288,7 +292,7 @@ class StudioSaleTransactionController extends Controller
                         <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                         <span>Delete</span>
                         </a>
-                        <a href="/studio-sale/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
+                        <a href="/studio-sale-transaction/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
                             <span>Detail</span>
                         </a>';
 

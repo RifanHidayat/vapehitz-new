@@ -199,6 +199,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', [CentralSaleTransactionController::class, 'index']);
         Route::get('/create', [CentralSaleTransactionController::class, 'create']);
         Route::get('/edit/{id}', [CentralSaleTransactionController::class, 'edit']);
+        Route::get('/show/{id}', [CentralSaleTransactionController::class, 'show']);
         Route::post('/', [CentralSaleTransactionController::class, 'store']);
         Route::post('/action/bulk-store', [CentralSaleTransactionController::class, 'bulkStore']);
         Route::patch('/{id}', [CentralSaleTransactionController::class, 'update']);
@@ -212,6 +213,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/', [CentralSaleReturnController::class, 'store']);
         Route::get('/edit/{id}', [CentralSaleReturnController::class, 'edit']);
         Route::get('/pay/{id}', [CentralSaleReturnController::class, 'pay']);
+        Route::get('/show/{id}', [CentralSaleReturnController::class, 'show']);
         Route::patch('/{id}', [CentralSaleReturnController::class, 'update']);
         Route::delete('/{id}', [CentralSaleReturnController::class, 'destroy']);
     });
@@ -221,6 +223,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/create', [CentralSaleReturnTransactionController::class, 'create']);
         Route::post('/', [CentralSaleReturnTransactionController::class, 'store']);
         Route::get('/edit/{id}', [CentralSaleReturnTransactionController::class, 'edit']);
+        Route::get('/show/{id}', [CentralSaleReturnTransactionController::class, 'show']);
         Route::patch('/{id}', [CentralSaleReturnTransactionController::class, 'update']);
         Route::delete('/{id}', [CentralSaleReturnTransactionController::class, 'destroy']);
     });
@@ -259,6 +262,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', [RetailSaleReturnController::class, 'index']);
         Route::get('/create', [RetailSaleReturnController::class, 'create']);
         Route::get('/edit/{id}', [RetailSaleReturnController::class, 'edit']);
+        Route::get('/show/{id}', [RetailSaleReturnController::class, 'show']);
         Route::post('/', [RetailSaleReturnController::class, 'store']);
         Route::patch('/{id}', [RetailSaleReturnController::class, 'update']);
         Route::delete('/{id}', [RetailSaleReturnController::class, 'destroy']);
@@ -271,6 +275,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/edit/{id}', [StudioSaleController::class, 'edit']);
         Route::get('/return/{id}', [StudioSaleController::class, 'return']);
         Route::get('/print/{id}', [StudioSaleController::class, 'print']);
+        Route::get('/show/{id}', [StudioSaleController::class, 'show']);
         Route::get('/report/sheet', [StudioSaleController::class, 'report']);
         Route::post('/', [StudioSaleController::class, 'store']);
         Route::patch('/{id}', [StudioSaleController::class, 'update']);
@@ -297,6 +302,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', [StudioSaleReturnController::class, 'index']);
         Route::get('/create', [StudioSaleReturnController::class, 'create']);
         Route::get('/edit/{id}', [StudioSaleReturnController::class, 'edit']);
+        Route::get('/show/{id}', [StudioSaleReturnController::class, 'show']);
         Route::post('/', [StudioSaleReturnController::class, 'store']);
         Route::patch('/{id}', [StudioSaleReturnController::class, 'update']);
         Route::delete('/{id}', [StudioSaleReturnController::class, 'destroy']);

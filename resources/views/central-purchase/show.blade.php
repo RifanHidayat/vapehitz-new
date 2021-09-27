@@ -77,35 +77,35 @@
                     </div>
                 </div><!-- .card-inner -->
                 <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 15%;" align="left">Nomor Produk</th>
-                                        <th style="width: 20%;" align="left">Nama Produk</th>
-                                        <td style="width: 15%;" align="right"><b>Harga</b></td>
-                                        <td style="width: 15%;" align="right"><b>Quantity</b></td>
-                                        <td style="width: 15%;" align="right"><b>Free</b></td>
-                                        
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                  
-                                    @foreach($centralPurchase->products as $product)
-                                   
-                                    <tr>
-                                        <td class="text-left">{{ $product->code}}</td>
-                                        <td class="text-left">{{ $product->name}}</td>
-                                        <td class="text-right">{{ number_format($product->pivot->price)}}</td>
-                                        <td class="text-right">{{ $product->pivot->quantity-$product->pivot->return_quantity}}</td>
-                                        <td class="text-right">{{ $product->pivot->free}}</td>
-                                    </tr>
-                                   
-                                    
-                                    
-                                   
-                                    @endforeach
-                                </tbody>
-                               
-                            </table>
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;" align="left">Nomor Produk</th>
+                            <th style="width: 20%;" align="left">Nama Produk</th>
+                            <th style="width: 15%;" align="right"><b>Harga</b></th>
+                            <th style="width: 15%;" align="right"><b>Quantity</b></th>
+                            <th style="width: 15%;" align="right"><b>Free</b></th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach($centralPurchase->products as $product)
+
+                        <tr>
+                            <td class="text-left">{{ $product->code}}</td>
+                            <td class="text-left">{{ $product->name}}</td>
+                            <td class="text-right">{{ number_format($product->pivot->price)}}</td>
+                            <td class="text-right">{{ $product->pivot->quantity-$product->pivot->return_quantity}}</td>
+                            <td class="text-right">{{ $product->pivot->free}}</td>
+                        </tr>
+
+
+
+
+                        @endforeach
+                    </tbody>
+
+                </table>
             </div><!-- .card-inner-group -->
         </div>
     </div>
@@ -115,7 +115,7 @@
                 <div class="card-inner card-inner-md">
                     <div class="card-title-group">
                         <div class="card-title">
-                            <h6 class="title">Detail harga</h6>
+                            <h6 class="title">Detail Pembelian</h6>
                         </div>
                         <!-- <div class="card-tools mr-n1">
                                 <div class="drodown">
@@ -130,9 +130,7 @@
                             </div> -->
                     </div>
                 </div><!-- .card-inner -->
-                
-                        <div class="card card-bordered">
-                <ul class="data-list is-compact">
+                <ul class="is-compact">
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Biaya Pengiriman</div>
@@ -141,14 +139,14 @@
                     </li>
                     <li class="data-item">
                         <div class="data-col">
-                            <div class="data-label">diskon</div>
+                            <div class="data-label">Diskon</div>
                             <div class="data-value">{{ number_format($centralPurchase->discount) }}</div>
                         </div>
                     </li>
                     <li class="data-item">
-                        <div class="data-col" >
-                            <div class="data-label" >Net</div>
-                            <div class="data-value" style="text-align: right;" >{{ number_format($centralPurchase->netto) }}</div>
+                        <div class="data-col">
+                            <div class="data-label">Net</div>
+                            <div class="data-value" style="text-align: right;">{{ number_format($centralPurchase->netto) }}</div>
                         </div>
                     </li>
 
@@ -158,20 +156,19 @@
                             <div class="data-value">{{ number_format($centralPurchase->total) }}</div>
                         </div>
                     </li> -->
-                        <li class="data-item">
-                            <div class="data-col">
-                                <div class="data-label">Jumlah Bayar</div>
-                                <div class="data-value">{{ number_format($payAmount) }}</div>
-                            </div>
-                        </li>
-                        <li class="data-item">
-                            <div class="data-col">
-                                <div class="data-label">Sisa</div>
-                                <div class="data-value">{{ number_format($centralPurchase->netto-$payAmount)}}</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                    <li class="data-item">
+                        <div class="data-col">
+                            <div class="data-label">Jumlah Bayar</div>
+                            <div class="data-value">{{ number_format($payAmount) }}</div>
+                        </div>
+                    </li>
+                    <li class="data-item">
+                        <div class="data-col">
+                            <div class="data-label">Sisa</div>
+                            <div class="data-value">{{ number_format($centralPurchase->netto-$payAmount)}}</div>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
         <div class="card card-bordered">
@@ -193,57 +190,57 @@
                                     </div>
                                 </div>
                             </div> -->
-                            </div>
-                        </div><!-- .card-inner -->
-                        <br>
-                        <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Tanggal</th>
-                                        <th>Kode Transaksi</th>
-                                        <th class="text-left">Metode Pembayaran</th>
-                                        <th class="text-left">Jumlah Pembayaran</th>
-                                      
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php $subTotal = 0; @endphp
-                                    @foreach($transactions as $transaction)
-                                    @if($transaction->account_id!="3")
-                                    <tr>
-                                        <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
-                                        <td><a href="/purchase-transaction/show/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
-                                        <td class="text-left">{{ $transaction->payment_method }}</td>
-                                        <td class="text-right">{{ number_format($transaction->pivot->amount) }}</td>
-                                       
-                                    </tr>
-                                    @php $subTotal += $transaction->pivot->amount; @endphp
-                                    @endif
-                                 
-                                    @endforeach
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3">Subtotal</td>
-                                        <td class="text-right">{{ number_format($subTotal) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" style="border-top: none;">Total Pembelian</td>
-                                        <td class="text-right" style="border-top: none;">{{ number_format($centralPurchase->netto) }}</td>
-                                    </tr>
-                                    <tr style="font-weight: bold;">
-                                        <td colspan="3">Sisa Hutang</td>
-                                        <td class="text-right">{{ number_format(abs($subTotal - $centralPurchase->netto)) }}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
                     </div>
                 </div><!-- .card-inner -->
-                
-                
+                <br>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Kode Transaksi</th>
+                            <th class="text-left">Metode Pembayaran</th>
+                            <th class="text-left">Jumlah Pembayaran</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $subTotal = 0; @endphp
+                        @foreach($transactions as $transaction)
+                        @if($transaction->account_id!="3")
+                        <tr>
+                            <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
+                            <td><a href="/purchase-transaction/show/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
+                            <td class="text-left">{{ $transaction->payment_method }}</td>
+                            <td class="text-right">{{ number_format($transaction->pivot->amount) }}</td>
+
+                        </tr>
+                        @php $subTotal += $transaction->pivot->amount; @endphp
+                        @endif
+
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3">Subtotal</td>
+                            <td class="text-right">{{ number_format($subTotal) }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="border-top: none;">Total Pembelian</td>
+                            <td class="text-right" style="border-top: none;">{{ number_format($centralPurchase->netto) }}</td>
+                        </tr>
+                        <tr style="font-weight: bold;">
+                            <td colspan="3">Sisa Hutang</td>
+                            <td class="text-right">{{ number_format(abs($subTotal - $centralPurchase->netto)) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
-        </div>
+        </div><!-- .card-inner -->
+
+
     </div>
+</div>
+</div>
 </div><!-- .nk-block -->
 
 
