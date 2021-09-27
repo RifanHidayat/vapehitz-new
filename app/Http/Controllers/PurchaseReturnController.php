@@ -106,6 +106,8 @@ class PurchaseReturnController extends Controller
                  $purchaseReturnTransaction ->note = $request->note;
                  $purchaseReturnTransaction ->purchase_return_id = $purchaseReturn->id;
                  $purchaseReturnTransaction ->account_type = "in";
+                 $purchaseReturnTransaction ->is_default = 1;
+
                 
                  try{
                     $purchaseReturnTransaction->save();
@@ -161,6 +163,8 @@ class PurchaseReturnController extends Controller
                 $purchaseTransaction->payment_method = $request->payment_method;
                 $purchaseTransaction->note = $request->note;
                 $purchaseTransaction ->account_type = "out";
+                $purchaseTransaction ->is_default = 1;
+
                 try{
                     $purchaseTransaction->save();
                 } catch (Exception $e) {
@@ -241,6 +245,8 @@ class PurchaseReturnController extends Controller
                 $purchaseTransaction->payment_method = $request->payment_method;
                 $purchaseTransaction->note = $request->note;
                 $purchaseTransaction->account_type = "out";
+                $purchaseTransaction->is_default = 1;
+
                 try {
                     $purchaseTransaction->save();
                 } catch (Exception $e) {
@@ -436,11 +442,11 @@ class PurchaseReturnController extends Controller
         //Purchase Transaction
         if ($purchaseReturn->centralPurchase->id != null) {
             $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($purchaseReturn->centralPurchase->id);
-            $payAmount = collect($purchase->purchaseTransactions)->sum('pivot.amount');
+            $payAmount = collect($purchase->purchaseTransactions)->where('is_default',0)->sum('pivot.amount');
         }
 
-        $transactions = collect($purchaseReturn->purchaseReturnTransactions)->sortBy('date')->values()->all();
-        // return $purchaseReturn;
+        $transactions = collect($purchaseReturn->purchaseReturnTransactions)->where('is_default',0)->sortBy('date')->values()->all();
+       //  return $transactions;
 
     
   

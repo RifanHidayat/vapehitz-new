@@ -141,6 +141,7 @@ class CentralPurchaseController extends Controller
             $transaction->payment_init = 1;
             $transaction->central_purchase_id = $centralPurchase->id;
             $transaction->account_type = "in";
+            $transaction->is_default=1;
               
             try {
                 $transaction->save();
@@ -149,7 +150,7 @@ class CentralPurchaseController extends Controller
                     'message' => 'Internal error',
                     'code' => 500,
                     'error' => true,
-                    'table'=>'Account Transaction',
+               
                     'errors' => $e,
                  ], 500);
             }
@@ -188,6 +189,8 @@ class CentralPurchaseController extends Controller
             $transaction->payment_method = $request->payment_method;
             $transaction->payment_init = 1;
             $transaction->central_purchase_id = $centralPurchase->id;
+            $transaction->account_type = "out";
+
             try {
                 $transaction->save();
             } catch (Exception $e) {
@@ -298,7 +301,7 @@ class CentralPurchaseController extends Controller
 
        // return $selectedProducts;
         $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
-        $payAmountPurchase = collect($purchase->purchaseTransactions)->where('account_id','!=',3)->sum('pivot.amount');
+        $payAmountPurchase = collect($purchase->purchaseTransactions)->where('is_default',0)->sum('pivot.amount');
 
         
 
@@ -376,9 +379,9 @@ class CentralPurchaseController extends Controller
             return view("dashboard.index");
         }
         $centralPurchase = CentralPurchase::with(['products','supplier'])->findOrFail($id);
-        $payAmount = collect($centralPurchase->purchaseTransactions)->sum('pivot.amount');
+        $payAmount = collect($centralPurchase->purchaseTransactions)->where('is_default',0)->sum('pivot.amount');
 
-        $transactions = collect($centralPurchase->purchaseTransactions)->sortBy('date')->values()->all();
+        $transactions = collect($centralPurchase->purchaseTransactions)->where('is_default',0)->sortBy('date')->values()->all();
         return view('central-purchase.show', [
             'centralPurchase' => $centralPurchase,
             'payAmount'=>$payAmount,
@@ -748,7 +751,7 @@ class CentralPurchaseController extends Controller
         $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($id);
         $accounts = Account::all();
 
-        $transactions = collect($purchase->purchaseTransactions)->where('account_id','!=',3)->sortBy('date')->values()->all();
+        $transactions = collect($purchase->purchaseTransactions)->where('is_default',0)->sortBy('date')->values()->all();
         //return $transactions;
         return view('central-purchase.pay', [
             'purchase' => $purchase,
@@ -763,7 +766,7 @@ class CentralPurchaseController extends Controller
         
         $accounts = Account::all();
 
-        $payAmountPurchase = collect($purchase->purchaseTransactions)->where('account_id','!=',3)->sum('pivot.amount');
+        $payAmountPurchase = collect($purchase->purchaseTransactions)->where('is_default',0)->sum('pivot.amount');
         $purchaseReceiptProducts = PurchaseReceipt::with(['products'])->where("central_purchase_id",$id)
         ->get()
         ->flatMap(function($receipt) {

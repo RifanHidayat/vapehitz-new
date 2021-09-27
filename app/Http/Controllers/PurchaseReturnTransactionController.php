@@ -104,6 +104,7 @@ class PurchaseReturnTransactionController extends Controller
          $purchaseReturnTransaction ->note = $request->note;
          $purchaseReturnTransaction ->purchase_return_id = $request->purchase_return_id;
          $purchaseReturnTransaction ->account_type = "out";
+         $purchaseReturnTransaction ->is_default = 1;
  
  
           //user account
@@ -209,7 +210,7 @@ class PurchaseReturnTransactionController extends Controller
 
     public function datatablePurchaseReturnTransactions()
     {
-        $purchaseReturnTransaction = PurchaseReturnTransaction::with(['account','supplier'])->select('purchase_return_transactions.*')->where('account_id','!=','2');
+        $purchaseReturnTransaction = PurchaseReturnTransaction::with(['account','supplier'])->select('purchase_return_transactions.*')->where('is_default',0);
         return DataTables::eloquent($purchaseReturnTransaction)
             ->addIndexColumn()
             ->addColumn('supplier_name', function ($row) {
