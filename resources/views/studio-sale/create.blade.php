@@ -64,7 +64,7 @@
                             <em class="fas fa-dolly fa-4x"></em>
                             <p class="mt-3">Belum ada barang yang dipilih</p>
                         </div>
-                        <div v-for="(product, index) in selectedProducts" class="card card-bordered">
+                        <div v-for="(product, index) in selectedProducts" class="card card-bordered" :class="product.backgroundColor">
                             <div class="card-inner">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-10">
@@ -482,12 +482,22 @@
                     })
                     .catch(function(error) {
                         vm.loading = false;
-                        console.log(error);
-                        Swal.fire(
-                            'Oops!',
-                            'Something wrong',
-                            'error'
-                        )
+                        if (error.response.data.error_type == 'unsufficient_stock') {
+                            Swal.fire(
+                                'Oops!',
+                                'Jumlah Penjualan Melebihi Stok',
+                                'warning'
+                            );
+                            vm.selectedProducts = error.response.data.data.selected_products;
+                            vm.isStockUnsufficient = true;
+                        } else {
+                            console.log(error);
+                            Swal.fire(
+                                'Oops!',
+                                'Something wrong',
+                                'error'
+                            )
+                        }
                     });
             },
             removeFromCart: function(index) {
@@ -646,6 +656,7 @@
                 data['quantity'] = 1;
                 data['price'] = data.retail_price;
                 data['free'] = 0;
+                data['backgroundColor'] = 'bg-white';
                 cart.push(data);
             }
 
