@@ -12,6 +12,7 @@ use App\Models\PurchaseReturnTransaction;
 use App\Models\PurchaseTransaction;
 use Carbon\Carbon;
 use Exception;
+use GuzzleHttp\Psr7\Request as Psr7Request;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -132,8 +133,11 @@ class AccountController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
+    public function show(Request $request,$id)
+    { 
+        $startDate=$request->query('start_date');
+        $endtDate=$request->query('end_date');
+
         $permission = json_decode(Auth::user()->group->permission);
         if (!in_array("view_account_finance", $permission)) {
             return redirect("/dashboard");
@@ -197,7 +201,33 @@ class AccountController extends Controller
         ->merge($InOutTransactionAccount->accountTransactions))
         : $transactionMerge = $centralPurchases;
 
-        $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+       
+        if (($startDate=='') && ($endtDate=='')){
+            $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+
+        }else{
+            $accountTransactions=collect($transactionMerge)
+            ->whereBetween('date',[$startDate,$endtDate])
+            ->sortBy('date')
+            ->values()
+            ->all();
+        }
+
+        // if (($startDate!=null) && ($endtDate!=null)){
+        //     $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+
+        // }else{
+        //     $accountTransactions=collect($transactionMerge)
+        //     ->where('date','>=',$startDate,'AND','date','<=',$endtDate)
+        //     ->sortBy('date')
+        //     ->values()
+        //     ->all();
+        // }
+        // $accountTransactions=collect($transactionMerge)
+        //     ->where('date','>=',$startDate,'AND','date','<=',$endtDate)
+        //     ->sortBy('date')
+        //     ->values()
+        //     ->all();
         $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
         $cashOut=collect($accountTransactions)->where('account_type','==','out')->sum('amount'); 
         $account = Account::with(['accountTransactions'])->findOrFail($id);
@@ -207,7 +237,9 @@ class AccountController extends Controller
             "cash_in" => $cashIn,
             "cash_out" => $cashOut,
             "balance" => $cashIn - $cashOut,
-            "account" => $account
+            "account" => $account,
+            "start_date"=>$startDate,
+            "end_date"=>$endtDate
         ]);
     }
 
@@ -229,8 +261,11 @@ class AccountController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function reports($id)
+    public function reports(request $request,$id)
     {
+        $startDate=$request->query('start_date');
+        $endtDate=$request->query('end_date');
+        
         $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($id);  
         $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
         ->findOrfail($id);
@@ -292,7 +327,23 @@ class AccountController extends Controller
         : $transactionMerge = $centralPurchases;
     
 
-        $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+        // $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+
+        // $accountTransactions=collect($transactionMerge)
+        // ->where('date','>=',$startDate,'AND','date','<=',$endtDate)
+        // ->sortBy('date')
+        // ->values()
+        // ->all();
+        if (($startDate=='') && ($endtDate=='')){
+            $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+
+        }else{
+            $accountTransactions=collect($transactionMerge)
+            ->whereBetween('date',[$startDate,$endtDate])
+            ->sortBy('date')
+            ->values()
+            ->all();
+        }
         $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
         $cashOut=collect($accountTransactions)->where('account_type','==','out')->sum('amount');
     
@@ -396,16 +447,20 @@ class AccountController extends Controller
         }
     }
 
-    public function export($id){
+    public function export(Request $request, $id){
+        $startDate=$request->query('start_date');
+        $endtDate=$request->query('end_date');
         $account=Account::with('purchaseTransactions')->findOrfail($id);
-        return Excel::download(new TransactionAccountExport($id), 'Detail akun ' . $account->name . '( ' .$account->number. ' )' . "" . '.xlsx');
+        return Excel::download(new TransactionAccountExport($id,$startDate,$endtDate), 'Detail akun ' . $account->name . '( ' .$account->number. ' )' . "" . '.xlsx');
     }
 
 
-    public function datatableAccountTransactions($id)
+    public function datatableAccountTransactions(Request $request,$id)
     {
 
-        
+        $startDate=$request->query('start_date');
+        $endtDate=$request->query('end_date');
+        //return $startDate;
         
         $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($id);  
         $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
@@ -467,7 +522,21 @@ class AccountController extends Controller
 
         : $transactionMerge = $centralPurchases;
 
-        $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+        if (($startDate=='') && ($endtDate=='')){
+            $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+
+        }else{
+            $accountTransactions=collect($transactionMerge)
+            ->whereBetween('date',[$startDate,$endtDate])
+            ->sortBy('date')
+            ->values()
+            ->all();
+        }
+        // $accountTransactions=collect($transactionMerge)
+        // ->whereBetween('date',[$startDate,$endtDate])
+        //     ->sortBy('date')
+        //     ->values()
+        //     ->all();
         
         $accountTransactionCollection = new Collection();
         $balance=0;
@@ -502,6 +571,7 @@ class AccountController extends Controller
 
     public function datatableAccounts()
     {
+        
 
         $accounts = Account::select('accounts.*');
         //return $row->centralPurchase->code;
