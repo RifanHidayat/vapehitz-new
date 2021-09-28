@@ -98,6 +98,7 @@ class RetailSaleTransactionController extends Controller
         $transaction->code = $transactionNumber;
         $transaction->date = $request->date;
         $transaction->account_id = $request->account_id;
+        $transaction->account_type = 'in';
         // $transaction->customer_id = $request->customer_id;
         $transaction->amount = $amount;
         $transaction->payment_method = $request->payment_method;
@@ -210,13 +211,6 @@ class RetailSaleTransactionController extends Controller
 
         try {
             $transaction->retailSales()->attach($keyedPayments);
-
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $transaction,
-            ]);
         } catch (Exception $e) {
             $transaction->delete();
             return response()->json([
@@ -226,6 +220,41 @@ class RetailSaleTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
+
+        $transactionsByCurrentDateCount = RetailSaleTransaction::query()->where('date', $date)->get()->count();
+        $transactionNumber = 'RST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+
+        $amount = $this->clearThousandFormat($request->amount);
+
+        $transaction = new RetailSaleTransaction;
+        $transaction->code = $transactionNumber;
+        $transaction->date = $request->date;
+        $transaction->account_id = $request->account_id;
+        $transaction->account_type = 'out';
+        // $transaction->customer_id = $request->customer_id;
+        $transaction->amount = $amount;
+        $transaction->payment_method = $request->payment_method;
+        $transaction->note = $request->note;
+
+        $sales = $request->selected_sales;
+
+        try {
+            $transaction->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Data has been saved',
+            'code' => 200,
+            'error' => false,
+            'data' => $transaction,
+        ]);
     }
 
     /**

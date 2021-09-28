@@ -259,6 +259,7 @@ class RetailSaleController extends Controller
             $transaction->account_id = $request->account_id;
             $transaction->amount = $transactionAmount;
             $transaction->payment_method = $request->payment_method;
+            $transaction->account_type = 'in';
 
             try {
                 $transaction->save();
@@ -281,6 +282,59 @@ class RetailSaleController extends Controller
                 ]);
             } catch (Exception $e) {
                 $transaction->delete();
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
+
+            if ($paymentAmount < $netTotal) {
+                $transactionsByCurrentDateCount = RetailSaleTransaction::query()->where('date', $date)->get()->count();
+                $saleId = $retailSale->id;
+                $transactionNumber = 'RST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+                // $transactionAmount = $paymentAmount > $netTotal ? $netTotal : $paymentAmount;
+                // $amount = $this->clearThousandFormat($transactionAmount);
+
+                $transaction = new RetailSaleTransaction;
+                $transaction->code = $transactionNumber;
+                $transaction->date = $date;
+                $transaction->account_id = 2;
+                $transaction->amount = $paymentAmount - $netTotal;
+                $transaction->payment_method = 'piutang';
+                $transaction->account_type = 'in';
+
+                try {
+                    $transaction->save();
+                } catch (Exception $e) {
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
+            }
+        } else {
+            $date = $request->date;
+            $transactionsByCurrentDateCount = RetailSaleTransaction::query()->where('date', $date)->get()->count();
+            $saleId = $retailSale->id;
+            $transactionNumber = 'RST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+            // $transactionAmount = $paymentAmount > $netTotal ? $netTotal : $paymentAmount;
+            // $amount = $this->clearThousandFormat($transactionAmount);
+
+            $transaction = new RetailSaleTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $date;
+            $transaction->account_id = 2;
+            $transaction->amount = $netTotal;
+            $transaction->payment_method = $request->payment_method;
+            $transaction->account_type = 'in';
+
+            try {
+                $transaction->save();
+            } catch (Exception $e) {
                 return response()->json([
                     'message' => 'Internal error',
                     'code' => 500,

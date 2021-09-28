@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddAccountTypeCentralSaleTransactions extends Migration
+class AddAccountTypeStudioSaleTransactions extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class AddAccountTypeCentralSaleTransactions extends Migration
      */
     public function up()
     {
-        Schema::table('central_sale_transactions', function (Blueprint $table) {
+        Schema::table('studio_sale_transactions', function (Blueprint $table) {
             $table->string('account_type', 10)->nullable()->after('account_id');
         });
     }
@@ -25,8 +25,8 @@ class AddAccountTypeCentralSaleTransactions extends Migration
      */
     public function down()
     {
-        Schema::table('central_sale_transactions', function (Blueprint $table) {
-            $table->dropColumn('account_type');
+        Schema::table('studio_sale_transactions', function (Blueprint $table) {
+            $table->dropColumn(['account_type']);
         });
     }
 }

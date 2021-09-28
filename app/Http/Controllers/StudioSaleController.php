@@ -265,6 +265,57 @@ class StudioSaleController extends Controller
                     'errors' => $e,
                 ], 500);
             }
+
+            if ($paymentAmount < $netTotal) {
+                $transactionsByCurrentDateCount = StudioSaleTransaction::query()->where('date', $date)->get()->count();
+                $saleId = $sale->id;
+                $transactionNumber = 'SST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+                // $transactionAmount = $paymentAmount > $netTotal ? $netTotal : $paymentAmount;
+                // $amount = $this->clearThousandFormat($transactionAmount);
+
+                $transaction = new StudioSaleTransaction;
+                $transaction->code = $transactionNumber;
+                $transaction->date = $date;
+                $transaction->account_id = $request->account_id;
+                $transaction->amount = $paymentAmount - $netTotal;
+                $transaction->payment_method = $request->payment_method;
+
+                try {
+                    $transaction->save();
+                } catch (Exception $e) {
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
+            }
+        } else {
+            $transactionsByCurrentDateCount = StudioSaleTransaction::query()->where('date', $date)->get()->count();
+            $saleId = $sale->id;
+            $transactionNumber = 'SST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+            // $transactionAmount = $paymentAmount > $netTotal ? $netTotal : $paymentAmount;
+            // $amount = $this->clearThousandFormat($transactionAmount);
+
+            $transaction = new StudioSaleTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $date;
+            $transaction->account_id = 2;
+            $transaction->account_type = 'in';
+            $transaction->amount = $netTotal;
+            $transaction->payment_method = $request->payment_method;
+
+            try {
+                $transaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
         }
 
         // Account Transaction
