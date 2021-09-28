@@ -765,7 +765,14 @@ class CentralPurchaseController extends Controller
                 $freeQuantity = collect($product)->map(function ($product) {
                     return $product->pivot->free;
                 })->sum();
+                return [
+                    'id' => $key,
+                    'received_quantity' => $receivedQuantity,
+                    'free' => $freeQuantity,
+                ];
             });
+
+         
 
         $saleReturnProducts = PurchaseReturn::with(['products'])
             ->where('central_purchase_id', $id)
@@ -789,7 +796,7 @@ class CentralPurchaseController extends Controller
             ->all();
 
         // return $purchase->products;
-        // return $saleReturnProducts;
+        
         $selectedProducts = collect($purchase->products)->each(function ($product) use ($saleReturnProducts, $purchaseReceiptProducts) {
             $saleReturn = collect($saleReturnProducts)->where('id', $product['id'])->first();
             $receipt = collect($purchaseReceiptProducts)->where('id', $product['id'])->first();
@@ -815,7 +822,7 @@ class CentralPurchaseController extends Controller
         })->sortBy('finish')->values()->all();
 
 
-        return $selectedProducts;
+       // return $selectedProducts;
 
         return view('central-purchase.return', [
             'purchase' => $purchase,
