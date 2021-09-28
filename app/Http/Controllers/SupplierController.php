@@ -9,6 +9,7 @@ use App\Models\PurchaseTransaction;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -142,8 +143,10 @@ class SupplierController extends Controller
     {
 
         $accounts = Account::all();
-        $supplier = Supplier::with(['centralPurchases', 'purchaseTransactions'])->find($id);
-        $payAmountentralPurchase = collect($supplier->purchaseTransactions)->sum('amount');
+        $supplier = Supplier::with(['centralPurchases', 'purchaseTransactions'=>function($query){
+            $query->orderBy('date');
+        } ])->find($id);
+        $payAmountentralPurchase = collect($supplier->purchaseTransactions)->where('is_default',0)->sum('amount');
         $grandTotalCentralPurchase = collect($supplier->centralPurchases)->sum('netto');
         return view('supplier.pay', [
 
@@ -365,7 +368,7 @@ class SupplierController extends Controller
 
     public function datatableSupplierPayment($id)
     {
-        $centralPurchase = CentralPurchase::with(['supplier'])->select('central_purchases.*')->where('supplier_id', '=', $id);
+        $centralPurchase = CentralPurchase::with(['supplier'])->select('central_purchases.*')->where('supplier_id', '=', $id)->orderBy('date');
         return DataTables::eloquent($centralPurchase)
             ->addIndexColumn()
             ->addColumn('date', function ($row) {
@@ -383,14 +386,14 @@ class SupplierController extends Controller
 
             ->addColumn('payAmount', function ($row) {
                 $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($row->id);
-                $transactions = collect($purchase->purchaseTransactions)->sum('pivot.amount');
+                $transactions = collect($purchase->purchaseTransactions)->where('is_default',0)->sum('pivot.amount');
                 return (number_format($transactions));
             })
 
             ->addColumn('remainingAmount', function ($row) {
                 $paidOff = '<div><span class="badge badge-sm badge-dim badge-outline-success d-none d-md-inline-flex">Lunas</span></div>';
                 $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($row->id);
-                $transactions = collect($purchase->purchaseTransactions)->sum('pivot.amount');
+                $transactions = collect($purchase->purchaseTransactions)->where('is_default',0)->sum('pivot.amount');
                 return number_format(($row->netto) - ($transactions));
             })
 

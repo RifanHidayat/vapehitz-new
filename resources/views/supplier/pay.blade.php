@@ -414,8 +414,9 @@
 //global variable
 
 
-    $(function() {
-        var supplierTable = $('#supplierCentralPurchases').DataTable({
+$(function() {
+        NioApp.DataTable.init = function() {
+            NioApp.DataTable('#supplierCentralPurchases', {
             processing: true,
             serverSide: true,
             ajax: {
@@ -457,6 +458,10 @@
 
             ]
         });
+        $.fn.DataTable.ext.pager.numbers_length = 7;
+        }
+
+        NioApp.DataTable.init();
         $('#supplierCentralPurchases').on('click', 'tr .checked-central-purchase', function(e) {
         // e.preventDefault();
 
