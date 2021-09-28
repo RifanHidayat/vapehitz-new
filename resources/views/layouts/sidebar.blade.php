@@ -271,7 +271,7 @@ if (isset($sidebar_class)) {
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             <li class="nk-menu-item">
-                                <a href="/change-log" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Changelog</span></a>
+                                <a href="/changelog" class="nk-menu-link" data-original-title="" title=""><span class="nk-menu-text">Changelog</span></a>
                             </li>
                         </ul>
                     </li>
