@@ -234,6 +234,7 @@ class StudioSaleController extends Controller
             $transaction->code = $transactionNumber;
             $transaction->date = $date;
             $transaction->account_id = $request->account_id;
+            $transaction->account_type = "in";
             $transaction->amount = $transactionAmount;
             $transaction->payment_method = $request->payment_method;
 
