@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StudioRequestToCentralExport;
 use App\Models\Product;
 use App\Models\StudioRequestToCentral;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
+use PDF;
 
 class StudioRequestToCentralController extends Controller
 {
@@ -206,6 +209,26 @@ class StudioRequestToCentralController extends Controller
             ], 500);
         }
     }
+
+
+    public function print($id)
+    {
+        // return view('central-sale.print');
+        $req = StudioRequestToCentral::with(['products'])->findOrFail($id);
+
+        $data = [
+            'req' => $req,
+        ];
+
+        $pdf = PDF::loadView('retail-request-to-central.print', $data);
+        return $pdf->stream($req->code . '.pdf');
+    }
+
+    public function excel($id)
+    {
+        return Excel::download(new StudioRequestToCentralExport($id), 'Permintaan Ke Pusat.xlsx');
+    }
+
     public function datatableStudioRequestToCentral()
     {
         $reqtocentral = StudioRequestToCentral::all();
@@ -233,6 +256,12 @@ class StudioRequestToCentralController extends Controller
                 $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                    <span>Delete</span>
                    </a>';
+                $print = '<a href="/retail-request-to-central/print/' . $row->id . '" target="_blank"><em class="icon fas fa-print"></em>
+                   <span>Cetak</span>
+                   </a>';
+                $excel = '<a href="/studio-request-to-central/excel/' . $row->id . '" target="_blank"><em class="icon fas fa-th"></em>
+                   <span>Excel</span>
+                   </a>';
                 $button = '
                    <div class="dropdown">
                    <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
@@ -240,6 +269,8 @@ class StudioRequestToCentralController extends Controller
                        <ul class="link-list-opt no-bdr">
                            ' . $edit . '
                            ' . $delete . '
+                           ' . $print . '
+                           ' . $excel . '
                        </ul>
                    </div>
                    </div>';

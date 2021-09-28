@@ -59,11 +59,15 @@
 
         .table-summary tr td {
             padding: 5px;
+            font-size: 12px;
         }
     </style>
 </head>
 
 <body>
+    <div class="text-right">
+        <img src="https://images.tokopedia.net/img/cache/215-square/shops-1/2017/8/21/223853/223853_dcbe9f7f-5194-4fe5-b050-432d5e9df88f.jpg" alt="Logo" width="60">
+    </div>
     <h1 style="font-weight: lighter;">SALES RECEIPT</h1>
     <div class="header">
         <table class="table">

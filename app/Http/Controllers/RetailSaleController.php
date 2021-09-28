@@ -808,7 +808,9 @@ class RetailSaleController extends Controller
             'sale' => $sale,
         ];
 
-        $pdf = PDF::loadView('retail-sale.print', $data);
+        $pdf = PDF::loadView('retail-sale.print', $data, [], [
+            'format' => 'A5',
+        ]);
         return $pdf->stream($sale->code . '.pdf');
     }
 
