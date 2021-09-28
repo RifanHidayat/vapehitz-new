@@ -219,6 +219,7 @@ class CentralSaleController extends Controller
                     continue;
                 }
                 $productRow->booked = $productRow->booked + $product['quantity'] + $product['free'];
+                // $productRow->agent_price = str_replace(".", "", $product['price']);
                 $productRow->save();
             }
             return response()->json([
@@ -472,6 +473,8 @@ class CentralSaleController extends Controller
                     $productRow->central_stock = $productRow->central_stock + $product['old_quantity_amount'];
                     $productRow->central_stock = $productRow->central_stock - ($product['quantity'] + $product['free']);
                 }
+
+                $productRow->agent_price = str_replace(".", "", $product['price']);
 
                 $productRow->save();
             }
@@ -956,6 +959,8 @@ class CentralSaleController extends Controller
 
                 $productRow->central_stock = $productRow->central_stock - ($product['quantity'] + $product['free']);
 
+                $productRow->agent_price = str_replace(".", "", $product['price']);
+
                 $productRow->save();
             }
         } catch (Exception $e) {
@@ -1162,7 +1167,7 @@ class CentralSaleController extends Controller
 
         $receiveAmount1 = $this->clearThousandFormat($request->receive_1);
         $receiveAmount2 = $this->clearThousandFormat($request->receive_2);
-        $totalReceiveAmount = $receiveAmount1 + $receiveAmount2;
+        $totalReceiveAmount = (int) $receiveAmount1 + (int) $receiveAmount2;
         if ($totalReceiveAmount < $request->net_total) {
             // $piutangAccount = Account::where('type', 'piutang')->first();
             // if ($piutangAccount !== null) {

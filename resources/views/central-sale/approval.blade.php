@@ -272,7 +272,7 @@
                     <div class="nk-tb-col tb-col-md"><span>Booking</span></div>
                     <div class="nk-tb-col tb-col-lg"><span>Stok</span></div>
                     <!-- <div class="nk-tb-col"><span>&nbsp;</span></div> -->
-                    <div class="nk-tb-col"><span>Harga Jual <em :class="productPriceLocked ? 'fas fa-lock' : 'fas fa-lock-open'"></em></span></div>
+                    <div class="nk-tb-col"><span>Harga Jual <em :class="!isAuthorizedProductPrice ? 'fas fa-lock' : 'fas fa-lock-open'"></em></span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Qty</span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Free</span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">&nbsp;</span></div>
@@ -698,21 +698,24 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="">
+            <form @submit.prevent="sendAuthProductPrice">
                 <div class="modal-body">
                     <p class="text-muted"><em>Masukkan username dan password user yang memiliki izin untuk melakukan perubahan harga</em></p>
                     <div class="form-group">
                         <label for="">Username</label>
-                        <input type="text" class="form-control">
+                        <input type="text" v-model="authProductPriceModel.username" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label for="">Password</label>
-                        <input type="password" class="form-control">
+                        <input type="password" v-model="authProductPriceModel.password" class="form-control" required>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-                    <button type="button" class="btn btn-primary">Kirim</button>
+                    <button type="submit" class="btn btn-primary" :disabled="authProductPriceModel.loading">
+                        <span v-if="authProductPriceModel.loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span>Kirim</span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -758,6 +761,11 @@
             productPriceLocked: true,
             priceAuthProductIndex: null,
             isAuthorizedProductPrice: false,
+            authProductPriceModel: {
+                username: '',
+                password: '',
+                loading: false,
+            },
             isStockUnsufficient: false,
             loading: false,
             loadingReject: false,
@@ -1056,14 +1064,37 @@
             },
             onChangeProductPrice: function(product, index) {
                 let vm = this;
-                if (product.is_changeable !== 1) {
-                    if (product.price < product.agent_price) {
-                        // console.log('price is lower')
-                        $('#authPriceModal').modal('show')
-                        this.priceAuthProductIndex = index;
-                        // this.priceAuthProductPrice = price;
+                if (!vm.isAuthorizedProductPrice) {
+                    if (product.is_changeable !== 1) {
+                        if (product.price < product.agent_price) {
+                            // console.log('price is lower')
+                            $('#authPriceModal').modal('show')
+                            this.priceAuthProductIndex = index;
+                            // this.priceAuthProductPrice = price;
+                        }
                     }
                 }
+            },
+            sendAuthProductPrice: function() {
+                let vm = this;
+                vm.authProductPriceModel.loading = true;
+                axios.post('/central-sale/action/auth-product-price', {
+                        username: vm.authProductPriceModel.username,
+                        password: vm.authProductPriceModel.password,
+                    })
+                    .then(function(response) {
+                        vm.authProductPriceModel.loading = false;
+                        vm.isAuthorizedProductPrice = true;
+                        $('#authPriceModal').modal('hide');
+                    })
+                    .catch(function(error) {
+                        vm.authProductPriceModel.loading = false;
+                        Swal.fire(
+                            'Kesalahan',
+                            error.response.data.message,
+                            'warning'
+                        );
+                    });
             },
             onChangeQuantity: function(product) {
                 const {
