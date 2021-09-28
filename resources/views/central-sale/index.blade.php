@@ -58,9 +58,10 @@
                         <tr class="text-center">
                             <th>No. Invoice</th>
                             <th>Tanggal Invoice</th>
+                            <th>Sales</th>
+                            <th>Penerima</th>
                             <th>Shipment</th>
                             <!-- <th>Sales</th> -->
-                            <th>Penerima</th>
                             <th>Subtotal</th>
                             <th>Discount</th>
                             <th>Shipping</th>
@@ -153,12 +154,16 @@
                         name: 'central_sales.date'
                     },
                     {
-                        data: 'shipment_name',
-                        name: 'shipment.name'
+                        data: 'created_by.name',
+                        name: 'created_by.name'
                     },
                     {
                         data: 'recipient',
                         name: 'central_sales.recipient'
+                    },
+                    {
+                        data: 'shipment_name',
+                        name: 'shipment.name'
                     },
                     {
                         data: 'subtotal',

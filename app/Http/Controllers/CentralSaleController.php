@@ -1671,7 +1671,7 @@ class CentralSaleController extends Controller
 
     public function datatableCentralSale()
     {
-        $centralSale = CentralSale::with(['products', 'shipment'])->orderBy('date', 'desc')->select('central_sales.*');
+        $centralSale = CentralSale::with(['products', 'shipment', 'createdBy'])->orderBy('date', 'desc')->select('central_sales.*');
         return DataTables::of($centralSale)
             ->addIndexColumn()
             ->addColumn('shipment_name', function ($row) {

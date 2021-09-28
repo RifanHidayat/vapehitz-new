@@ -335,7 +335,7 @@ class RetailSaleTransactionController extends Controller
 
     public function datatableRetailSaleTransactions()
     {
-        $retailSaleTransactions = RetailSaleTransaction::with(['account'])->orderBy('date', 'desc')->select('retail_sale_transactions.*');
+        $retailSaleTransactions = RetailSaleTransaction::with(['account'])->where('payment_method', '!=', 'piutang')->orderBy('date', 'desc')->select('retail_sale_transactions.*');
         return DataTables::of($retailSaleTransactions)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {

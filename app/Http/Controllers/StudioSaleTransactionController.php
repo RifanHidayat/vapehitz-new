@@ -307,7 +307,7 @@ class StudioSaleTransactionController extends Controller
 
     public function datatableStudioSaleTransactions()
     {
-        $studioSaleTransactions = StudioSaleTransaction::with(['account'])->orderBy('date', 'desc')->select('studio_sale_transactions.*');
+        $studioSaleTransactions = StudioSaleTransaction::with(['account'])->where('payment_method', '!=', 'piutang')->orderBy('date', 'desc')->select('studio_sale_transactions.*');
         return DataTables::of($studioSaleTransactions)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {

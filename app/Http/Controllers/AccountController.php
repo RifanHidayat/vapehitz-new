@@ -454,6 +454,11 @@ class AccountController extends Controller
         return Excel::download(new TransactionAccountExport($id,$startDate,$endtDate), 'Detail akun ' . $account->name . '( ' .$account->number. ' )' . "" . '.xlsx');
     }
 
+    // private function makeLink($id, $code)
+    // {
+    //     return '<a ' . '' 
+    // }
+
 
     public function datatableAccountTransactions(Request $request,$id)
     {
@@ -467,9 +472,11 @@ class AccountController extends Controller
         ->findOrfail($id);
         $InOutTransactionAccount=Account::with('accountTransactions')->find($id);
         $account=collect(Account::where('id','=',$id)->get())->each(function($account){
+            $account['note'] = '';
+            $account['description'] = 'Saldo Awal';
             $account['account_type'] = 'in';
-            $account['note'] = 'Saldo Awal';
             $account['amount'] = $account['init_balance'];
+            $account['note'] = '';
         });
         $centralPurchases=collect(CentralPurchase::where('shipping_cost','>',0,)->get())->each(function
         ($centralPurchase){
@@ -564,7 +571,10 @@ class AccountController extends Controller
 
             ]);
         }
-        return Datatables::of($accountTransactionCollection->sortBy('date')->values()->all())->make(true);
+        return Datatables::of($accountTransactionCollection->sortBy('date')->values()->all())
+       
+        ->rawColumns(['description'])
+        ->make(true);
 
     }
 

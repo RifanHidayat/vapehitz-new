@@ -815,7 +815,7 @@ class CentralPurchaseController extends Controller
         })->sortBy('finish')->values()->all();
 
 
-
+        return $selectedProducts;
 
         return view('central-purchase.return', [
             'purchase' => $purchase,

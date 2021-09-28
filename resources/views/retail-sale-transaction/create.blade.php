@@ -366,7 +366,7 @@
             //     return this.netTotal - this.payment;
             // },
             totalSelectedSales: function() {
-                return this.selectedSales.map(sale => Number(sale.net_total)).reduce((acc, cur) => {
+                return this.selectedSales.map(sale => Number(sale.net_total) - Number(sale.total_payment)).reduce((acc, cur) => {
                     return acc + cur;
                 }, 0);
             },

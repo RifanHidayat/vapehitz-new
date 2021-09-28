@@ -101,7 +101,7 @@
     
     <div class="content" style="width: 100%; float:left;margin-top:15px;" >
     <div class="table-balance"style="width: 100%; float:left" >
-       <table border="1" align="right" style="border-collapse: collapse;padding-top: 5px;padding-bottom: 10px;padding-left: 10px;width:50%;overflow: visible|hidden|wrap" id="table-account">
+       <table border="1" align="left" style="border-collapse: collapse;padding-top: 5px;padding-bottom: 10px;padding-left: 10px;width:50%;overflow: visible|hidden|wrap" id="table-account">
                     <thead>
                         <tr >
                             <th align="right" style="width: 30%;">Total In</th>
