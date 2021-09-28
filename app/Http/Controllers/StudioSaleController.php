@@ -802,7 +802,9 @@ class StudioSaleController extends Controller
             'sale' => $sale,
         ];
 
-        $pdf = PDF::loadView('studio-sale.print', $data);
+        $pdf = PDF::loadView('studio-sale.print', $data, [], [
+            'format' => 'A5',
+        ]);
         return $pdf->stream($sale->code . '.pdf');
     }
 

@@ -506,6 +506,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/create', [RetailRequestToCentralController::class, 'create']);
         Route::post('/', [RetailRequestToCentralController::class, 'store']);
         Route::get('/edit/{id}', [RetailRequestToCentralController::class, 'edit']);
+        Route::get('/print/{id}', [RetailRequestToCentralController::class, 'print']);
+        Route::get('/excel/{id}', [RetailRequestToCentralController::class, 'excel']);
         Route::patch('/{id}', [RetailRequestToCentralController::class, 'update']);
         Route::delete('/{id}', [RetailRequestToCentralController::class, 'destroy']);
     });
@@ -516,6 +518,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/create', [StudioRequestToCentralController::class, 'create']);
         Route::post('/', [StudioRequestToCentralController::class, 'store']);
         Route::get('/edit/{id}', [StudioRequestToCentralController::class, 'edit']);
+        Route::get('/print/{id}', [StudioRequestToCentralController::class, 'print']);
+        Route::get('/excel/{id}', [StudioRequestToCentralController::class, 'excel']);
         Route::patch('/{id}', [StudioRequestToCentralController::class, 'update']);
         Route::delete('/{id}', [StudioRequestToCentralController::class, 'destroy']);
     });
