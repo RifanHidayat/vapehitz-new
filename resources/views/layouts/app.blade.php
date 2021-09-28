@@ -54,7 +54,7 @@
     <!-- JavaScript -->
     <script src="{{ asset('assets/js/bundle.js?ver=2.4.0') }}"></script>
     <script src="{{ asset('assets/js/scripts.js?ver=2.4.0') }}"></script>
-    <script src="{{ asset('assets/js/charts/gd-default.js?ver=2.4.0') }}"></script>
+    <!-- <script src="{{ asset('assets/js/charts/gd-default.js?ver=2.4.0') }}"></script> -->
     @yield('script')
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>

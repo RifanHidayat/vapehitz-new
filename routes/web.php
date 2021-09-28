@@ -68,7 +68,7 @@ Route::prefix('/dashboard')->group(function () {
 });
 
 Route::get('/', function () {
-    return view('dashboard.index');
+    Route::get('/', [HomeController::class, 'index']);
 });
 
 //RouteAuth
