@@ -35,13 +35,13 @@
                 <div class="toggle-expand-content" data-content="pageMenu">
                     <ul class="nk-block-tools g-3">
                         <li>
-                            <a href="/account/export/{{$account->id}}"  class="btn btn-white btn-dim btn-outline-primary" data-toggle="tooltip" data-placement="top" title="On Development">
+                            <a href="/account/export/{{$account->id}}?start_date={{$start_date}}&end_date={{$end_date}}"  class="btn btn-white btn-dim btn-outline-primary" data-toggle="tooltip" data-placement="top" title="On Development">
                                 <em class="icon ni ni-download-cloud"></em>
                                 <span>Export</span>
                             </a>
                         </li>
                         <li>
-                            <a href="/account/reports/{{$account->id}}" class="btn btn-white btn-dim btn-outline-primary" data-toggle="tooltip" data-placement="top" title="On Development">
+                            <a href="/account/reports/{{$account->id}}?start_date={{$start_date}}&end_date={{$end_date}}" class="btn btn-white btn-dim btn-outline-primary" data-toggle="tooltip" data-placement="top" title="On Development">
                                 <em class="icon ni ni-reports"></em>
                                 <span>Reports</span>
                             </a>
@@ -58,6 +58,67 @@
     </div><!-- .nk-block-between -->
 </div>
 <div class="nk-block nk-block-lg">
+<div class="card card-bordered h-100">
+                <div class="card-inner-group">
+                    <div class="card-inner card-inner-md">
+                        <div class="card-title-group">
+                            <div class="card-title" style="width:100%">
+                                <div style="float:left" >
+                                   
+                               </div>
+                                <div style="float:right" align="right">
+                               
+                                <a class="btn btn-primary" data-toggle="collapse" href="#collapseFilter" role="button" aria-expanded="false" aria-controls="collapseFilter"><em class="icon ni ni-setting align-middle"></em>&nbsp; Filter</a>
+                               
+                               </div>
+                            </div>
+                            
+                        </div>
+                    </div><!-- .card-inner -->
+                    <div class="collapse row" id="collapseFilter">
+                    <div class="col-md-12">
+                    
+                        <div class="form-group">
+                            
+                            <div class="row" style="margin-left: 5px;">
+                                
+                                <div class="col-md-4">
+                                
+                                
+                                    <div class="form-control-wrap">
+                                    <label class="form-label" for="default-06">Start Date</label>
+                                       
+                                        <input type="date" class="form-control start-date" v-model="startDate">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-control-wrap">
+                                    <label class="form-label" for="default-06">End Date</label>
+                                        
+                                        <input type="date" class="form-control end-date" v-model="endDate">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                        
+                        
+                        </div>
+                       
+                        <div class="row mt-3">
+                            <div class="col-md-12 text-right">
+                                <button  style="margin-right: 20px;margin-bottom:10px" type="button" class="btn btn-primary" @click="applyFilter">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="col-md-3">
+
+                    </div> -->
+                </div>
+                   
+                </div><!-- .card-inner-group -->
+            </div>
+
 
     <div class="card card-bordered mb-3">
         <div class="card-inner">
@@ -92,18 +153,14 @@
             </div>
         </div>
     </div>
+    <div class="nk-block nk-block-lg">
+       
+        
+    </div>
+
     <div class="card card-bordered">
         <div class="card-inner overflow-hidden">
-            <!-- <div class="card-head">
 
-
-
-       
-        <div class="card card-bordered">
-            <div class="card-inner overflow-hidden">
-                <!-- <div class="card-head">
-                    <h5 class="card-title">Form</h5>
-                </div> -->
             <div class="table-responsive">
                 <table style="width: 100%;" class="table table-striped" id="accountTransactions">
                     <thead>
@@ -173,24 +230,21 @@
                         })
                     }
                 })
+            },
+            applyFilter: function() {
+                window.location.href = '/account/show/'+<?php echo $account_id ?>+`?start_date=${this.startDate}&end_date=${this.endDate}`; 
+                tes()
+
+                
             }
         }
     })
 </script>
+ 
+
 
 <script>
-    //  $('#accountTransactions').DataTable({
-    //         processing: true,
-    //         serverSide: true,
-    //         ajax: '/datatables/account-transactions/'+<?php echo $account_id ?>,
-    //         columns: [
-    //             {data: 'id', name: 'id'},
-    //             {data: 'name', name: 'name'},
-    //             {data: 'email', name: 'email'},
-    //             {data: 'created_at', name: 'created_at'},
-    //             {data: 'updated_at', name: 'updated_at'}
-    //         ]
-    //     });
+ 
     var centralPurchaseTable = $(function() {
         NioApp.DataTable.init = function() {
             NioApp.DataTable('#accountTransactions', {
@@ -198,11 +252,12 @@
             serverSide: true,
             
             ajax: {
-                url: '/datatables/account-transactions/' + <?php echo $account_id ?>,
+                url: '/datatables/account-transactions/<?php echo $account_id?>?start_date=<?php echo $start_date ?>&end_date=<?php echo $end_date ?>',
                 type: 'GET',
                 // length: 2,
             },
-            columns: [{
+            columns: [
+                {
                     data: 'date',
                     name: 'date'
                 },
@@ -232,51 +287,8 @@
         $.fn.DataTable.ext.pager.numbers_length = 7;
     }
     NioApp.DataTable.init();
-        $('#centralPurchase').on('click', 'tr .btn-delete', function(e) {
-            e.preventDefault();
-            // alert('click');
-            const id = $(this).attr('data-id');
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "The data will be deletedd",
-                icon: 'warning',
-                reverseButtons: true,
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                showLoaderOnConfirm: true,
-                preConfirm: () => {
-                    return axios.delete('/purchase-transaction/' + id)
-                        .then(function(response) {
-                            console.log(response.data);
-                        })
-                        .catch(function(error) {
-                            console.log(error.data);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops',
-                                text: 'Something wrong',
-                            })
-                        });
-                },
-                allowOutsideClick: () => !Swal.isLoading()
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: 'Data has been deleted',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.reload();
-
-                        }
-                    })
-                }
-            })
-        })
+ 
     });
+   
 </script>
 @endsection
