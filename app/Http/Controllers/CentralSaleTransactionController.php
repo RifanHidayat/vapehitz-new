@@ -102,23 +102,22 @@ class CentralSaleTransactionController extends Controller
             ], 500);
         }
 
-        // Account Transaction
-        $sale = CentralSale::find($saleId);
-        $accountTransaction = new AccountTransaction;
-        $accountTransaction->account_in = $request->account_id;
-        $accountTransaction->amount = $amount;
-        $accountTransaction->type = "in";
-        $accountTransaction->note = "Transaksi penjualan pusat No. " . $sale->code;
-        $accountTransaction->date = $request->date;
+        $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
+        $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+
+        $transaction = new CentralSaleTransaction;
+        $transaction->code = $transactionNumber;
+        $transaction->date = $date;
+        $transaction->account_id = 2;
+        $transaction->account_type = 'out';
+        $transaction->customer_id = $request->customer_id;
+        $transaction->amount = $amount;
+        // $transaction->payment_method = $request->payment_method;
+        $transaction->payment_method = 'piutang';
+        // $transaction->note = $request->note;
 
         try {
-            $accountTransaction->save();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $transaction,
-            // ]);
+            $transaction->save();
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Internal error',
@@ -129,32 +128,46 @@ class CentralSaleTransactionController extends Controller
         }
 
         // Account Transaction
-        $piutangAccount = Account::where('type', 'piutang')->first();
-        if ($piutangAccount !== null) {
-            $accountTransaction = new AccountTransaction;
-            $accountTransaction->account_out = $piutangAccount->id;
-            $accountTransaction->amount = $amount;
-            $accountTransaction->type = "out";
-            $accountTransaction->note = "Transaksi penjualan pusat No. " . $sale->code;
-            $accountTransaction->date = $request->date;
+        // $sale = CentralSale::find($saleId);
+        // $accountTransaction = new AccountTransaction;
+        // $accountTransaction->account_in = $request->account_id;
+        // $accountTransaction->amount = $amount;
+        // $accountTransaction->type = "in";
+        // $accountTransaction->note = "Transaksi penjualan pusat No. " . $sale->code;
+        // $accountTransaction->date = $request->date;
 
-            try {
-                $accountTransaction->save();
-                // return response()->json([
-                //     'message' => 'Data has been saved',
-                //     'code' => 200,
-                //     'error' => false,
-                //     'data' => $transaction,
-                // ]);
-            } catch (Exception $e) {
-                return response()->json([
-                    'message' => 'Internal error',
-                    'code' => 500,
-                    'error' => true,
-                    'errors' => $e,
-                ], 500);
-            }
-        }
+        // try {
+        //     $accountTransaction->save();
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'message' => 'Internal error',
+        //         'code' => 500,
+        //         'error' => true,
+        //         'errors' => $e,
+        //     ], 500);
+        // }
+
+        // Account Transaction
+        // $piutangAccount = Account::where('type', 'piutang')->first();
+        // if ($piutangAccount !== null) {
+        //     $accountTransaction = new AccountTransaction;
+        //     $accountTransaction->account_out = $piutangAccount->id;
+        //     $accountTransaction->amount = $amount;
+        //     $accountTransaction->type = "out";
+        //     $accountTransaction->note = "Transaksi penjualan pusat No. " . $sale->code;
+        //     $accountTransaction->date = $request->date;
+
+        //     try {
+        //         $accountTransaction->save();
+        //     } catch (Exception $e) {
+        //         return response()->json([
+        //             'message' => 'Internal error',
+        //             'code' => 500,
+        //             'error' => true,
+        //             'errors' => $e,
+        //         ], 500);
+        //     }
+        // }
 
         return response()->json([
             'message' => 'Data has been saved',
@@ -288,13 +301,6 @@ class CentralSaleTransactionController extends Controller
 
         try {
             $transaction->centralSales()->attach($keyedPayments);
-
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $transaction,
-            ]);
         } catch (Exception $e) {
             $transaction->delete();
             return response()->json([
@@ -304,6 +310,38 @@ class CentralSaleTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
+
+        $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
+        $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+
+        $transaction = new CentralSaleTransaction;
+        $transaction->code = $transactionNumber;
+        $transaction->date = $date;
+        $transaction->account_id = 2;
+        $transaction->account_type = 'out';
+        // $transaction->customer_id = $request->customer_id;
+        $transaction->amount = $amount;
+        // $transaction->payment_method = $request->payment_method;
+        $transaction->payment_method = 'piutang';
+        // $transaction->note = $request->note;
+
+        try {
+            $transaction->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Data has been saved',
+            'code' => 200,
+            'error' => false,
+            'data' => $transaction,
+        ]);
     }
 
     /**

@@ -173,6 +173,7 @@ class CentralSaleReturnController extends Controller
         $returnTransaction->code = $returnTransactionNumber;
         $returnTransaction->date = $request->date;
         $returnTransaction->account_id = $request->account_id;
+        $returnTransaction->account_type = 'in';
         $returnTransaction->customer_id = $request->customer_id;
         $returnTransaction->amount = $request->payment_method == 'hutang' ? $transactionAmount : $amount;
         $returnTransaction->payment_method = $request->payment_method;
@@ -217,21 +218,40 @@ class CentralSaleReturnController extends Controller
         // Central Sale Transaction
         if ($request->payment_method == 'transfer' || $request->payment_method == 'cash') {
             // Account Transaction
-            $accountTransaction = new AccountTransaction;
-            $accountTransaction->account_in = $request->account_id;
-            $accountTransaction->amount = $amount;
-            $accountTransaction->type = "in";
-            $accountTransaction->note = "Retur penjualan pusat No. " . $returnNumber;
-            $accountTransaction->date = $request->date;
+            // $accountTransaction = new AccountTransaction;
+            // $accountTransaction->account_in = $request->account_id;
+            // $accountTransaction->amount = $amount;
+            // $accountTransaction->type = "in";
+            // $accountTransaction->note = "Retur penjualan pusat No. " . $returnNumber;
+            // $accountTransaction->date = $request->date;
+
+            // try {
+            //     $accountTransaction->save();
+            // } catch (Exception $e) {
+            //     return response()->json([
+            //         'message' => 'Internal error',
+            //         'code' => 500,
+            //         'error' => true,
+            //         'errors' => $e,
+            //     ], 500);
+            // }
+
+            $returnTransactionsByCurrentDateCount = CentralSaleReturnTransaction::query()->where('date', $date)->get()->count();
+            $returnTransactionNumber = 'SRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $returnTransactionsByCurrentDateCount + 1);
+
+            $returnTransaction = new CentralSaleReturnTransaction;
+            $returnTransaction->code = $returnTransactionNumber;
+            $returnTransaction->date = $request->date;
+            $returnTransaction->account_id = 2;
+            $returnTransaction->account_type = 'in';
+            // $returnTransaction->customer_id = $request->customer_id;
+            $returnTransaction->amount = $amount;
+            $returnTransaction->payment_method = 'piutang';
+            $returnTransaction->is_init = 1;
+            // $returnTransaction->note = $request->note;
 
             try {
-                $accountTransaction->save();
-                // return response()->json([
-                //     'message' => 'Data has been saved',
-                //     'code' => 200,
-                //     'error' => false,
-                //     'data' => $transaction,
-                // ]);
+                $returnTransaction->save();
             } catch (Exception $e) {
                 return response()->json([
                     'message' => 'Internal error',
@@ -249,6 +269,7 @@ class CentralSaleReturnController extends Controller
             $transaction->code = $transactionNumber;
             $transaction->date = $request->date;
             $transaction->account_id = $request->account_id;
+            $transaction->account_type = 'in';
             $transaction->customer_id = $request->customer_id;
             $transaction->amount = $transactionAmount;
             $transaction->payment_method = 'hutang';
@@ -310,6 +331,30 @@ class CentralSaleReturnController extends Controller
             //         ], 500);
             //     }
             // }
+            $returnTransactionsByCurrentDateCount = CentralSaleReturnTransaction::query()->where('date', $date)->get()->count();
+            $returnTransactionNumber = 'SRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $returnTransactionsByCurrentDateCount + 1);
+
+            $returnTransaction = new CentralSaleReturnTransaction;
+            $returnTransaction->code = $returnTransactionNumber;
+            $returnTransaction->date = $request->date;
+            $returnTransaction->account_id = 2;
+            $returnTransaction->account_type = 'out';
+            // $returnTransaction->customer_id = $request->customer_id;
+            $returnTransaction->amount = $transactionAmount;
+            $returnTransaction->payment_method = 'piutang';
+            $returnTransaction->is_init = 1;
+            // $returnTransaction->note = $request->note;
+
+            try {
+                $returnTransaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
         }
 
         return response()->json([

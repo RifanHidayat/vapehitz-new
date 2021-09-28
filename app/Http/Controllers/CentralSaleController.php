@@ -1003,6 +1003,7 @@ class CentralSaleController extends Controller
             $transaction->code = $transactionNumber;
             $transaction->date = $date;
             $transaction->account_id = $request->receipt_1;
+            $transaction->account_type = 'in';
             $transaction->customer_id = $request->customer_id;
             $transaction->amount = $amount;
             // $transaction->payment_method = $request->payment_method;
@@ -1089,6 +1090,7 @@ class CentralSaleController extends Controller
             $transaction->code = $transactionNumber;
             $transaction->date = $date;
             $transaction->account_id = $request->receipt_2;
+            $transaction->account_type = 'in';
             $transaction->customer_id = $request->customer_id;
             $transaction->amount = $amount;
             // $transaction->payment_method = $request->payment_method;
@@ -1139,21 +1141,67 @@ class CentralSaleController extends Controller
 
             // Account
 
-            $accountTransaction = new AccountTransaction;
-            $accountTransaction->account_in = $request->receipt_2;
-            $accountTransaction->amount = $amount;
-            $accountTransaction->type = "in";
-            $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
-            $accountTransaction->date = $request->date;
+            // $accountTransaction = new AccountTransaction;
+            // $accountTransaction->account_in = $request->receipt_2;
+            // $accountTransaction->amount = $amount;
+            // $accountTransaction->type = "in";
+            // $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+            // $accountTransaction->date = $request->date;
+
+            // try {
+            //     $accountTransaction->save();
+            // } catch (Exception $e) {
+            //     return response()->json([
+            //         'message' => 'Internal error',
+            //         'code' => 500,
+            //         'error' => true,
+            //         'errors' => $e,
+            //     ], 500);
+            // }
+        }
+
+        $receiveAmount1 = $this->clearThousandFormat($request->receive_1);
+        $receiveAmount2 = $this->clearThousandFormat($request->receive_2);
+        $totalReceiveAmount = $receiveAmount1 + $receiveAmount2;
+        if ($totalReceiveAmount < $request->net_total) {
+            // $piutangAccount = Account::where('type', 'piutang')->first();
+            // if ($piutangAccount !== null) {
+            //     $accountTransaction = new AccountTransaction;
+            //     $accountTransaction->account_in = $piutangAccount->id;
+            //     $accountTransaction->amount = $request->net_total - $totalReceiveAmount;
+            //     $accountTransaction->type = "in";
+            //     $accountTransaction->note = "Piutang penjualan pusat No. " . $centralSale->code;
+            //     $accountTransaction->date = $request->date;
+
+            //     try {
+            //         $accountTransaction->save();
+            //     } catch (Exception $e) {
+            //         return response()->json([
+            //             'message' => 'Internal error',
+            //             'code' => 500,
+            //             'error' => true,
+            //             'errors' => $e,
+            //         ], 500);
+            //     }
+            // }
+            $date = $request->date;
+            $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
+            $saleId = $centralSale->id;
+            $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+
+            $transaction = new CentralSaleTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $date;
+            $transaction->account_id = 2;
+            $transaction->account_type = 'in';
+            $transaction->customer_id = $request->customer_id;
+            $transaction->amount = $request->net_total - $totalReceiveAmount;
+            // $transaction->payment_method = $request->payment_method;
+            $transaction->payment_method = 'piutang';
+            // $transaction->note = $request->note;
 
             try {
-                $accountTransaction->save();
-                // return response()->json([
-                //     'message' => 'Data has been saved',
-                //     'code' => 200,
-                //     'error' => false,
-                //     'data' => $transaction,
-                // ]);
+                $transaction->save();
             } catch (Exception $e) {
                 return response()->json([
                     'message' => 'Internal error',
@@ -1163,32 +1211,6 @@ class CentralSaleController extends Controller
                 ], 500);
             }
         }
-
-        // $receiveAmount1 = $this->clearThousandFormat($request->receive_1);
-        // $receiveAmount2 = $this->clearThousandFormat($request->receive_2);
-        // $totalReceiveAmount = $receiveAmount1 + $receiveAmount2;
-        // if ($totalReceiveAmount < $request->net_total) {
-        //     $piutangAccount = Account::where('type', 'piutang')->first();
-        //     if ($piutangAccount !== null) {
-        //         $accountTransaction = new AccountTransaction;
-        //         $accountTransaction->account_in = $piutangAccount->id;
-        //         $accountTransaction->amount = $request->net_total - $totalReceiveAmount;
-        //         $accountTransaction->type = "in";
-        //         $accountTransaction->note = "Piutang penjualan pusat No. " . $centralSale->code;
-        //         $accountTransaction->date = $request->date;
-
-        //         try {
-        //             $accountTransaction->save();
-        //         } catch (Exception $e) {
-        //             return response()->json([
-        //                 'message' => 'Internal error',
-        //                 'code' => 500,
-        //                 'error' => true,
-        //                 'errors' => $e,
-        //             ], 500);
-        //         }
-        //     }
-        // }
 
         return response()->json([
             'message' => 'Data has been saved',
