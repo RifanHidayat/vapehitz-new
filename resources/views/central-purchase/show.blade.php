@@ -206,7 +206,7 @@
                     <tbody>
                         @php $subTotal = 0; @endphp
                         @foreach($transactions as $transaction)
-                        @if($transaction->account_id!="3")
+                      
                         <tr>
                             <td>{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
                             <td><a href="/purchase-transaction/show/{{ $transaction->id }}" target="_blank">{{ $transaction->code }}</a></td>
@@ -215,7 +215,7 @@
 
                         </tr>
                         @php $subTotal += $transaction->pivot->amount; @endphp
-                        @endif
+                    
 
                         @endforeach
                     </tbody>

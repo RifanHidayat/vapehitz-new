@@ -51,6 +51,8 @@ class PurchaseTransactionController extends Controller
             $transaction->note = $request->note;
             $transaction->account_id = "3";
             $transaction->account_type="out";
+            $transaction->is_default=1;
+
             $transaction->save();
         }catch(Exception $e){
             return response()->json([
@@ -188,7 +190,7 @@ class PurchaseTransactionController extends Controller
 
     public function datatablePurchaseTransaction()
     {
-        $PurchaseTransaction = PurchaseTransaction::with(['supplier','account', 'centralPurchases'])->select('purchase_transactions.*')->where('account_id','!=','3');
+        $PurchaseTransaction = PurchaseTransaction::with(['supplier','account', 'centralPurchases'])->select('purchase_transactions.*')->where('is_default',0);
         return DataTables::eloquent($PurchaseTransaction)
             ->addIndexColumn()
             ->addColumn('supplier_name', function ($row) {
