@@ -13,6 +13,7 @@ use App\Models\PurchaseTransaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -133,6 +134,10 @@ class AccountController extends Controller
      */
     public function show($id)
     {
+        $permission = json_decode(Auth::user()->group->permission);
+        if (!in_array("view_account_finance", $permission)) {
+            return redirect("/dashboard");
+        }
         $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($id);  
         $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
         ->findOrfail($id);
