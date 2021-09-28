@@ -1059,29 +1059,14 @@ class CentralSaleController extends Controller
 
             // Account Transaction
 
-            $accountTransaction = new AccountTransaction;
-            $accountTransaction->account_in = $request->receipt_1;
-            $accountTransaction->amount = $amount;
-            $accountTransaction->type = "in";
-            $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
-            $accountTransaction->date = $request->date;
+            // $accountTransaction = new AccountTransaction;
+            // $accountTransaction->account_in = $request->receipt_1;
+            // $accountTransaction->amount = $amount;
+            // $accountTransaction->type = "in";
+            // $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+            // $accountTransaction->date = $request->date;
 
-            try {
-                $accountTransaction->save();
-                // return response()->json([
-                //     'message' => 'Data has been saved',
-                //     'code' => 200,
-                //     'error' => false,
-                //     'data' => $transaction,
-                // ]);
-            } catch (Exception $e) {
-                return response()->json([
-                    'message' => 'Internal error',
-                    'code' => 500,
-                    'error' => true,
-                    'errors' => $e,
-                ], 500);
-            }
+            // pp
         }
 
         if (($request->receipt_2 !== '' && $request->receipt_2 !== null) && ($request->receive_2 !== '' && $request->receive_2 !== null)) {
