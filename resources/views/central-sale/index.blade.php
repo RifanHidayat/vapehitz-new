@@ -23,18 +23,18 @@
                 <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
                 <div class="toggle-expand-content" data-content="pageMenu">
                     <ul class="nk-block-tools g-3">
-                        <li>
-                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
-                                <em class="icon ni ni-download-cloud"></em>
-                                <span>Export</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
-                                <em class="icon ni ni-reports"></em>
-                                <span>Reports</span>
-                            </a>
-                        </li>
+                        <!--<li>-->
+                        <!--    <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">-->
+                        <!--        <em class="icon ni ni-download-cloud"></em>-->
+                        <!--        <span>Export</span>-->
+                        <!--    </a>-->
+                        <!--</li>-->
+                        <!--<li>-->
+                        <!--    <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">-->
+                        <!--        <em class="icon ni ni-reports"></em>-->
+                        <!--        <span>Reports</span>-->
+                        <!--    </a>-->
+                        <!--</li>-->
                         @if(in_array("add_product_sell", $permission))
                         <li>
                             <a href="/central-sale/create" class="btn btn-primary">
@@ -66,8 +66,8 @@
                             <th>Discount</th>
                             <th>Shipping</th>
                             <th>Grand Total</th>
-                            <th>Pembayaran 1</th>
-                            <th>Pembayaran 2</th>
+                            <!-- <th>Pembayaran 1</th>
+                            <th>Pembayaran 2</th> -->
                             <th>Sisa</th>
                             <th>Berat (gr)</th>
                             <th>Status</th>
@@ -154,8 +154,8 @@
                         name: 'central_sales.date'
                     },
                     {
-                        data: 'created_by.name',
-                        name: 'created_by.name'
+                        data: 'sales_name',
+                        name: 'createdBy.name'
                     },
                     {
                         data: 'recipient',
@@ -197,28 +197,40 @@
                             return Intl.NumberFormat('de-DE').format(data);
                         }
                     },
-                    {
-                        data: 'receive_1',
-                        name: 'central_sales.receive_1',
-                        className: 'text-right',
-                        render: function(data) {
-                            return Intl.NumberFormat('de-DE').format(data);
-                        }
-                    },
-                    {
-                        data: 'receive_2',
-                        name: 'central_sales.receive_2',
-                        className: 'text-right',
-                        render: function(data) {
-                            return Intl.NumberFormat('de-DE').format(data);
-                        }
-                    },
+                    // {
+                    //     data: 'receive_1',
+                    //     name: 'central_sales.receive_1',
+                    //     className: 'text-right',
+                    //     render: function(data) {
+                    //         return Intl.NumberFormat('de-DE').format(data);
+                    //     }
+                    // },
+                    // {
+                    //     data: 'receive_2',
+                    //     name: 'central_sales.receive_2',
+                    //     className: 'text-right',
+                    //     render: function(data) {
+                    //         return Intl.NumberFormat('de-DE').format(data);
+                    //     }
+                    // },
                     {
                         data: 'remaining_payment',
                         name: 'central_sales.remaining_payment',
                         className: 'text-right',
-                        render: function(data) {
-                            return Intl.NumberFormat('de-DE').format(data);
+                        render: function(data, type, row) {
+                            // return Intl.NumberFormat('de-DE').format(data);
+                            if (Array.isArray(row.central_sale_transactions)) {
+                                const remaining = row.net_total - row.central_sale_transactions.map(transaction => Number(transaction.amount)).reduce((acc, cur) => {
+                                    return acc + cur;
+                                }, 0);
+                                if (remaining > 0) {
+                                    return Intl.NumberFormat('de-DE').format(remaining);
+                                } else {
+                                    return '<em class="text-success">Lunas</em>'
+                                }
+                            } else {
+                                return 0;
+                            }
                         }
                     },
 
@@ -413,9 +425,9 @@
             // a.href = 'https://support.wwf.org.uk/';
             // a.click();
             const isPrinted = $(this).attr('data-print');
+            const id = $(this).attr('data-id');
             if (isPrinted == 0) {
                 // alert('click');
-                const id = $(this).attr('data-id');
                 Swal.fire({
                     title: 'Tandai Sudah Dicetak?',
                     text: "Data akan ditandai sudah dicetak",

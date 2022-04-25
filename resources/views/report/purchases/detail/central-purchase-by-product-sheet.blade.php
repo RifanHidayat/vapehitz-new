@@ -33,7 +33,7 @@
             @else
             <td></td>
             @endif
-            <td>{{ $purchase->supplier->name }}</td>
+            <td>{{ $purchase->supplier }}</td>
             <td data-format="#,##0_-">{{ $purchase->pivot->quantity }}</td>
             <td data-format="#,##0_-">{{ $purchase->pivot->free }}</td>
             <td data-format="#,##0_-">{{ $purchase->pivot->price }}</td>

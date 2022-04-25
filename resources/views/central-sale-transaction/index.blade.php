@@ -53,8 +53,9 @@
                         <tr class="text-center">
                             <th>No. Transaksi</th>
                             <th>Tanggal Transaksi</th>
+                            <th>Keterangan</th> 
+                            <th>Invoice</th> 
                             <th>Jumlah</th>
-                            <!-- <th>Akun</th> -->
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -137,6 +138,18 @@
                         data: 'date',
                         name: 'central_sale_transactions.date',
                         className: 'text-center',
+                    },
+                    {
+                        data: 'note',
+                        name: 'central_sale_transactions.note',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'invoice_number',
+                        name: 'centralSales.code',
+                        // render: function(data, type) {
+                        //     return `<div class="text-dark-75 font-weight-bolder font-size-lg mb-0">${data.length > 0 && data.map(item => `<span class="label label-light-info label-pill label-inline text-capitalize">${item.number}</span>`).join('')}</div>`;
+                        // },
                     },
                     {
                         data: 'amount',

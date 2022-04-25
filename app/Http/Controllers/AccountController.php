@@ -37,47 +37,64 @@ class AccountController extends Controller
         $accounts = collect(Account::all())->each(Function($account){
             
 
-            //purchase transactions
-             $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($account['id']);
-             
-    
-             //purchase rertun transactions      
-             $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
-             ->findOrfail($account['id']);
-             
-     
-             //in out transaction
-             $InOutTransactionAccount=Account::with('accountTransactions')->find($account['id']);
-             
-            
-             //supping cost
-             $centralPurchases=CentralPurchase::where('shipping_cost','>',0,)->get();
-        //sale
-            $studioSaleTransactions=Account::with('studioSaleTransactions')->find($account['id']);
-            $retailSaleTransactions=Account::with('retailSaleTransactions')->find($account['id']);
-            $centralSaleTransactions=Account::with('centralSaleTransactions')->find($account['id']);
-             
-             $transactionMerge = 
-             (($purchaseTransactions->purchaseTransactions)
-             ->merge($purchaseReturnTransactions->purchaseReturnTransactions)
-             ->merge($centralPurchases)
-             ->merge($InOutTransactionAccount->accountTransactions)
-             ->merge($centralSaleTransactions->centralSaleTransactions)
-             ->merge($retailSaleTransactions->retailSaleTransactions)
-             ->merge($studioSaleTransactions->studioSaleTransactions));
+          
     
     
-            $accountTransactions=collect($transactionMerge)->sortBy('date')->all();
-            $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
-            $cashOut=collect($accountTransactions)->where('account_type','==','out')->sum('amount'); 
-            $account['balance']=$cashIn+$account['init_balance']-$cashOut;
+          //  $accountTransactions=collect($transactionMerge)->sortBy('date')->all();
+            $accounts=Account::with('accountTransactions')->findOrFail($account['id']);
+            $accountTransactions=collect($accounts->accountTransactions)->sortBy('date')->values()->all();  
+            $cashIn=collect($accountTransactions)->where('type','==','in')->sum('amount');
+            $cashOut=collect($accountTransactions)->where('type','==','out')->sum('amount'); 
+            $account['balance']=$cashIn-$cashOut;
+           // $account['balance']=$cashIn+$account['init_balance']-$cashOut;
+        
                 
             });
+
+           // return $accounts;
             
             //return $accounts;
             return view('account.index', [
                 'accounts' => $accounts,
             ]);
+    }
+    
+    public function api() {
+        try {
+            $accounts = Account::all();
+            return response()->json([
+                'message' => 'OK',
+                'code' => 200,
+                'error' => false,
+                'data' => $accounts
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+    
+        public function apiDetail($id) {
+        try {
+            $accounts = Account::with('accountTransactions')->find($id);
+            return response()->json([
+                'message' => 'OK',
+                'code' => 200,
+                'error' => false,
+                'data' => $accounts
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     /**
@@ -109,12 +126,7 @@ class AccountController extends Controller
         $accounts->type = $request->type;
         try {
             $accounts->save();
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $accounts,
-            ]);
+          
            
         } catch (Exception $e) {
             return response()->json([
@@ -124,6 +136,31 @@ class AccountController extends Controller
                 'errors' => $e,
             ], 500);
         }
+            $accountTransaction = new AccountTransaction();
+            $accountTransaction->date = $request->date;
+            $accountTransaction->account_id = $accounts->id;
+            $accountTransaction->amount = str_replace(".", "", $request->init_balance);
+            $accountTransaction->type = "in";
+            $accountTransaction->table_name="accounts";
+            $accountTransaction->table_id=$accounts->id;
+             $accountTransaction->description="Saldo Awal";
+            
+            try{
+                $accountTransaction->save();
+                  return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $accounts,
+            ]);
+            }catch(Exception $e){
+                 return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
       
     }
 
@@ -138,75 +175,85 @@ class AccountController extends Controller
         $startDate=$request->query('start_date');
         $endtDate=$request->query('end_date');
 
-        $permission = json_decode(Auth::user()->group->permission);
-        if (!in_array("view_account_finance", $permission)) {
-            return redirect("/dashboard");
-        }
-        $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($id);  
-        $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
-        ->findOrfail($id);
-        $InOutTransactionAccount=Account::with('accountTransactions')->find($id);
-        $account=collect(Account::where('id','=',$id)->get())->each(function($account){
-            $account['account_type'] = 'in';
-            $account['note'] = 'Saldo Awal';
-            $account['amount'] = $account['init_balance'];
-        });
-        $centralPurchases=collect(CentralPurchase::where('shipping_cost','>',0,)->get())->each(function
-        ($centralPurchase){
-            $centralPurchase['account_type'] = 'in';
-            $centralPurchases['account_id']="1";
-            $centralPurchase['description'] = 'Biaya kirim Pembelian barang dengan No. Order'.$centralPurchase['code'];
-            $centralPurchase['description'] = $centralPurchase['note'];
-            $centralPurchase['amount']=$centralPurchase['shipping_cost'];
-        });
+        // $permission = json_decode(Auth::user()->group->permission);
+        // if (!in_array("view_account_finance", $permission)) {
+        //     return redirect("/dashboard");
+        // }
+        // $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($id);  
+        // $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
+        // ->findOrfail($id);
+        // // $InOutTransactionAccount=Account::with('accountTransactions')->find($id);
 
-        //sale
-        $studioSaleTransactions=Account::with('studioSaleTransactions')->find($id);
-        $retailSaleTransactions=Account::with('retailSaleTransactions')->find($id);
-        $centralSaleTransactions=Account::with('centralSaleTransactions')->find($id);
+        // $InOutTransactionAccount=Account::with('accountTransactions')->find($id);
+        // $inOutTransactionCollect=collect($InOutTransactionAccount->accountTransactions)->each(function($accountTransaction){
+        //     $accountTransaction['account_type'] = $accountTransaction['type'];
+        //     $accountTransaction['description'] = $accountTransaction['note'];
+
+        // });
+        // $account=collect(Account::where('id','=',$id)->get())->each(function($account){
+        //     $account['account_type'] = 'in';
+        //     $account['note'] = 'Saldo Awal';
+        //     $account['amount'] = $account['init_balance'];
+        // });
+        // $centralPurchases=collect(CentralPurchase::where('shipping_cost','>',0,)->get())->each(function
+        // ($centralPurchase){
+        //     $centralPurchase['account_type'] = 'in';
+        //     $centralPurchases['account_id']="1";
+        //     $centralPurchase['description'] = 'Biaya kirim Pembelian barang dengan No. Order'.$centralPurchase['code'];
+        //     $centralPurchase['description'] = $centralPurchase['note'];
+        //     $centralPurchase['amount']=$centralPurchase['shipping_cost'];
+        // });
+
+        // //sale
+        // $studioSaleTransactions=Account::with('studioSaleTransactions')->find($id);
+        // $retailSaleTransactions=Account::with('retailSaleTransactions')->find($id);
+        // $centralSaleTransactions=Account::with('centralSaleTransactions')->find($id);
             
 
-        //checked shpping account
-        $id!="1"
-        ? $transactionMerge = 
-        ($account
-        ->merge(collect($purchaseTransactions->purchaseTransactions)
-           ->each(function($purchaseTransaction){
-               $purchaseTransaction['description']=
-               "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
-           }))
-        ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
-           ->each(function($purchaseReturnTransaction){
-               $purchaseReturnTransaction['description']=
-                   "Pembayaran retur dengan No. Transaksi ".$purchaseReturnTransaction['code'];
-            }))
-        ->merge(collect($centralSaleTransactions->centralSaleTransactions)
-        ->each(function($centralSaleTransaction){
-                $centralSaleTransaction['description']=
-                    "Transaksi Penjualan pusat dengan No. Transaksi ".$centralSaleTransaction['code'];
-                $centralSaleTransaction['amount']=abs($centralSaleTransaction['amount']);
-             }))  
-        ->merge(collect($studioSaleTransactions->studioSaleTransactions)
-        ->each(function($studioSaleTransaction){
-                $studioSaleTransaction['description']=
-                    "Transaksi Penjualan studio dengan No. Transaksi ".$studioSaleTransaction['code'];
-                $studioSaleTransaction['amount']=abs($studioSaleTransaction['amount']);
-             }))   
-        ->merge(collect($retailSaleTransactions->retailSaleTransactions)
-        ->each(function($studioSaleTransaction){
-                $studioSaleTransaction['description']=
-                "Transaksi Penjualan retail dengan No. Transaksi ".$studioSaleTransaction['code'];
-                $studioSaleTransaction['amount']=abs($studioSaleTransaction['amount']);
-        }))   
-        ->merge($InOutTransactionAccount->accountTransactions))
-        : $transactionMerge = $centralPurchases;
+        // //checked shpping account
+        // $id!="1"
+        // ? $transactionMerge = 
+        // ($account
+        // ->merge(collect($purchaseTransactions->purchaseTransactions)
+        //    ->each(function($purchaseTransaction){
+        //        $purchaseTransaction['description']=
+        //        "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
+        //    }))
+        // ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
+        //    ->each(function($purchaseReturnTransaction){
+        //        $purchaseReturnTransaction['description']=
+        //            "Pembayaran retur dengan No. Transaksi ".$purchaseReturnTransaction['code'];
+        //     }))
+        // ->merge(collect($centralSaleTransactions->centralSaleTransactions)
+        // ->each(function($centralSaleTransaction){
+        //         $centralSaleTransaction['description']=
+        //             "Transaksi Penjualan pusat dengan No. Transaksi ".$centralSaleTransaction['code'];
+        //         $centralSaleTransaction['amount']=abs($centralSaleTransaction['amount']);
+        //      }))  
+        // ->merge(collect($studioSaleTransactions->studioSaleTransactions)
+        // ->each(function($studioSaleTransaction){
+        //         $studioSaleTransaction['description']=
+        //             "Transaksi Penjualan studio dengan No. Transaksi ".$studioSaleTransaction['code'];
+        //         $studioSaleTransaction['amount']=abs($studioSaleTransaction['amount']);
+        //      }))   
+        // ->merge(collect($retailSaleTransactions->retailSaleTransactions)
+        // ->each(function($studioSaleTransaction){
+        //         $studioSaleTransaction['description']=
+        //         "Transaksi Penjualan retail dengan No. Transaksi ".$studioSaleTransaction['code'];
+        //         $studioSaleTransaction['amount']=abs($studioSaleTransaction['amount']);
+        // }))   
+        // ->merge($inOutTransactionCollect))
+        // : $transactionMerge = $centralPurchases;
 
+        
        
+       $accounts=Account::with('accountTransactions')->findOrFail($id);
+
         if (($startDate=='') && ($endtDate=='')){
-            $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+            $accountTransactions=collect($accounts->accountTransactions)->sortBy('date')->values()->all();
 
         }else{
-            $accountTransactions=collect($transactionMerge)
+            $accountTransactions=collect($accounts->accountTransactions)
             ->whereBetween('date',[$startDate,$endtDate])
             ->sortBy('date')
             ->values()
@@ -228,9 +275,10 @@ class AccountController extends Controller
         //     ->sortBy('date')
         //     ->values()
         //     ->all();
-        $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
-        $cashOut=collect($accountTransactions)->where('account_type','==','out')->sum('amount'); 
+        $cashIn=collect($accountTransactions)->where('type','==','in')->sum('amount');
+        $cashOut=collect($accountTransactions)->where('type','==','out')->sum('amount'); 
         $account = Account::with(['accountTransactions'])->findOrFail($id);
+        //return $account;
         
         return view('account.show', [
             "account_id" => $id,
@@ -269,7 +317,14 @@ class AccountController extends Controller
         $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($id);  
         $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
         ->findOrfail($id);
+        // $InOutTransactionAccount=Account::with('accountTransactions')->find($id);
         $InOutTransactionAccount=Account::with('accountTransactions')->find($id);
+        $inOutTransactionCollect=collect($InOutTransactionAccount->accountTransactions)->each(function($accountTransaction){
+            $accountTransaction['account_type'] = $accountTransaction['type'];
+            $accountTransaction['description'] = "Transaksi In Out";
+
+
+        });
         $account=collect(Account::where('id','=',$id)->get())->each(function($account){
             $account['account_type'] = 'in';
             $account['note'] = 'Saldo Awal';
@@ -296,8 +351,19 @@ class AccountController extends Controller
         ($account
         ->merge(collect($purchaseTransactions->purchaseTransactions)
            ->each(function($purchaseTransaction){
-               $purchaseTransaction['description']=
-               "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
+            //    $purchaseTransaction['description']=
+            //    "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
+
+            if (($purchaseTransaction['account_id']==3) AND ($purchaseTransaction['account_type']=='in') )
+            {
+             $purchaseTransaction['description']=
+             "Hutang supplier";
+
+            }else{
+             $purchaseTransaction['description']=
+             "pembayaran supplier dengan No. Transaksi ".$purchaseTransaction['code'];
+            }
+            
            }))
         ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
            ->each(function($purchaseReturnTransaction){
@@ -322,7 +388,7 @@ class AccountController extends Controller
                 "Transaksi Penjualan retail dengan No. Transaksi ".$studioSaleTransaction['code'];
                 $studioSaleTransaction['amount']=abs($studioSaleTransaction['amount']);
         }))   
-        ->merge($InOutTransactionAccount->accountTransactions))
+        ->merge($inOutTransactionCollect))
 
         : $transactionMerge = $centralPurchases;
     
@@ -334,18 +400,32 @@ class AccountController extends Controller
         // ->sortBy('date')
         // ->values()
         // ->all();
+        // if (($startDate=='') && ($endtDate=='')){
+        //     $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+
+        // }else{
+        //     $accountTransactions=collect($transactionMerge)
+        //     ->whereBetween('date',[$startDate,$endtDate])
+        //     ->sortBy('date')
+        //     ->values()
+        //     ->all();
+        // }
+          $accounts=Account::with('accountTransactions')->findOrFail($id);
+
         if (($startDate=='') && ($endtDate=='')){
-            $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+            $accountTransactions=collect($accounts->accountTransactions)->sortBy('date')->values()->all();
 
         }else{
-            $accountTransactions=collect($transactionMerge)
+            $accountTransactions=collect($accounts->accountTransactions)
             ->whereBetween('date',[$startDate,$endtDate])
             ->sortBy('date')
             ->values()
             ->all();
         }
-        $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
-        $cashOut=collect($accountTransactions)->where('account_type','==','out')->sum('amount');
+     
+       
+        $cashIn=collect($accountTransactions)->where('type','==','in')->sum('amount');
+        $cashOut=collect($accountTransactions)->where('type','==','out')->sum('amount');
     
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8', 'format' =>
@@ -402,6 +482,31 @@ class AccountController extends Controller
         $account->date = $request->date;
         $account->init_balance = str_replace(".", "", $request->init_balance);
         $account->type = $request->type;
+
+            $accountTransaction = AccountTransaction::where('table_name','=','accounts','and','table_id','=',$id)->get();
+        //$accountTransaction = new AccountTransaction();
+            $accountTransaction->date = $request->date;
+            $accountTransaction->amount = str_replace(".", "", $request->init_balance);
+
+            try {
+            $accountTransaction[0]->save();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $account,
+            // ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+         
+   
+      
         try {
             $account->save();
             return response()->json([
@@ -429,7 +534,20 @@ class AccountController extends Controller
     public function destroy($id)
     {
         $account = Account::findOrFail($id);
-        try {
+         $accountTransaction = AccountTransaction::where('table_name','=','accounts','and','table_id','=',$id)->get();
+        
+         try {
+            $accountTransaction[0]->delete();
+           
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+         try {
             $account->delete();
             return response()->json([
                 'message' => 'Data has been saved',
@@ -466,105 +584,42 @@ class AccountController extends Controller
         $startDate=$request->query('start_date');
         $endtDate=$request->query('end_date');
         //return $startDate;
-        
-        $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($id);  
-        $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
-        ->findOrfail($id);
-        $InOutTransactionAccount=Account::with('accountTransactions')->find($id);
-        $account=collect(Account::where('id','=',$id)->get())->each(function($account){
-            $account['note'] = '';
-            $account['description'] = 'Saldo Awal';
-            $account['account_type'] = 'in';
-            $account['amount'] = $account['init_balance'];
-            $account['note'] = '';
-        });
-        $centralPurchases=collect(CentralPurchase::where('shipping_cost','>',0,)->get())->each(function
-        ($centralPurchase){
-            $centralPurchase['account_type'] = 'in';
-            $centralPurchases['account_id']="1";
-            $centralPurchase['description'] = 'Biaya kirim Pembelian barang dengan No. Order'.$centralPurchase['code'];
-            $centralPurchase['description'] = $centralPurchase['note'];
-            $centralPurchase['amount']=$centralPurchase['shipping_cost'];
-        });
 
-        //sale
-        $studioSaleTransactions=Account::with('studioSaleTransactions')->find($id);
-        $retailSaleTransactions=Account::with('retailSaleTransactions')->find($id);
-        $centralSaleTransactions=Account::with('centralSaleTransactions')->find($id);
-            
 
-        //checked shpping account
-        $id!="1"
-        ? $transactionMerge = 
-        ($account
-        ->merge(collect($purchaseTransactions->purchaseTransactions)
-           ->each(function($purchaseTransaction){
-               $purchaseTransaction['description']=
-               "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
-           }))
-        ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
-           ->each(function($purchaseReturnTransaction){
-               $purchaseReturnTransaction['description']=
-                   "Pembayaran retur dengan No. Transaksi ".$purchaseReturnTransaction['code'];
-            }))
-        ->merge(collect($centralSaleTransactions->centralSaleTransactions)
-        ->each(function($centralSaleTransaction){
-                $centralSaleTransaction['description']=
-                    "Transaksi Penjualan pusat dengan No. Transaksi ".$centralSaleTransaction['code'];
-                $centralSaleTransaction['amount']=abs($centralSaleTransaction['amount']);
-             }))  
-        ->merge(collect($studioSaleTransactions->studioSaleTransactions)
-        ->each(function($studioSaleTransaction){
-                $studioSaleTransaction['description']=
-                    "Transaksi Penjualan studio dengan No. Transaksi ".$studioSaleTransaction['code'];
-                $studioSaleTransaction['amount']=abs($studioSaleTransaction['amount']);
-             }))   
-        ->merge(collect($retailSaleTransactions->retailSaleTransactions)
-        ->each(function($studioSaleTransaction){
-                $studioSaleTransaction['description']=
-                "Transaksi Penjualan retail dengan No. Transaksi ".$studioSaleTransaction['code'];
-                $studioSaleTransaction['amount']=abs($studioSaleTransaction['amount']);
-        }))   
-        ->merge($InOutTransactionAccount->accountTransactions))
-
-        : $transactionMerge = $centralPurchases;
+        $accounts=Account::with('accountTransactions')->findOrFail($id);
 
         if (($startDate=='') && ($endtDate=='')){
-            $accountTransactions=collect($transactionMerge)->sortBy('date')->values()->all();
+            $accountTransactions=collect($accounts->accountTransactions)->sortBy('date')->values()->all();
 
         }else{
-            $accountTransactions=collect($transactionMerge)
+            $accountTransactions=collect($accounts->accountTransactions)
             ->whereBetween('date',[$startDate,$endtDate])
             ->sortBy('date')
             ->values()
             ->all();
         }
-        // $accountTransactions=collect($transactionMerge)
-        // ->whereBetween('date',[$startDate,$endtDate])
-        //     ->sortBy('date')
-        //     ->values()
-        //     ->all();
-        
+
         $accountTransactionCollection = new Collection();
         $balance=0;
        // return $accountTransactions;
         for ($i = 0; $i < count($accountTransactions); $i++) {
             //balance
-            $accountTransactions[$i]['account_type']=="in"?
+            $accountTransactions[$i]['type']=="in"?
             $balance=$balance+$accountTransactions[$i]['amount']:
             $balance=$balance-$accountTransactions[$i]['amount'];
             
 
             $accountTransactionCollection->push([
                 'date' => $accountTransactions[$i]['date'],
-                'note' => $accountTransactions[$i]['name'],
+                'note' => $accountTransactions[$i]['note'],
+                'account_type'=>$accountTransactions[$i]['account_type'],
                 'description' => $accountTransactions[$i]['description'],
                 'in'   => 
-                    $accountTransactions[$i]['account_type']=="in"?
+                    $accountTransactions[$i]['type']=="in"?
                     number_format($accountTransactions[$i]['amount']):
                     "",
                 'out' => 
-                    $accountTransactions[$i]['account_type']=="out"?
+                    $accountTransactions[$i]['type']=="out"?
                     number_format($accountTransactions[$i]['amount']):
                     "",
                 'balance' => number_format($balance)
@@ -591,7 +646,12 @@ class AccountController extends Controller
                 $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($row->id);  
                 $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
                 ->findOrfail($row->id);
+                // $InOutTransactionAccount=Account::with('accountTransactions')->find($row->id);
                 $InOutTransactionAccount=Account::with('accountTransactions')->find($row->id);
+                $inOutTransactionCollect=collect($InOutTransactionAccount->accountTransactions)->each(function($accountTransaction){
+                    $accountTransaction['account_type'] = $accountTransaction['type'];
+        
+                });
                 $account=collect(Account::where('id','=',$row->id)->get())->each(function($account){
                     $account['account_type'] = 'in';
                     $account['note'] = 'Saldo Awal';
@@ -619,7 +679,7 @@ class AccountController extends Controller
                 ->merge(collect($purchaseTransactions->purchaseTransactions)
                    ->each(function($purchaseTransaction){
                        $purchaseTransaction['description']=
-                       "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
+                       "pembayaran supplier dengan No. Order ".$purchaseTransaction['code'];
                    }))
                 ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
                    ->each(function($purchaseReturnTransaction){
@@ -644,7 +704,7 @@ class AccountController extends Controller
                         "Transaksi Penjualan retail dengan No. Transaksi ".$studioSaleTransaction['code'];
                         $studioSaleTransaction['amount']=abs($studioSaleTransaction['amount']);
                 }))   
-                ->merge($InOutTransactionAccount->accountTransactions))
+                ->merge($inOutTransactionCollect))
         
                 : $transactionMerge = $centralPurchases;
             
@@ -653,12 +713,12 @@ class AccountController extends Controller
 
        
          
+        $accounts=Account::with('accountTransactions')->findOrFail($row->id);
+        $accountTransactions=collect($accounts->accountTransactions)->sortBy('date')->values()->all();        
+        $cashIn=collect($accountTransactions)->where('type','==','in')->sum('amount');
+        $cashOut=collect($accountTransactions)->where('type','==','out')->sum('amount');
 
-        $accountTransactions=collect($transactionMerge)->sortBy('date')->all();
-        $cashIn=collect($accountTransactions)->where('account_type','==','in')->sum('amount');
-        $cashOut=collect($accountTransactions)->where('account_type','==','out')->sum('amount');
-
-                return number_format($cashIn-$cashOut);
+        return number_format($cashIn-$cashOut);
                 
             })
            

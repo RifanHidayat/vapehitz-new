@@ -275,7 +275,7 @@
                     <div class="nk-tb-col"><span>Harga Jual <em :class="!isAuthorizedProductPrice ? 'fas fa-lock' : 'fas fa-lock-open'"></em></span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Qty</span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Free</span></div>
-                    <div class="nk-tb-col"><span class="d-none d-sm-inline">&nbsp;</span></div>
+                    <!-- <div class="nk-tb-col"><span class="d-none d-sm-inline">&nbsp;</span></div> -->
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">Amount</span></div>
                     <div class="nk-tb-col"><span class="d-none d-sm-inline">&nbsp;</span></div>
                 </div>
@@ -323,12 +323,12 @@
                             <input type="text" v-model="product.free" @change="onChangeFree(product)" class="form-control text-right" placeholder="Free">
                         </div>
                     </div>
-                    <div class="nk-tb-col">
+                    <!-- <div class="nk-tb-col">
                         <div class="custom-control custom-control-sm custom-checkbox">
                             <input type="checkbox" @change="calculateProductSubtotal(product)" v-model="product.editable" class="custom-control-input" :id="'customCheck' + product.id">
                             <label class="custom-control-label" :for="'customCheck' + product.id"></label>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="nk-tb-col">
                         <div class="form-control-wrap">
                             <div class="form-icon form-icon-left">
@@ -493,15 +493,20 @@
                                     </div>
                                 </div>
                             </div>
+                            <p v-if="totalPayment > netTotal" class="text-soft"><em class="icon ni ni-info text-warning align-middle" style="font-size: 1.2em;"></em> Total penerimaan lebih besar dari net total</p>
                         </div>
+                    </div>
+                    <div v-if="overStock" class="alert alert-icon alert-warning mt-2" role="alert">
+                        <em class="icon ni ni-alert-circle"></em>
+                        Jumlah penjualan <em>(Booking + Qty + Free)</em> melebihi stok
                     </div>
                     <div class="text-right">
                         <button type="button" @click="reject" class="btn btn-danger" :disabled="loadingReject || loading">
                             <span v-if="loadingReject" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span>Reject</span>
                         </button>
-                        <button type="submit" class="btn btn-success" :disabled="loading || loadingReject">
-                            <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <button type="submit" class="btn btn-success" :disabled="loading || loadingReject || totalPayment > netTotal || overStock">
+                            <span v-if=" loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span>Approve</span>
                         </button>
                         <!-- <button class="btn btn-primary" type="button" disabled>
@@ -757,6 +762,7 @@
             is_edit_shipment: false,
             prefix: '',
             selectedProducts: JSON.parse(String.raw `{!! $selected_products !!}`),
+            oldTakenProducts: JSON.parse(String.raw `{!! json_encode($old_taken_products) !!}`),
             check: [],
             productPriceLocked: true,
             priceAuthProductIndex: null,
@@ -822,6 +828,7 @@
                         // price: vm.agent_price,
                         // free: vm.free,
                         selected_products: vm.selectedProducts,
+                        old_taken_products: vm.oldTakenProducts,
                     })
                     .then(function(response) {
                         vm.loading = false;
@@ -1028,7 +1035,7 @@
                 return number.replaceAll(".", "");
             },
             subTotalProduct: function(product) {
-                return Number(product.quantity) * Number(product.agent_price);
+                return Number(product.quantity) * Number(product.price);
             },
             calculateBooked: function(product) {
                 return Number(product.quantity) + Number(product.free);
@@ -1177,7 +1184,35 @@
                 const remainingPayment = this.netTotal - this.totalPayment;
                 return remainingPayment;
             },
+            overStock: function() {
+                const overStockProducts = this.selectedProducts.filter(product => {
+                    const taken = Number(product.booked) + Number(product.quantity) + Number(product.free);
+                    return taken > product.central_stock;
+                })
+
+                if (overStockProducts.length > 0) {
+                    return true;
+                }
+
+                return false;
+            }
         },
+        watch: {
+            selectedProducts: {
+                handler: function(newval, oldval) {
+                    this.selectedProducts.forEach(product => {
+                        // goods.total = (Number(goods.price) * Number(goods.quantity)) - Number(goods.discount);
+                        const taken = Number(product.booked) + Number(product.quantity) + Number(product.free);
+                        if (taken > product.central_stock) {
+                            product.backgroundColor = 'bg-warning-dim';
+                        } else {
+                            product.backgroundColor = 'bg-white';
+                        }
+                    });
+                },
+                deep: true
+            }
+        }
     })
 </script>
 <script>
@@ -1222,8 +1257,8 @@
                 data['quantity'] = 1;
                 data['free'] = 0;
                 data['editable'] = 0;
-                data['price'] = data.agent_price;
-                data['subTotal'] = data.agent_price;
+                data['price'] = data.ws_price;
+                data['subTotal'] = data.ws_price;
                 data['backgroundColor'] = 'bg-white';
                 check.push(data);
             }
@@ -1239,7 +1274,7 @@
                 // }
                 const product = app.$data.selectedProducts[selectedIndex];
                 if (typeof product !== "undefined") {
-                    product.price = product.agent_price;
+                    product.price = product.ws_price;
                     if (!product.editable) {
                         product.subTotal = product.price * product.quantity;
                     }

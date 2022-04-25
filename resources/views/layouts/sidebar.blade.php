@@ -267,7 +267,7 @@ if (isset($sidebar_class)) {
                     <li class="nk-menu-item has-sub">
                         <a href="#" class="nk-menu-link nk-menu-toggle" data-original-title="" title="">
                             <span class="nk-menu-icon"><em class="icon ni ni-alert-circle"></em></span>
-                            <span class="nk-menu-text">About</span>
+                            <span class="nk-menu-text">About <span class="badge badge-danger">New</span></span>
                         </a>
                         <ul class="nk-menu-sub" style="display: none;">
                             <li class="nk-menu-item">

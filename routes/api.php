@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\AccountApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// Province
+Route::prefix('accounts')->group(function () {
+    Route::get('/', [AccountApiController::class, 'index']);
+    Route::get('/{id}', [AccountApiController::class, 'show']);
 });

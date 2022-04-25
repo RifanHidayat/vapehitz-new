@@ -221,8 +221,9 @@
                 this.check.splice(index, 1);
             },
             validateQuantity: function(product) {
-                if (Number(product.quantity) > Number(product.studio_stock)) {
-                    product.quantity = product.studio_stock;
+                console.log(product.quantity)
+                if (Number(product.quantity) > Number(product.central_stock)) {
+                    product.quantity = product.central_stock;
                 }
             }
         },

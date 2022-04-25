@@ -87,7 +87,7 @@
                                         <td>@{{product.central_stock}}</td>
                                         <td>@{{product.retail_stock}}</td>
                                         <td>
-                                            <input type="number" v-model="product.quantity" class="form-control">
+                                            <input type="number" v-model="product.quantity" class="form-control" @input="validateQuantity(product)" >
                                         </td>
                                         <td>
                                             <a href="#" @click.prevent="removeSelectedProduct(index)" class="btn btn-icon btn-trigger text-danger"><em class="icon ni ni-trash"></em></a>
@@ -249,6 +249,12 @@
             removeFromCheck: function(index) {
                 this.check.splice(index, 1);
             },
+                validateQuantity: function(product) {
+                console.log(product.quantity)
+                if (Number(product.quantity) > Number(product.retail_stock)) {
+                    product.quantity = product.retail_stock;
+                }
+            }
         },
     })
 </script>

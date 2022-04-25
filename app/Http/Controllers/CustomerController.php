@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CustomerPiutangDetailExport;
+use App\Exports\CustomerPiutangSummaryExport;
 use App\Models\Account;
 use App\Models\CentralSale;
 use App\Models\Customer;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class CustomerController extends Controller
@@ -212,7 +216,7 @@ class CustomerController extends Controller
             ->values()->all();
 
         // $sale = CentralSale::with(['customer', 'products'])->findOrFail($id);
-        $accounts = Account::all();
+        $accounts = Account::where('type', '!=', 'none')->get();
 
         // return $purchase;
 
@@ -232,6 +236,7 @@ class CustomerController extends Controller
             // 'sale' => $sale,
             'accounts' => $accounts,
             'sales' => $sales,
+            'customer' => $customer,
             // 'total_paid' => $totalPaid,
             // 'transactions' => $transactions,
             'sidebar_class' => $sidebarClass,
@@ -243,6 +248,18 @@ class CustomerController extends Controller
         $customers = Customer::all();
         return DataTables::of($customers)
             ->addIndexColumn()
+            ->addColumn('debt', function (Customer $customer) {
+                $customer['paid'] = collect($customer->centralSales)->flatMap(function ($invoice) {
+                    return $invoice->centralSaleTransactions;
+                })->sum(function ($transaction) {
+                    return $transaction->pivot->amount;
+                });
+                $customer['total_invoice'] = collect($customer->centralSales)->sum('net_total');
+
+                $customer['unpaid'] = $customer->total_invoice - $customer->paid;
+
+                return $customer['unpaid'];
+            })
             ->addColumn('action', function ($row) {
                 $permission = json_decode(Auth::user()->group->permission);
                 if (in_array("edit_customer", $permission)) {
@@ -275,5 +292,91 @@ class CustomerController extends Controller
                 return $button;
             })
             ->make();
+    }
+
+    public function dueReports()
+    {
+        $centralSales = CentralSale::with(['customer'])->get()
+            ->filter(function ($sale) {
+                $totalPayment = collect($sale->centralSaleTransactions)->where('payment_method', '!=', 'hutang')->sum('amount');
+                $sale['total_payment'] = $totalPayment;
+
+                $currentDate = date('Y-m-d');
+                $invoiceDate = date('Y-m-d', strtotime($sale->date));
+
+                $diffDays = Carbon::parse($currentDate)->diffInDays($invoiceDate);
+
+                $dueGroup = '0-30';
+
+                if ($diffDays <= 30) {
+                    $dueGroup = '0-30';
+                } else if ($diffDays > 30 && $diffDays <= 60) {
+                    $dueGroup = '31-60';
+                } else if ($diffDays > 60 && $diffDays <= 90) {
+                    $dueGroup = '61-90';
+                } else {
+                    $dueGroup = '90+';
+                }
+
+                $sale['due_group'] = $dueGroup;
+
+                // $customeName = 'unknown';
+
+                // if($sale->customer !== null) {
+                //     $customeName = $sale->customer->name;
+                // }
+
+                // $sale['customer_name'] = $customeName;
+
+                return $sale->net_total > $totalPayment;
+            })
+            ->values()
+            ->groupBy([function ($sale) {
+                if ($sale->customer !== null) {
+                    return $sale->customer->name;
+                } else {
+                    return 'unknown';
+                }
+            }, 'due_group'])
+            // Start:Remove from this to show detail
+            ->map(function ($customers, $key) {
+                return collect($customers)->map(function ($group, $key) {
+                    return collect($group)->values()->sum(function ($sale) {
+                        return $sale->net_total - $sale->total_payment;
+                    });
+                });
+            })
+            // End:Remove until this to show detail
+            ->all();
+
+        return $centralSales;
+    }
+
+    public function reportPiutang(Request $request)
+    {
+
+        // return CentralSale::with(['products', 'customer'])->get()->groupBy(function ($item, $key) {
+        //     return $item->customer->name;
+        // })->map(function ($item, $customer) {
+        //     $totalCustomer = collect($item)->sum('total_cost');
+        //     return [
+        //         'customer' => $customer,
+        //         'total' => $totalCustomer
+        //     ];
+        // })->values()->all();
+
+        $reportType = $request->query('report_type');
+
+        if ($reportType == 'detail') {
+            return Excel::download(new CustomerPiutangDetailExport($request->all()), 'Central Sales By Customer Detail.xlsx');
+        } else if ($reportType == 'summary') {
+            return Excel::download(new CustomerPiutangSummaryExport($request->all()), 'Customer Piutang Summary.xlsx');
+        } else {
+            return response()->json([
+                'msg' => 'Unknown report type'
+            ], 400);
+        }
+
+        return;
     }
 }

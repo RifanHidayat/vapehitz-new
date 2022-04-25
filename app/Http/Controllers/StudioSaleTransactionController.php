@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\AccountTransaction;
 use App\Models\StudioSale;
 use App\Models\StudioSaleTransaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class StudioSaleTransactionController extends Controller
@@ -49,7 +51,7 @@ class StudioSaleTransactionController extends Controller
             ->values()->all();
 
         // $sale = CentralSale::with(['customer', 'products'])->findOrFail($id);
-        $accounts = Account::all();
+        $accounts = Account::where('type', '!=', 'none')->get();
 
         // return $purchase;
 
@@ -88,130 +90,127 @@ class StudioSaleTransactionController extends Controller
 
     public function bulkStore(Request $request)
     {
-        $date = $request->date;
-        $transactionsByCurrentDateCount = StudioSaleTransaction::query()->where('date', $date)->get()->count();
-        $transactionNumber = 'SST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
-
-        $amount = $this->clearThousandFormat($request->amount);
-
-        $transaction = new StudioSaleTransaction;
-        $transaction->code = $transactionNumber;
-        $transaction->date = $request->date;
-        $transaction->account_id = $request->account_id;
-        // $transaction->customer_id = $request->customer_id;
-        $transaction->amount = $amount;
-        $transaction->payment_method = $request->payment_method;
-        $transaction->note = $request->note;
-
-        $sales = $request->selected_sales;
-
+        DB::beginTransaction();
         try {
+            $date = $request->date;
+            $transactionsByCurrentDateCount = StudioSaleTransaction::query()->where('date', $date)->get()->count();
+            $transactionNumber = 'SST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+
+            $amount = $this->clearThousandFormat($request->amount);
+
+            $transaction = new StudioSaleTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $request->date;
+            $transaction->account_id = $request->account_id;
+            // $transaction->customer_id = $request->customer_id;
+            $transaction->amount = $amount;
+            $transaction->payment_method = $request->payment_method;
+            $transaction->note = $request->note;
+
+            $sales = $request->selected_sales;
             $transaction->save();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
 
-        $payments = [];
-        $totalInvoices = 0;
-        $paymentAmount = $amount;
+            $payments = [];
+            $totalInvoices = 0;
+            $paymentAmount = $amount;
 
-        // $customerInvoices = collect($sales)
-        $selectedInvoicesIds = collect($sales)->pluck('id')->all();
+            // $customerInvoices = collect($sales)
+            $selectedInvoicesIds = collect($sales)->pluck('id')->all();
 
-        $customerInvoices = StudioSale::with(['studioSaleTransactions'])
-            ->whereIn('id', $selectedInvoicesIds)
-            ->orderBy('date', 'ASC')
-            // ->where('paid', 0)
-            ->get()
-            // ->each(function ($invoice) {
-            //     $invoice['total_payment'] = collect($invoice->payments)->sum('amount');
-            // })
-            // ->filter(function ($invoice) {
-            //     return $invoice->total_payment < $invoice->total;
-            // })
-            ->each(function ($invoice) {
-                $invoice['total_payment'] = collect($invoice->studioSaleTransactions)
-                    ->map(function ($transaction) {
-                        return $transaction->pivot->amount;
-                    })->sum();
-            })
-            ->filter(function ($invoice) {
-                return $invoice->total_payment < $invoice->net_total;
-            })
-            ->each(function ($invoice) use ($paymentAmount, &$totalInvoices, &$payments, $transaction) {
-                // Remaining Debt Has To Pay Per Invoice
-                $remainingInvoiceTotal = $invoice->net_total - $invoice->total_payment;
-                // 131_800 - 0 = 131_800;
+            $customerInvoices = StudioSale::with(['studioSaleTransactions'])
+                ->whereIn('id', $selectedInvoicesIds)
+                ->orderBy('date', 'ASC')
+                // ->where('paid', 0)
+                ->get()
+                // ->each(function ($invoice) {
+                //     $invoice['total_payment'] = collect($invoice->payments)->sum('amount');
+                // })
+                // ->filter(function ($invoice) {
+                //     return $invoice->total_payment < $invoice->total;
+                // })
+                ->each(function ($invoice) {
+                    $invoice['total_payment'] = collect($invoice->studioSaleTransactions)
+                        ->map(function ($transaction) {
+                            return $transaction->pivot->amount;
+                        })->sum();
+                })
+                ->filter(function ($invoice) {
+                    return $invoice->total_payment < $invoice->net_total;
+                })
+                ->each(function ($invoice) use ($paymentAmount, &$totalInvoices, &$payments, $transaction) {
+                    // Remaining Debt Has To Pay Per Invoice
+                    $remainingInvoiceTotal = $invoice->net_total - $invoice->total_payment;
+                    // 131_800 - 0 = 131_800;
 
-                $amount = $remainingInvoiceTotal;
+                    $amount = $remainingInvoiceTotal;
 
-                $remainingPaymentAmount = $paymentAmount - $totalInvoices;
-                // 391_000 - 0 = 391_900;
+                    $remainingPaymentAmount = $paymentAmount - $totalInvoices;
+                    // 391_000 - 0 = 391_900;
 
-                // 131_800 > 391_000 = FALSE
-                if ($remainingInvoiceTotal > $remainingPaymentAmount) {
-                    $amount = $remainingPaymentAmount;
-                }
+                    // 131_800 > 391_000 = FALSE
+                    if ($remainingInvoiceTotal > $remainingPaymentAmount) {
+                        $amount = $remainingPaymentAmount;
+                    }
 
-                $payment = [
-                    'studio_sale_id' => $invoice->id,
-                    'studio_sale_transaction_id' => $transaction->id,
-                    'amount' => $amount,
+                    $payment = [
+                        'studio_sale_id' => $invoice->id,
+                        'studio_sale_transaction_id' => $transaction->id,
+                        'amount' => $amount,
+                    ];
+
+                    array_push($payments, $payment);
+
+                    $totalInvoices = $totalInvoices + $remainingInvoiceTotal;
+                    if (($paymentAmount - $totalInvoices) <= 0) {
+                        return false;
+                    }
+                });
+
+            $keyedPayments = collect($payments)->mapWithKeys(function ($item) {
+                return [
+                    $item['studio_sale_id'] => [
+                        'amount' => $item['amount'],
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
                 ];
-
-                array_push($payments, $payment);
-
-                $totalInvoices = $totalInvoices + $remainingInvoiceTotal;
-                //  0 + 131_800 = 131_800
-
-                // $invoice['x_remaining_invoice_total'] = $remainingInvoiceTotal;
-                // $invoice['x_remaining_payment_amount'] = $remainingPaymentAmount;
-                // $invoice['x_amount'] = $amount;
-                // $invoice['x_total_invoices'] = $totalInvoices;
-
-                // 391_000 - 131_800 = 
-                if (($paymentAmount - $totalInvoices) <= 0) {
-                    return false;
-                }
             });
 
-        // return response()->json([
-        //     'message' => 'Data has been saved',
-        //     'code' => 200,
-        //     'error' => false,
-        //     'data' => $payments,
-        // ]);
-
-        $keyedPayments = collect($payments)->mapWithKeys(function ($item) {
-            return [
-                $item['studio_sale_id'] => [
-                    'amount' => $item['amount'],
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'updated_at' => Carbon::now()->toDateTimeString(),
-                ]
-            ];
-        });
-
-        // return response()->json([
-        //     'message' => 'Data has been saved',
-        //     'code' => 200,
-        //     'error' => false,
-        //     'data' => $payments,
-        // ]);
-
-        // $salesIds = collect($payments)->map(function ($item) {
-        //     return $item['invoice_id'];
-        // })->all();
-
-        try {
             $transaction->studioSales()->attach($keyedPayments);
+
+            $accountTransaction = new AccountTransaction;
+            $accountTransaction->account_id = $request->account_id;
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "in";
+            $accountTransaction->note = "Transaksi pembayaran penjualan studio No. " . $transactionNumber;
+            $accountTransaction->date = $request->date;
+            $accountTransaction->table_name = 'studio_sale_transactions';
+            $accountTransaction->table_id = $transaction->id;
+
+            $accountTransaction->save();
+
+            // Account Transaction
+            $accountTransaction = new AccountTransaction;
+            $accountTransaction->account_id = config('accounts.piutang', 0);
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "out";
+            $accountTransaction->note = "Transaksi pembayaran penjualan studio No. " . $transactionNumber;
+            $accountTransaction->date = $request->date;
+            $accountTransaction->table_name = 'studio_sale_transactions';
+            $accountTransaction->table_id = $transaction->id;
+
+            $accountTransaction->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $transaction,
+            ]);
         } catch (Exception $e) {
-            $transaction->delete();
+            DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -219,41 +218,6 @@ class StudioSaleTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
-
-        $transactionsByCurrentDateCount = StudioSaleTransaction::query()->where('date', $date)->get()->count();
-        $transactionNumber = 'SST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
-
-        $amount = $this->clearThousandFormat($request->amount);
-
-        $transaction = new StudioSaleTransaction;
-        $transaction->code = $transactionNumber;
-        $transaction->date = $request->date;
-        $transaction->account_id = 2;
-        $transaction->account_type = 'out';
-        // $transaction->customer_id = $request->customer_id;
-        $transaction->amount = $amount;
-        $transaction->payment_method = 'piutang';
-        $transaction->note = $request->note;
-
-        $sales = $request->selected_sales;
-
-        try {
-            $transaction->save();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-
-        return response()->json([
-            'message' => 'Data has been saved',
-            'code' => 200,
-            'error' => false,
-            'data' => $transaction,
-        ]);
     }
 
     /**
@@ -302,7 +266,31 @@ class StudioSaleTransactionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $transaction = StudioSaleTransaction::findOrFail($id);
+            AccountTransaction::where('table_name', 'studio_sale_transactions')->where('table_id', $transaction->id)->delete();
+            $transaction->studioSales()->detach();
+
+            $transaction->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $transaction,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Internal error detaching',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
     }
 
     public function datatableStudioSaleTransactions()

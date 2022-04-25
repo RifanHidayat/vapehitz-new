@@ -66,11 +66,16 @@ class AccountTransactionController extends Controller
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = str_replace(".", "", $request->amount);
         $accountTransaction->note = $request->note;
-        $accountTransaction->account_type = "out";
+        $accountTransaction->type = "out";
+        $accountTransaction->description="Transaksi In Out";
+
        // return $request->account_in;
+
+         DB::beginTransaction();
         try {
             $accountTransaction->save();  
         } catch (Exception $e) {
+             DB::rollBack();
         
             return response()->json([
                 'message' => 'Internal error',
@@ -87,10 +92,13 @@ class AccountTransactionController extends Controller
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = str_replace(".", "", $request->amount);
         $accountTransaction->note = $request->note;
-        $accountTransaction->account_type = "in";
+        $accountTransaction->type = "in";
+          $accountTransaction->description="Transaksi In Out";
         try {
-            $accountTransaction->save();   
+            $accountTransaction->save();  
+             DB::commit(); 
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -140,11 +148,15 @@ class AccountTransactionController extends Controller
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = str_replace(".", "", $request->amount);
         $accountTransaction->note = $request->note;
-        $accountTransaction->account_type = "in";
+        $accountTransaction->type = "in";
+        
+          DB::beginTransaction();
         try {
             $accountTransaction->save();
+          
            
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -160,11 +172,14 @@ class AccountTransactionController extends Controller
         $accountTransaction->date = $request->date;
         $accountTransaction->amount = str_replace(".", "", $request->amount);
         $accountTransaction->note = $request->note;
-        $accountTransaction->account_type = "out";
+        $accountTransaction->type = "out";
         try {
             $accountTransaction->save();
+             DB::commit();
+            
            
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -183,12 +198,15 @@ class AccountTransactionController extends Controller
     public function destroy($in_id,$out_id)
     {
         $inTransaction = AccountTransaction::findOrFail($in_id);  
-        $outTransaction = AccountTransaction::findOrFail($out_id);        
+        $outTransaction = AccountTransaction::findOrFail($out_id);   
+        DB::beginTransaction();     
         try {
             $inTransaction->delete();
             $outTransaction->delete();
+             DB::commit();
             
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,

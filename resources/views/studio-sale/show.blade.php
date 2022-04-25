@@ -84,12 +84,16 @@
                                             <td colspan="2"></td>
                                             <td colspan="3">Diskon</td>
                                             <td>
+                                                <?php $discount = 0; ?>
                                                 @if($sale->discount !== null)
                                                 @if($sale->discount_type == 'nominal')
-                                                {{ number_format(0 - $sale->discount, 0, ',', '.') }}
+                                                @php
+                                                $discount = $sale->discount;
+                                                @endphp
+                                                {{ number_format(0 - $discount, 0, ',', '.') }}
                                                 @else
                                                 @php
-                                                $discount = $sale->total_cost * ($sale->discount / 100)
+                                                $discount = $sale->subtotal * ($sale->discount / 100)
                                                 @endphp
                                                 {{ number_format(0 - $discount, 0, ',', '.') }}
                                                 @endif
@@ -101,7 +105,7 @@
                                         <tr>
                                             <td colspan="2"></td>
                                             <td colspan="3">Subtotal</td>
-                                            <td>{{ number_format($sale->subtotal, 0, ',', '.') }}</td>
+                                            <td>{{ number_format($sale->subtotal - $discount, 0, ',', '.') }}</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2"></td>

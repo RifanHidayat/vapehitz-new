@@ -10,6 +10,7 @@ use App\Models\RetailSaleReturn;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class RetailSaleReturnController extends Controller
@@ -42,80 +43,44 @@ class RetailSaleReturnController extends Controller
      */
     public function store(Request $request)
     {
-        $date = $request->date;
-        $returnsByCurrentDateCount = RetailSaleReturn::query()->where('date', $date)->get()->count();
-        $returnNumber = 'RSR/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $returnsByCurrentDateCount + 1);
-
-        $saleId = $request->sale_id;
-        $amount = $this->clearThousandFormat($request->amount);
-
-        $return = new RetailSaleReturn;
-        $return->code = $returnNumber;
-        $return->date = $request->date;
-        $return->retail_sale_id = $request->sale_id;
-        $return->account_id = $request->account_id;
-        // $return->customer_id = $request->customer_id;
-        $return->payment_method = $request->payment_method;
-        $return->quantity = $request->quantity;
-        $return->amount = $amount;
-        $return->note = $request->note;
-
-        $products = $request->selected_products;
-
-        // return response()->json([
-        //     'message' => 'Data has been saved',
-        //     'code' => 200,
-        //     'error' => false,
-        //     'data' => $products,
-        // ]);
+        DB::beginTransaction();
 
         try {
+            $date = $request->date;
+            $returnsByCurrentDateCount = RetailSaleReturn::query()->where('date', $date)->get()->count();
+            $returnNumber = 'RSR/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $returnsByCurrentDateCount + 1);
+
+            $saleId = $request->sale_id;
+            $amount = $this->clearThousandFormat($request->amount);
+
+            $return = new RetailSaleReturn;
+            $return->code = $returnNumber;
+            $return->date = $request->date;
+            $return->retail_sale_id = $request->sale_id;
+            $return->account_id = $request->account_id;
+            // $return->customer_id = $request->customer_id;
+            $return->payment_method = $request->payment_method;
+            $return->quantity = $request->quantity;
+            $return->amount = $amount;
+            $return->note = $request->note;
+
+            $products = $request->selected_products;
+
             $return->save();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $return,
-            // ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
 
-        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
-            return [
-                $item['id'] => [
-                    'quantity' => $item['return_quantity'],
-                    'cause' => $item['cause'],
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'updated_at' => Carbon::now()->toDateTimeString(),
-                ]
-            ];
-        })->all();
+            $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+                return [
+                    $item['id'] => [
+                        'quantity' => $item['return_quantity'],
+                        'cause' => $item['cause'],
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ];
+            })->all();
 
-        try {
             $return->products()->attach($keyedProducts);
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $return,
-            // ]);
-        } catch (Exception $e) {
-            $return->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
 
-        try {
             foreach ($products as $product) {
                 $productRow = Product::find($product['id']);
                 if ($productRow == null) {
@@ -129,41 +94,28 @@ class RetailSaleReturnController extends Controller
                 }
                 $productRow->save();
             }
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $return,
-            // ]);
-        } catch (Exception $e) {
-            $return->products()->detach();
-            $return->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
 
-        // Account Transaction
-        // $saleReturn = RetailSaleReturn::find($saleId);
-        $accountTransaction = new AccountTransaction;
-        $accountTransaction->account_in = $request->account_id;
-        $accountTransaction->amount = $amount;
-        $accountTransaction->type = "in";
-        $accountTransaction->note = "Retur penjualan retail No. " . $return->code;
-        $accountTransaction->date = $request->date;
-
-        try {
+            // Account Transaction
+            // $saleReturn = RetailSaleReturn::find($saleId);
+            $accountTransaction = new AccountTransaction;
+            $accountTransaction->account_id = $request->account_id;
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "in";
+            $accountTransaction->note = "Retur penjualan retail No. " . $return->code;
+            $accountTransaction->date = $request->date;
+            $accountTransaction->table_name = 'retail_sale_returns';
+            $accountTransaction->table_id = $return->id;
             $accountTransaction->save();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $transaction,
-            // ]);
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $return,
+            ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -289,14 +241,6 @@ class RetailSaleReturnController extends Controller
         //         ], 500);
         //     }
         // }
-
-        return response()->json([
-            'message' => 'Data has been saved',
-            'code' => 200,
-            'error' => false,
-            'data' => $return,
-            // 'data' => $returnTransaction,
-        ]);
     }
 
     /**
@@ -323,7 +267,7 @@ class RetailSaleReturnController extends Controller
     {
         $return = RetailSaleReturn::with(['products'])->findOrFail($id);
         $sale = RetailSale::with(['products'])->findOrFail($return->retail_sale_id);
-        $accounts = Account::all();
+        $accounts = Account::where('type', '!=', 'none')->get();
 
         $saleReturnProducts = RetailSaleReturn::with(['products'])
             ->where('retail_sale_id', $sale->id)
@@ -393,66 +337,40 @@ class RetailSaleReturnController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $amount = $this->clearThousandFormat($request->amount);
-
-        $return = RetailSaleReturn::findOrFail($id);
-        // $return->code = $returnNumber;
-        $return->date = $request->date;
-        $return->retail_sale_id = $request->sale_id;
-        $return->account_id = $request->account_id;
-        // $return->customer_id = $request->customer_id;
-        $return->payment_method = $request->payment_method;
-        $return->quantity = $request->quantity;
-        $return->amount = $amount;
-        $return->note = $request->note;
-
-        $products = $request->selected_products;
+        DB::beginTransaction();
 
         try {
-            $return->save();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
+            $amount = $this->clearThousandFormat($request->amount);
 
-        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
-            return [
-                $item['id'] => [
-                    'quantity' => $item['return_quantity'],
-                    'cause' => $item['cause'],
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'updated_at' => Carbon::now()->toDateTimeString(),
-                ]
-            ];
-        })->all();
+            $return = RetailSaleReturn::findOrFail($id);
+            // $return->code = $returnNumber;
+            $return->date = $request->date;
+            $return->retail_sale_id = $request->sale_id;
+            $return->account_id = $request->account_id;
+            // $return->customer_id = $request->customer_id;
+            $return->payment_method = $request->payment_method;
+            $return->quantity = $request->quantity;
+            $return->amount = $amount;
+            $return->note = $request->note;
 
-        try {
+            $products = $request->selected_products;
+
+            $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+                return [
+                    $item['id'] => [
+                        'quantity' => $item['return_quantity'],
+                        'cause' => $item['cause'],
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ];
+            })->all();
+
             $return->products()->detach();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-
-        try {
             $return->products()->attach($keyedProducts);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
 
-        try {
+            $return->save();
+
             foreach ($products as $product) {
                 $productRow = Product::find($product['id']);
                 if ($productRow == null) {
@@ -472,13 +390,28 @@ class RetailSaleReturnController extends Controller
                 }
                 $productRow->save();
             }
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $return,
-            // ]);
+
+            $accountTransaction = AccountTransaction::where('table_name', 'retail_sale_returns')->where('table_id', $return->id)->first();
+            $accountTransaction->account_id = $request->account_id;
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "in";
+            $accountTransaction->note = "Retur penjualan retail No. " . $return->code;
+            $accountTransaction->date = $request->date;
+            $accountTransaction->table_name = 'retail_sale_returns';
+            $accountTransaction->table_id = $return->id;
+
+            $accountTransaction->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $return,
+            ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -486,13 +419,6 @@ class RetailSaleReturnController extends Controller
                 'errors' => $e,
             ], 500);
         }
-
-        return response()->json([
-            'message' => 'Data has been saved',
-            'code' => 200,
-            'error' => false,
-            'data' => $return,
-        ]);
     }
 
     /**
@@ -503,6 +429,7 @@ class RetailSaleReturnController extends Controller
      */
     public function destroy($id)
     {
+        DB::beginTransaction();
         $return = RetailSaleReturn::findOrFail($id);
 
         $products = $return->products;
@@ -516,6 +443,7 @@ class RetailSaleReturnController extends Controller
 
                 if ($product->pivot->cause == 'defective') {
                     $productRow->bad_stock -= $product->pivot->quantity;
+                    // $productRow->retail_stock += $product->pivot->quantity;
                 } else if ($product->pivot->cause == 'wrong') {
                     $productRow->retail_stock -= $product->pivot->quantity;
                 }
@@ -523,34 +451,14 @@ class RetailSaleReturnController extends Controller
 
                 $productRow->save();
             }
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $return,
-            // ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
 
-        try {
-            $return->products()->detach();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error detaching',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-
-        try {
             $return->delete();
+
+            $return->products()->detach();
+
+            AccountTransaction::where('table_name', 'retail_sale_returns')->where('table_id', $return->id)->delete();
+
+            DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -558,6 +466,7 @@ class RetailSaleReturnController extends Controller
                 'data' => $return,
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,

@@ -47,6 +47,7 @@ class StudioRequestToCentralController extends Controller
      */
     public function store(Request $request)
     {
+      //  return "tes";
         $request->validate([
             'date' => 'required',
             'selected_products' => 'required',
@@ -55,6 +56,7 @@ class StudioRequestToCentralController extends Controller
         $reqtocentral = new StudioRequestToCentral();
         $reqtocentral->code = $request->code;
         $reqtocentral->date = $request->date;
+    
         $products = $request->selected_products;
 
         try {
@@ -164,10 +166,107 @@ class StudioRequestToCentralController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //    //  return "tes";
+        // $request->validate([
+        //     'date' => 'required',
+        //     'selected_products' => 'required',
+        // ]);
+
+        $reqtocentral = StudioRequestToCentral::FindOrFail($id);
+        $reqtocentral->code = $request->code;
+        $reqtocentral->date = $request->date;
+    
+        $products = $request->selected_products;
+
+        try {
+            $reqtocentral->save();
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'central_stock' => $item['central_stock'],
+                    'studio_stock' => $item['studio_stock'],
+                    'quantity' => $item['quantity'],
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ]
+            ];
+        })->all();
+            try {
+            $reqtocentral->products()->detach();
+            // return response()->json([
+            //     'message' => 'Data has been saved',
+            //     'code' => 200,
+            //     'error' => false,
+            //     'data' => $retailRequestToCentral,
+            // ]);
+        } catch (Exception $e) {
+            $reqtocentral->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        try {
+            $reqtocentral->products()->attach($keyedProducts);
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => [],
+            ]);
+        } catch (Exception $e) {
+            $reqtocentral->delete();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        // try {
+        //     foreach ($products as $product) {
+        //         $productRow = Product::find($product['id']);
+        //         if ($productRow == null) {
+        //             continue;
+        //         }
+
+        //         // Calculate average purchase price
+        //         $productRow->central_stock = $product['central_stock'];
+        //         $productRow->studio_stock = $product['studio_stock'];
+        //         $productRow->save();
+        //     }
+        //     return response()->json([
+        //         'message' => 'Data has been saved',
+        //         'code' => 200,
+        //         'error' => false,
+        //         'data' => $reqtocentral,
+        //     ]);
+        // } catch (Exception $e) {
+        //     $reqtocentral->products()->detach();
+        //     $reqtocentral->delete();
+        //     return response()->json([
+        //         'message' => 'Internal error',
+        //         'code' => 500,
+        //         'error' => true,
+        //         'errors' => $e,
+        //     ], 500);
+        // }
     }
 
     /**
+     * 
      * Remove the specified resource from storage.
      *
      * @param  int  $id
@@ -220,7 +319,7 @@ class StudioRequestToCentralController extends Controller
             'req' => $req,
         ];
 
-        $pdf = PDF::loadView('retail-request-to-central.print', $data);
+        $pdf = PDF::loadView('studio-request-to-central.print', $data);
         return $pdf->stream($req->code . '.pdf');
     }
 
@@ -249,14 +348,21 @@ class StudioRequestToCentralController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $edit = '
+               if ($row->status=="pending"){
+                    $edit = '
                 <a href="/studio-request-to-central/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
                     <span>Edit</span>
                 </a>';
                 $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                    <span>Delete</span>
                    </a>';
-                $print = '<a href="/retail-request-to-central/print/' . $row->id . '" target="_blank"><em class="icon fas fa-print"></em>
+
+               }else{
+                $edit = '';
+                $delete = '';
+
+               }
+                $print = '<a href="/studio-request-to-central/print/' . $row->id . '" target="_blank"><em class="icon fas fa-print"></em>
                    <span>Cetak</span>
                    </a>';
                 $excel = '<a href="/studio-request-to-central/excel/' . $row->id . '" target="_blank"><em class="icon fas fa-th"></em>

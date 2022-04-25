@@ -60,7 +60,14 @@ class TransactionAccountExport implements FromView, ShouldAutoSize
         $purchaseTransactions=Account::with('purchaseTransactions')->findOrfail($id);  
         $purchaseReturnTransactions=Account::with('purchaseReturnTransactions')
         ->findOrfail($id);
+        // $InOutTransactionAccount=Account::with('accountTransactions')->find($id);
         $InOutTransactionAccount=Account::with('accountTransactions')->find($id);
+        $inOutTransactionCollect=collect($InOutTransactionAccount->accountTransactions)->each(function($accountTransaction){
+            $accountTransaction['account_type'] = $accountTransaction['type'];
+             $accountTransaction['description'] = "Transaksi In Out";
+           
+
+        });
         $account=collect(Account::where('id','=',$id)->get())->each(function($account){
             $account['account_type'] = 'in';
             $account['note'] = 'Saldo Awal';
@@ -87,8 +94,19 @@ class TransactionAccountExport implements FromView, ShouldAutoSize
         ($account
         ->merge(collect($purchaseTransactions->purchaseTransactions)
            ->each(function($purchaseTransaction){
-               $purchaseTransaction['description']=
-               "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
+            //    $purchaseTransaction['description']=
+            //    "pembayaran supplier dengan No. Order".$purchaseTransaction['code'];
+
+            if (($purchaseTransaction['account_id']==3) AND ($purchaseTransaction['account_type']=='in') )
+            {
+             $purchaseTransaction['description']=
+             "Hutang supplier";
+
+            }else{
+             $purchaseTransaction['description']=
+             "pembayaran supplier dengan No. Transaksi ".$purchaseTransaction['code'];
+            }
+
            }))
         ->merge(collect($purchaseReturnTransactions->purchaseReturnTransactions)
            ->each(function($purchaseReturnTransaction){
@@ -113,7 +131,7 @@ class TransactionAccountExport implements FromView, ShouldAutoSize
                 "Transaksi Penjualan retail dengan No. Transaksi ".$studioSaleTransaction['code'];
                 $studioSaleTransaction['amount']=abs($studioSaleTransaction['amount']);
         }))   
-        ->merge($InOutTransactionAccount->accountTransactions))
+        ->merge($inOutTransactionCollect))
 
         : $transactionMerge = $centralPurchases;
 
@@ -133,7 +151,7 @@ class TransactionAccountExport implements FromView, ShouldAutoSize
             ->all();
         }
         
-       
+        //$products = Product::with('productCategory')->with('productSubcategory')->get();
 
         return view('account.export', [
             'transactions' => $accountTransactions,

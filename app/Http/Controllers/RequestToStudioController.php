@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\RequestToStudio;
+use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use PDF;
+use App\Exports\RequestToStudioExport;
 
 class RequestToStudioController extends Controller
 {
@@ -51,16 +54,19 @@ class RequestToStudioController extends Controller
      */
     public function store(Request $request)
     {
+         DB::beginTransaction();
         //
         $requestToStudio = new RequestToStudio;
         $requestToStudio->code = $request->code;
         $requestToStudio->date = $request->date;
         $selectedProducts = $request->selected_products;
         $requestToStudio->status = "pending";
+        
 
         try {
             $requestToStudio->save();
         } catch (Exception $e) {
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -74,6 +80,7 @@ class RequestToStudioController extends Controller
                 $item['id'] => [
                     'quantity' => $item['quantity'],
                     'studio_stock' => $item['studio_stock'],
+                     'central_stock' => $item['central_stock'],
                     // 'cause'=>$item['cause'],
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),
@@ -84,6 +91,7 @@ class RequestToStudioController extends Controller
 
         try {
             $requestToStudio->products()->attach($keyedProducts);
+            DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -92,6 +100,7 @@ class RequestToStudioController extends Controller
             ]);
         } catch (Exception $e) {
             $requestToStudio->delete();
+               DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -113,6 +122,32 @@ class RequestToStudioController extends Controller
 
 
     }
+    
+      public function export(){
+      
+        return Excel::download(new RequestToStudioExport(), "Permintaan ke studio" . '.xlsx');
+       
+    }
+
+
+
+    public function print($id)
+    {
+        // return view('central-sale.print');
+        $req = RequestToStudio::with(['products'])->findOrFail($id);
+
+        $data = [
+            'req' => $req,
+        ];
+        //return "tes";
+
+        $pdf = PDF::loadView('request-to-studio.print', $data);
+        return $pdf->stream($req->code . '.pdf');
+    }
+
+
+    
+    
 
     /**
      * Show the form for editing the specified resource.
@@ -140,6 +175,7 @@ class RequestToStudioController extends Controller
      */
     public function update(Request $request, $id)
     {
+           DB::beginTransaction();
         $requestToStudio = RequestToStudio::findOrFail($id);
         $requestToStudio->code = $request->code;
         $requestToStudio->date = $request->date;
@@ -148,6 +184,7 @@ class RequestToStudioController extends Controller
         try {
             $requestToStudio->save();
         } catch (Exception $e) {
+                DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -160,6 +197,7 @@ class RequestToStudioController extends Controller
                 $item['id'] => [
                     'studio_stock' => $item['studio_stock'],
                     'quantity' => $item['quantity'],
+                     'central_stock' => $item['central_stock'],
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),
                 ]
@@ -175,6 +213,7 @@ class RequestToStudioController extends Controller
             // ]);
         } catch (Exception $e) {
             $requestToStudio->delete();
+                DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -186,6 +225,7 @@ class RequestToStudioController extends Controller
             $requestToStudio->products()->attach($keyedProducts);
         } catch (Exception $e) {
             $requestToStudio->delete();
+                DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -203,6 +243,7 @@ class RequestToStudioController extends Controller
                 $productRow->studio_stock = $product['studio_stock'];
                 $productRow->save();
             }
+            DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -212,6 +253,7 @@ class RequestToStudioController extends Controller
         } catch (Exception $e) {
             $requestToStudio->products()->detach();
             $requestToStudio->delete();
+                DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -229,10 +271,12 @@ class RequestToStudioController extends Controller
      */
     public function destroy($id)
     {
+               DB::beginTransaction();
         $requestToStudio = RequestToStudio::findOrFail($id);
         try {
             $requestToStudio->products()->detach();
         } catch (Exception $e) {
+                     DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -242,7 +286,9 @@ class RequestToStudioController extends Controller
         }
         try {
             $requestToStudio->delete();
+             DB::commit();
         } catch (Exception $e) {
+                     DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -272,12 +318,20 @@ class RequestToStudioController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $edit = '
+               if ($row->status=="pending"){
+                    $edit = '
                 <a href="/request-to-studio/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
                     <span>Edit</span>
                 </a>';
                 $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                    <span>Delete</span>
+                   </a>';
+               }else{
+                    $edit = '';
+                    $delete = '';
+               }
+                   $print = '<a href="/request-to-studio/print/' . $row->id . '" target="_blank"><em class="icon fas fa-print"></em>    
+                   <span>Cetak</span>
                    </a>';
                 $button = '
                    <div class="dropdown">
@@ -286,6 +340,7 @@ class RequestToStudioController extends Controller
                        <ul class="link-list-opt no-bdr">
                            ' . $edit . '
                            ' . $delete . '
+                           ' . $print . '
                        </ul>
                    </div>
                    </div>';

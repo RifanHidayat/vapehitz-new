@@ -1,14 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Exports\RequestToRetailExport;
 use App\Models\Product;
 use App\Models\RequestToRetail;
 use Exception;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+//use PhpOffice\PhpSpreadsheet\Writer\Pdf;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
+use PDF;
 
 class RequestToRetailController extends Controller
 {
@@ -57,10 +60,11 @@ class RequestToRetailController extends Controller
         $requestToRetail->code = $request->code;
         $requestToRetail->date = $request->date;
         $products = $request->selected_products;
-
+   DB::beginTransaction();
         try {
             $requestToRetail->save();
         } catch (Exception $e) {
+                DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -90,6 +94,7 @@ class RequestToRetailController extends Controller
             // ]);
         } catch (Exception $e) {
             $requestToRetail->delete();
+                DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -110,6 +115,7 @@ class RequestToRetailController extends Controller
                 $productRow->central_stock = $product['central_stock'];
                 $productRow->save();
             }
+               DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -119,6 +125,7 @@ class RequestToRetailController extends Controller
         } catch (Exception $e) {
             $requestToRetail->products()->detach();
             $requestToRetail->delete();
+                DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -139,6 +146,21 @@ class RequestToRetailController extends Controller
         //
     }
 
+    public function print($id)
+    {
+        // return view('central-sale.print');
+        $req = RequestToRetail::with(['products'])->findOrFail($id);
+
+        $data = [
+            'req' => $req,
+        ];
+        //return "tes";
+
+        $pdf = PDF::loadView('request-to-retail.print', $data);
+        return $pdf->stream($req->code . '.pdf');
+    }
+    
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -155,6 +177,11 @@ class RequestToRetailController extends Controller
             'request_to_retail' => $requestToRetail,
         ]);
     }
+     public function export(){
+      
+        return Excel::download(new RequestToRetailExport(), "Permintaan ke retail" . '.xlsx');
+       
+    }
 
     /**
      * Update the specified resource in storage.
@@ -165,6 +192,7 @@ class RequestToRetailController extends Controller
      */
     public function update(Request $request, $id)
     {
+           DB::beginTransaction();
         $requestToRetail = RequestToRetail::findOrFail($id);
         $requestToRetail->code = $request->code;
         $requestToRetail->date = $request->date;
@@ -173,6 +201,7 @@ class RequestToRetailController extends Controller
         try {
             $requestToRetail->save();
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -200,6 +229,7 @@ class RequestToRetailController extends Controller
             // ]);
         } catch (Exception $e) {
             $requestToRetail->delete();
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -211,6 +241,7 @@ class RequestToRetailController extends Controller
             $requestToRetail->products()->attach($keyedProducts);
         } catch (Exception $e) {
             $requestToRetail->delete();
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -228,6 +259,7 @@ class RequestToRetailController extends Controller
                 $productRow->retail_stock = $product['retail_stock'];
                 $productRow->save();
             }
+             DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -237,6 +269,7 @@ class RequestToRetailController extends Controller
         } catch (Exception $e) {
             $requestToRetail->products()->detach();
             $requestToRetail->delete();
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -254,10 +287,12 @@ class RequestToRetailController extends Controller
      */
     public function destroy($id)
     {
+          DB::beginTransaction();
         $requestToRetail = RequestToRetail::findOrFail($id);
         try {
             $requestToRetail->products()->detach();
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -267,6 +302,7 @@ class RequestToRetailController extends Controller
         }
         try {
             $requestToRetail->delete();
+              DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -274,6 +310,7 @@ class RequestToRetailController extends Controller
                 'data' => $requestToRetail,
             ]);
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -303,20 +340,30 @@ class RequestToRetailController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $edit = '
+              if ($row->status=='pending'){
+                    $edit = '
                 <a href="/request-to-retail/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
                     <span>Edit</span>
                 </a>';
-                $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                     $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                    <span>Delete</span>
+                   </a>';
+              }else{
+                  $edit="";
+                  $delete="";
+              }
+           
+                   $print = '<a href="/request-to-retail/print/' . $row->id . '" target="_blank"><em class="icon fas fa-print"></em>
+                   <span>Cetak</span>
                    </a>';
                 $button = '
                    <div class="dropdown">
                    <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
                    <div class="dropdown-menu dropdown-menu-right">
                        <ul class="link-list-opt no-bdr">
-                           ' . $edit . '
+                           ' .$edit . '
                            ' . $delete . '
+                           ' . $print . '
                        </ul>
                    </div>
                    </div>';

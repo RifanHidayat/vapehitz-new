@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Exception;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
+use PDF;
 
 class ApproveRetailController extends Controller
 {
@@ -29,6 +31,20 @@ class ApproveRetailController extends Controller
     public function create()
     {
         //
+    }
+
+    public function print($id)
+    {
+        // return view('central-sale.print');
+        $req = RequestToRetail::with(['products'])->findOrFail($id);
+
+        $data = [
+            'req' => $req,
+        ];
+        //return "tes";
+
+        $pdf = PDF::loadView('request-to-retail.print', $data);
+        return $pdf->stream($req->code . '.pdf');
     }
 
     /**
@@ -72,6 +88,7 @@ class ApproveRetailController extends Controller
 
     public function approved(Request $request, $id)
     {
+            DB::beginTransaction();
         $approveRetail = RequestToRetail::findOrFail($id);
         $approveRetail->code = $request->code;
         $approveRetail->date = $request->date;
@@ -81,6 +98,7 @@ class ApproveRetailController extends Controller
         try {
             $approveRetail->save();
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -111,6 +129,7 @@ class ApproveRetailController extends Controller
             // ]);
         } catch (Exception $e) {
             $approveRetail->delete();
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -122,6 +141,7 @@ class ApproveRetailController extends Controller
             $approveRetail->products()->attach($keyedProducts);
         } catch (Exception $e) {
             $approveRetail->delete();
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -140,6 +160,7 @@ class ApproveRetailController extends Controller
                 $productRow->central_stock = $productRow->central_stock + $product['quantity'];
                 $productRow->save();
             }
+            DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -148,7 +169,9 @@ class ApproveRetailController extends Controller
             ]);
         } catch (Exception $e) {
             $approveRetail->products()->detach();
+            
             $approveRetail->delete();
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -302,10 +325,13 @@ class ApproveRetailController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $show = '<a href="/approve-retail/show/' . $row->id . '" class="btn btn-outline-light btn-sm"><em class="icon fas fa-eye"></em>
+                $show = '<a href="/approve-retail/show/' . $row->id . '" class="btn btn-outline-light btn-sm" ><em class="icon fas fa-eye"></em>
                 <span>Detail</span>
             </a>';
-                $button = ".$show.";
+            $print = '<a href="/approve-retail/print/' . $row->id . '" class="btn btn-outline-light btn-sm" target="_blank"><em class="icon fas fa-print"></em>
+                <span>Print</span>
+            </a>';
+                $button = ".$show. $print";
                 return $button;
             })
             ->rawColumns(['status', 'action'])

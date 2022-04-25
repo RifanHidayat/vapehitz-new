@@ -100,7 +100,7 @@
                                 </div>
                             </div> -->
                         </div>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-label">Kolom</label>
@@ -114,7 +114,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="row mt-3">
                             <div class="col-md-12 text-right">
                                 <button type="button" class="btn btn-primary" @click="applyFilter">Apply</button>
@@ -126,37 +126,34 @@
                     </div> -->
                 </div>
                 <div class="divider"></div>
-                <div class="text-center">
+                <!-- <div class="text-center">
                     <em class="icon ni ni-share-alt" style="font-size: 5em;"></em>
                     <p class="text-soft mt-2">Report preview is under construction</p>
+                </div> -->
+                <div v-if="tableDataLoading" class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
-                <!-- <div class="table-responsive">
-                    <table class="table table-striped" id="centralSale">
+                <div class="table-responsive" style="max-height: 500px;">
+                    <table class="table table-striped">
                         <thead>
-                            <tr class="text-center">
-                                <th>No. Invoice</th>
-                                <th>Tanggal Invoice</th>
+                            <tr>
                                 <th>Supplier</th>
-                                <th>Shipment</th>
-                             
-                                <th>Penerima</th>
-                                <th>Subtotal</th>
-                                <th>Discount</th>
-                                <th>Shipping</th>
-                                <th>Grand Total</th>
-                                <th>Pembayaran 1</th>
-                                <th>Pembayaran 2</th>
-                                <th>Sisa</th>
-                                <th>Berat (gr)</th>
-                                <th>Status</th>
-                                <th>Status Cetak</th>
-                              
+                                <th>Date</th>
+                                <th>No.</th>
+                                <th>Created By</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Free</th>
+                                <th>Price</th>
+                                <th>Amount</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="datatable-tbody">
                         </tbody>
                     </table>
-                </div> -->
+                </div>
             </div>
         </div>
     </div>
@@ -238,11 +235,12 @@
                 shipment: '',
                 sortBy: '',
                 sortIn: 'asc',
-            }
+            },
+            tableDataLoading: true,
         },
         mounted() {
             this.applyFilter();
-            console.log(this.filter.columns.map(column => column.id))
+            // console.log(this.filter.columns.map(column => column.id))
         },
         methods: {
             applyFilter: function() {
@@ -256,6 +254,25 @@
                     `&sort_by=${this.filter.sortBy}` +
                     `&sort_in=${this.filter.sortIn}` +
                     `&report_type=detail`;
+
+
+                this.tableDataLoading = true;
+                this.loadTable(this.generatedRequest);
+            },
+            loadTable: function(request) {
+                let vm = this;
+                axios.get('/report/central-purchase/supplier/detail-data' + request)
+                    .then(function(res) {
+                        // vm.tableData = res.data.data;
+                        const tbody = document.getElementById('datatable-tbody');
+                        // console.log(tbody);
+                        tbody.innerHTML = res.data;
+                        vm.tableDataLoading = false;
+                        // console.log(res);
+                    }).catch(function(err) {
+                        vm.tableDataLoading = false;
+                        console.log('cant load table with error : ' + err)
+                    })
             }
         },
         computed: {

@@ -158,7 +158,7 @@
         data: {
             code: '{{$approve_central->code}}',
             date: '{{$approve_central->date}}',
-            selectedProducts: JSON.parse('{!! $approve_central->products !!}'),
+            selectedProducts: JSON.parse(String.raw`{!! $approve_central->products !!}`),
             check: [],
             loading: false,
         },
@@ -256,8 +256,8 @@
                 this.check.splice(index, 1);
             },
             validateQuantity: function(product) {
-                if (Number(product.quantity) > Number(product.retail_stock)) {
-                    product.quantity = product.retail_stock;
+                if (Number(product.quantity) > Number(product.central_stock)) {
+                    product.quantity = product.central_stock;
                 }
             },
         },

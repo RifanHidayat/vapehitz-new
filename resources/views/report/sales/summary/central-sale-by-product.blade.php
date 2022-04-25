@@ -126,37 +126,28 @@
                     </div> -->
                 </div>
                 <div class="divider"></div>
-                <div class="text-center">
+                <div v-if="tableDataLoading" class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <!-- <div class="text-center">
                     <em class="icon ni ni-share-alt" style="font-size: 5em;"></em>
                     <p class="text-soft mt-2">Report preview is under construction</p>
-                </div>
-                <!-- <div class="table-responsive">
-                    <table class="table table-striped" id="centralSale">
-                        <thead>
-                            <tr class="text-center">
-                                <th>No. Invoice</th>
-                                <th>Tanggal Invoice</th>
-                                <th>Customer</th>
-                                <th>Shipment</th>
-                               
-                                <th>Penerima</th>
-                                <th>Subtotal</th>
-                                <th>Discount</th>
-                                <th>Shipping</th>
-                                <th>Grand Total</th>
-                                <th>Pembayaran 1</th>
-                                <th>Pembayaran 2</th>
-                                <th>Sisa</th>
-                                <th>Berat (gr)</th>
-                                <th>Status</th>
-                                <th>Status Cetak</th>
-                              
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
                 </div> -->
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th>Avg Price</th>
+                        </tr>
+                    </thead>
+                    <tbody id="datatable-tbody">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -242,7 +233,7 @@
         },
         mounted() {
             this.applyFilter();
-            console.log(this.filter.columns.map(column => column.id))
+            // console.log(this.filter.columns.map(column => column.id))
         },
         methods: {
             applyFilter: function() {
@@ -256,6 +247,24 @@
                     `&sort_by=${this.filter.sortBy}` +
                     `&sort_in=${this.filter.sortIn}` +
                     `&report_type=summary`;
+
+                this.tableDataLoading = true;
+                this.loadTable(this.generatedRequest);
+            },
+            loadTable: function(request) {
+                let vm = this;
+                axios.get('/report/central-sale/product/summary-data' + request)
+                    .then(function(res) {
+                        // vm.tableData = res.data.data;
+                        const tbody = document.getElementById('datatable-tbody');
+                        // console.log(tbody);
+                        tbody.innerHTML = res.data;
+                        vm.tableDataLoading = false;
+                        // console.log(res);
+                    }).catch(function(err) {
+                        vm.tableDataLoading = false;
+                        console.log('cant load table with error : ' + err)
+                    })
             }
         },
         computed: {

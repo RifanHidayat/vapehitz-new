@@ -9,6 +9,7 @@ use App\Models\PurchaseReturnTransaction;
 use App\Models\PurchaseTransaction;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class PurchaseReturnTransactionController extends Controller
@@ -53,7 +54,7 @@ class PurchaseReturnTransactionController extends Controller
     public function store(Request $request)
     {
         $date = $request->date;
-        $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
+        $transactionsByCurrentDateCount = PurchaseReturnTransaction::query()->where('date', $date)->get()->count();
         $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
 
         $purchaseId = $request->purchase_id;
@@ -71,12 +72,13 @@ class PurchaseReturnTransactionController extends Controller
         $purchaseReturnTransaction ->purchase_return_id = $request->purchase_return_id;
         $purchaseReturnTransaction ->account_type = "in";
 
-
+        DB::beginTransaction();
          //user account
          try{
            $purchaseReturnTransaction->save();
            
         }catch(Exception $e){
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                  'code' => 500,
@@ -87,46 +89,68 @@ class PurchaseReturnTransactionController extends Controller
 
 
          $date = $request->date;
-         $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
+         $transactionsByCurrentDateCount = PurchaseReturnTransaction::query()->where('date', $date)->get()->count();
          $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
  
          $purchaseId = $request->purchase_id;
          $amount = $this->clearThousandFormat($request->amount);
          $debt = $this->clearThousandFormat($request->debt);
  
-         $purchaseReturnTransaction = new PurchaseReturnTransaction;
-         $purchaseReturnTransaction ->code = $transactionNumber;
-         $purchaseReturnTransaction ->date = $request->date;
-         $purchaseReturnTransaction ->account_id = "2";
-         $purchaseReturnTransaction->supplier_id = $request->supplier_id;
-         $purchaseReturnTransaction->amount = $amount;
-         $purchaseReturnTransaction ->payment_method = $request->payment_method;
-         $purchaseReturnTransaction ->note = $request->note;
-         $purchaseReturnTransaction ->purchase_return_id = $request->purchase_return_id;
-         $purchaseReturnTransaction ->account_type = "out";
-         $purchaseReturnTransaction ->is_default = 1;
- 
- 
-          //user account
-          try{
-            $purchaseReturnTransaction->save();
-            return response()->json([
+    
+
+              $accountTransaction=new AccountTransaction;
+              $accountTransaction->date = $request->date;
+              $accountTransaction->account_id = config('accounts.piutang',34);
+              $accountTransaction->amount = $amount;
+              $accountTransaction->type = "out";
+              $accountTransaction->note = $request->note;
+               $accountTransaction->description="Pembayaran Piutang dengan No. Transaksi ".$transactionNumber;
+               $accountTransaction->table_name="purchase_return_transactions";
+               $accountTransaction->table_id=$purchaseReturnTransaction->id;
+
+
+                try{
+                $accountTransaction->save();
+                } catch (Exception $e) {
+                      DB::rollBack();
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
+
+
+             $accountTransaction=new AccountTransaction;
+              $accountTransaction->date = $request->date;
+              $accountTransaction->account_id =$request->account_id;
+              $accountTransaction->amount = $amount;
+              $accountTransaction->type = "in";
+              $accountTransaction->note = $request->note;
+              $accountTransaction->description="Pembayaran Retur dengan No. Transaksi ".$transactionNumber;
+               $accountTransaction->table_name="purchase_return_transactions";
+                $accountTransaction->table_id=$purchaseReturnTransaction->id;
+
+
+                try{
+                $accountTransaction->save();
+                DB::commit();
+                 return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
                 'error' => false,
-                'data' => null,
+                'data' => [],
             ]);
-            
-         }catch(Exception $e){
-             return response()->json([
-                 'message' => 'Internal error',
-                  'code' => 500,
-                 'error' => true,
-                 'errors' => $e,
-                 ], 500);               
-          }
-
-    
+                } catch (Exception $e) {
+                      DB::rollBack();
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                } 
     }
 
 
@@ -185,18 +209,15 @@ class PurchaseReturnTransactionController extends Controller
     public function destroy($id)
     
     {
+
+         DB::beginTransaction();
         $purchaseReturnTransaction= PurchaseReturnTransaction::findOrFail($id);
 
         try {
             $purchaseReturnTransaction->delete();
-            return response()->json([
-                'message' => 'Data has been deleted',
-                'code' => 200,
-                'error' => false,
-                'data' => null,
-            ]);
-
+        
         } catch (Exception $e) {
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -204,6 +225,39 @@ class PurchaseReturnTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
+
+           $accountTransactions = AccountTransaction::where('table_name','=','purchase_return_transactions')
+           ->where('table_id','=',$id)->get();
+     
+         try{
+            //return $accountTransaction;
+             foreach ($accountTransactions as $accountTransaction){
+                 if ($accountTransaction!=null){
+                      $accountTransaction->delete();
+
+                 }
+                
+             }
+
+                DB::commit();
+                 return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => [],
+            ]);
+             
+         }catch(Exception $e){
+               DB::rollBack();
+              return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => '1'.$e,
+
+            ], 500);
+
+         }
         
         //
     }
@@ -224,15 +278,25 @@ class PurchaseReturnTransactionController extends Controller
             })
             
             ->addColumn('action', function ($row) {
+
+               
+                if ($row->payment_init!=1){
+                     $delete='  <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                    <span>Delete</span>
+                    </a>';
+                    
+
+                }else{
+                     $delete='';
+
+                }
                 $button = '
             <div class="drodown">
             <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
             <div class="dropdown-menu dropdown-menu-right">
                 <ul class="link-list-opt no-bdr">
                    
-                    <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
-                    <span>Delete</span>
-                    </a>
+                  '.$delete.'
 
                     <a href="/purchase-return-transaction/show/' . $row->id . '" ><em class="icon fas fa-eye"></em>
                     <span>Detail</span>

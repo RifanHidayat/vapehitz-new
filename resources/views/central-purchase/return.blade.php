@@ -222,7 +222,7 @@
                                 <div class="form-group col-lg-6 col-md-12">
                                     <label class="form-label" for="full-name-1">Akun</label>
                                     <div class="form-control-wrap">
-                                        <select v-model="accountId" class="form-control" >
+                                        <select v-model="accountId" class="form-control" id="accounts" >
                                             <option v-for="(account, index) in accountOptions" :value="account.id">@{{ account.name }}</option>
                                         </select>
                                     </div>
@@ -302,6 +302,13 @@
     <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
     @endsection
     @section('pagescript')
+    <script>
+        $(function() {
+            console.log("tes");
+            $("#accounts").select2({})
+        })
+    </script>
+ 
     <script>
         Vue.directive('cleave', {
             inserted: (el, binding) => {
@@ -464,4 +471,12 @@
             }
         })
     </script>
+
+      <script>
+    $('#accounts').on('change',function(){
+    app.$data.accountId=$(this).val()
+
+});
+    </script>
+    
     @endsection

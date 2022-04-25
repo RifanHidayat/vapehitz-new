@@ -55,7 +55,8 @@ class PurchaseReturnController extends Controller
      */
     public function store(Request $request)
     {
-        $maxid = DB::table('central_purchases')->max('id');
+        
+        $maxid = DB::table('purchase_returns')->max('id');
         $code = "PR/VH/" . date('dmy') . "/" . sprintf('%04d', $maxid + 1);
 
         $total_return_amount = $this->clearThousandFormat($request->total_return_amount);
@@ -73,11 +74,12 @@ class PurchaseReturnController extends Controller
         $products=$request->products;
       
    
-
+        DB::beginTransaction();
         //save purchase return
         try {
             $purchaseReturn->save();
         } catch (Exception $e) {
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -91,34 +93,7 @@ class PurchaseReturnController extends Controller
         $centralPurchase = CentralPurchase::find($request->purchase_id);
         if ($request->payment_method=='hutang'){
             if ($total_return_amount>$remaining_pay){
-                // pay purchase return transaction accounts receivable
-                 $date = $request->date;
-                 $transactionsByCurrentDateCount = PurchaseReturnTransaction::query()->where('date', $date)->get()->count();
-                 $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);               
-
-                 $purchaseReturnTransaction = new PurchaseReturnTransaction;
-                 $purchaseReturnTransaction ->code = $transactionNumber;
-                 $purchaseReturnTransaction ->date = $request->date;
-                 $purchaseReturnTransaction ->account_id = "2";
-                 $purchaseReturnTransaction ->supplier_id = $request->supplier_id;
-                 $purchaseReturnTransaction ->amount =$total_return_amount-$remaining_pay ;
-                 $purchaseReturnTransaction ->payment_method = $request->payment_method;
-                 $purchaseReturnTransaction ->note = $request->note;
-                 $purchaseReturnTransaction ->purchase_return_id = $purchaseReturn->id;
-                 $purchaseReturnTransaction ->account_type = "in";
-                 $purchaseReturnTransaction ->is_default = 1;
-
-                
-                 try{
-                    $purchaseReturnTransaction->save();
-                } catch (Exception $e) {
-                    return response()->json([
-                        'message' => 'Internal error',
-                        'code' => 500,
-                        'error' => true,
-                        'errors' => $e,
-                    ], 500);
-                }
+           
 
                 // pay purchase return transaction
                 $date = $request->date;
@@ -135,6 +110,9 @@ class PurchaseReturnController extends Controller
                 $purchaseReturnTransaction ->note = $request->note;
                 $purchaseReturnTransaction ->purchase_return_id = $purchaseReturn->id;
                 $purchaseReturnTransaction ->account_type = "in";
+                $purchaseReturnTransaction->payment_init=1;
+
+             
                
                 try{
                    $purchaseReturnTransaction->save();
@@ -147,27 +125,20 @@ class PurchaseReturnController extends Controller
                    ], 500);
                }
 
+                $accountTransaction=new AccountTransaction;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->account_id = config('accounts.piutang',34);
+                $accountTransaction->amount = $total_return_amount-$remaining_pay;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = $request->note;
+                $accountTransaction->description="Piutang supplier dengan No. Transaksi ".$transactionNumber;
+                $accountTransaction->table_name="purchase_return_transactions";
+                $accountTransaction->table_id=$purchaseReturnTransaction->id;
 
-
-                //pay purchase transaction debt
-                $date = $request->date;
-                $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
-                $transactionNumber = 'PT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
-                
-                $purchaseTransaction = new PurchaseTransaction;
-                $purchaseTransaction->code = $transactionNumber;
-                $purchaseTransaction->date = $request->date;
-                $purchaseTransaction->account_id = "3";
-                $purchaseTransaction->supplier_id = $request->supplier_id;
-                $purchaseTransaction->amount = $remaining_pay;
-                $purchaseTransaction->payment_method = $request->payment_method;
-                $purchaseTransaction->note = $request->note;
-                $purchaseTransaction ->account_type = "out";
-                $purchaseTransaction ->is_default = 1;
-
-                try{
-                    $purchaseTransaction->save();
+                 try{
+                $accountTransaction->save();
                 } catch (Exception $e) {
+                      DB::rollBack();
                     return response()->json([
                         'message' => 'Internal error',
                         'code' => 500,
@@ -175,6 +146,7 @@ class PurchaseReturnController extends Controller
                         'errors' => $e,
                     ], 500);
                 }
+
                 
                  //pay purchase transaction
                  $date = $request->date;
@@ -189,9 +161,12 @@ class PurchaseReturnController extends Controller
                  $purchaseTransaction->payment_method = $request->payment_method;
                  $purchaseTransaction->note = $request->note;
                  $purchaseTransaction ->account_type = "out";
+                 $purchaseTransaction->payment_init=2;
+                 $purchaseTransaction->central_purchase_id=$purchaseReturn->id;
                  try{
                      $purchaseTransaction->save();
                  } catch (Exception $e) {
+                       DB::rollBack();
                      return response()->json([
                          'message' => 'Internal error',
                          'code' => 500,
@@ -199,6 +174,27 @@ class PurchaseReturnController extends Controller
                          'errors' => $e,
                      ], 500);
                  }
+                $accountTransaction=new AccountTransaction;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->account_id = config('accounts.hutang',3);
+                $accountTransaction->amount = $remaining_pay;
+                $accountTransaction->type = "out";
+                $accountTransaction->note = $request->note;
+                $accountTransaction->description="Pembayaran retur dengan No. Transaksi ".$transactionNumber;
+                $accountTransaction->table_name="purchase_return_transactions";
+              $accountTransaction->table_id=$purchaseReturnTransaction->id;
+
+                 try{
+                $accountTransaction->save();
+                } catch (Exception $e) {
+                      DB::rollBack();
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
 
 
                 
@@ -211,6 +207,7 @@ class PurchaseReturnController extends Controller
                         ]
                     ]);
                 } catch (Exception $e) {
+                      DB::rollBack();
                     $purchaseTransaction->delete();
                     return response()->json([
                         'message' => 'Internal error',
@@ -224,6 +221,7 @@ class PurchaseReturnController extends Controller
                     $centralPurchase->pay_amount = $centralPurchase->pay_amount + (str_replace(".", "", $request->total_return_amount));
                     $centralPurchase->save();
                 } catch (Exception $e) {
+                      DB::rollBack();
                     return response()->json([
                         'message' => 'Internal error',
                         'code' => 500,
@@ -232,31 +230,7 @@ class PurchaseReturnController extends Controller
                     ], 500);
                 }
 
-                //pay purchase transaction debt
-                $date = $request->date;
-                $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
-                $transactionNumber = 'PT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
-                $purchaseTransaction = new PurchaseTransaction;
-                $purchaseTransaction->code = $transactionNumber;
-                $purchaseTransaction->date = $request->date;
-                $purchaseTransaction->account_id = "3";
-                $purchaseTransaction->supplier_id = $request->supplier_id;
-                $purchaseTransaction->amount = $total_return_amount;
-                $purchaseTransaction->payment_method = $request->payment_method;
-                $purchaseTransaction->note = $request->note;
-                $purchaseTransaction->account_type = "out";
-                $purchaseTransaction->is_default = 1;
-
-                try {
-                    $purchaseTransaction->save();
-                } catch (Exception $e) {
-                    return response()->json([
-                        'message' => 'Internal error',
-                        'code' => 500,
-                        'error' => true,
-                        'errors' => $e,
-                    ], 500);
-                }
+               
 
                 //pay purchase transaction
                 $date = $request->date;
@@ -271,9 +245,33 @@ class PurchaseReturnController extends Controller
                 $purchaseTransaction->payment_method = $request->payment_method;
                 $purchaseTransaction->note = $request->note;
                 $purchaseTransaction->account_type = "out";
+                $purchaseTransaction->payment_init=2;
+                $purchaseTransaction->central_purchase_id=$purchaseReturn->id;
                 try {
                     $purchaseTransaction->save();
                 } catch (Exception $e) {
+                      DB::rollBack();
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
+                $accountTransaction=new AccountTransaction;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->account_id = config('accounts.hutang',3);
+                $accountTransaction->amount =$total_return_amount;
+                $accountTransaction->type = "out";
+                $accountTransaction->note = $request->note;
+                $accountTransaction->description="Pembayaran retur  dengan No. Transaksi ".$transactionNumber;
+                $accountTransaction->table_name="purchase_return_transactions";
+                $accountTransaction->table_id=$purchaseTransaction->id;
+
+                 try{
+                $accountTransaction->save();
+                } catch (Exception $e) {
+                      DB::rollBack();
                     return response()->json([
                         'message' => 'Internal error',
                         'code' => 500,
@@ -290,6 +288,7 @@ class PurchaseReturnController extends Controller
                         ]
                     ]);
                 } catch (Exception $e) {
+                      DB::rollBack();
                     $purchaseTransaction->delete();
                     return response()->json([
                         'message' => 'Internal error',
@@ -304,7 +303,7 @@ class PurchaseReturnController extends Controller
 
                   // pay purchase return transaction
                   $date = $request->date;
-                  $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
+                  $transactionsByCurrentDateCount = PurchaseReturnTransaction::query()->where('date', $date)->get()->count();
                   $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);               
                   $purchaseReturnTransaction = new PurchaseReturnTransaction;
                   $purchaseReturnTransaction ->code = $transactionNumber;
@@ -315,11 +314,13 @@ class PurchaseReturnController extends Controller
                   $purchaseReturnTransaction ->note = $request->note;
                   $purchaseReturnTransaction ->purchase_return_id = $purchaseReturn->id;
                   $purchaseReturnTransaction ->account_type="in";
+                  $purchaseReturnTransaction->payment_init=1;
 
  
                   try{
                      $purchaseReturnTransaction->save();
                  }catch(Exception $e){
+                       DB::rollBack();
                      return response()->json([
                          'message' => 'Internal error',
                           'code' => 500,
@@ -333,7 +334,7 @@ class PurchaseReturnController extends Controller
         }else{       
           // pay purchase return transaction
                 $date = $request->date;
-                $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
+                $transactionsByCurrentDateCount = PurchaseReturnTransaction::query()->where('date', $date)->get()->count();
                 $transactionNumber = 'PRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
                 $purchaseReturnTransaction = new PurchaseReturnTransaction;
                 $purchaseReturnTransaction ->code = $transactionNumber;
@@ -345,9 +346,32 @@ class PurchaseReturnController extends Controller
                 $purchaseReturnTransaction ->note = $request->note;
                 $purchaseReturnTransaction ->purchase_return_id = $purchaseReturn->id;
                 $purchaseReturnTransaction ->account_type = "in";
+                 $purchaseReturnTransaction->payment_init=1;
                 try{
                     $purchaseReturnTransaction->save();
                 } catch (Exception $e) {
+                      DB::rollBack();
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
+                $accountTransaction=new AccountTransaction;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->account_id = $request->account_id;
+                $accountTransaction->amount =$total_return_amount;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = $request->note;
+                $accountTransaction->description="Pembayaran retur  dengan No. Transaksi ".$transactionNumber;
+                $accountTransaction->table_name="purchase_return_transactions";
+                $accountTransaction->table_id=$purchaseReturnTransaction->id;
+
+                 try{
+                $accountTransaction->save();
+                } catch (Exception $e) {
+                      DB::rollBack();
                     return response()->json([
                         'message' => 'Internal error',
                         'code' => 500,
@@ -370,6 +394,7 @@ class PurchaseReturnController extends Controller
                 ->update(['return_quantity' =>$product['pivot']['return_quantity']+$product['initial_quantity']]);
             }
         } catch (Exception $e) {
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -390,6 +415,7 @@ class PurchaseReturnController extends Controller
                 //update purchase product
             }
         } catch (Exception $e) {
+              DB::rollBack();
 
             return response()->json([
                 'message' => 'Internal error',
@@ -416,7 +442,15 @@ class PurchaseReturnController extends Controller
 
     try {
         $purchaseReturn->products()->attach($keyedProducts);
+         DB::commit();
+          return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => null,
+            ]);
     } catch (Exception $e) {
+          DB::rollBack();
         $centralPurchase->delete();
         return response()->json([
             'message' => 'Internal error',
@@ -491,12 +525,34 @@ class PurchaseReturnController extends Controller
 
     {
 
-        $PurchaseReturn = PurchaseReturn::findOrFail($id);
-    
-        $products = $PurchaseReturn->products;
-        try {
-            $PurchaseReturn->delete();
-        } catch (Exception $e) {
+        DB::beginTransaction();
+
+        $PurchaseReturn = PurchaseReturn::with(['purchaseReturnTransactions','products'])->findOrFail($id);
+
+       try{
+            foreach ($PurchaseReturn->purchaseReturnTransactions as $purchaseReturnTransaction){
+
+            $accountTransactions = AccountTransaction::where('table_name','=','purchase_return_transactions')
+            ->where('table_id','=',$purchaseReturnTransaction->id)
+            ->get();
+           
+           foreach( $accountTransactions as $accountTransaction  ){
+                if ($accountTransaction!=null){
+                 $accountTransaction->delete();
+
+            }
+           }
+
+            if ($purchaseReturnTransaction!=null){
+                 $purchaseReturnTransaction->delete();
+
+            }
+      
+
+        }
+
+       }catch(Exception $e){
+            DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -504,12 +560,49 @@ class PurchaseReturnController extends Controller
                 'errors' => $e,
                 "e"=>'ww'+$e
             ], 500);
+
+       }
+       $purchaseTransaction=PurchaseTransaction::where('central_purchase_id',$id)
+       ->where('payment_init',2)->first();
+
+       try{
+        if ($purchaseTransaction!=null){
+            $purchaseTransaction->delete();
+          }
+
+       }catch(Exception $e){
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+                "e"=>'ww'+$e
+            ], 500);
+
+       }
+
+        //return $PurchaseReturn;
+    
+        $products = $PurchaseReturn->products;
+        try {
+            $PurchaseReturn->delete();
+        } catch (Exception $e) {
+                  DB::rollBack();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+                "e"=>''+$e
+            ], 500);
         }
 
         try{
             $PurchaseReturn->purchaseReturnTransactions()->delete();
 
         }catch (Exception $e) {
+                  DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -528,6 +621,7 @@ class PurchaseReturnController extends Controller
                 $productRow->save();
             }
         } catch (Exception $e) {
+                  DB::rollBack();
        
             return response()->json([
                 'message' => 'Internal error',
@@ -540,6 +634,7 @@ class PurchaseReturnController extends Controller
         try {
             DB::table("product_purchase_return")->where('purchase_return_id', $id)->delete();
             // $purchaseReturnTransaction->delete();
+             DB::commit();
             return response()->json([
                 'message' => 'Data has been deleted',
                 'code' => 200,
@@ -547,6 +642,7 @@ class PurchaseReturnController extends Controller
                 'data' => null,
             ]);
         } catch (Exception $e) {
+                  DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -555,18 +651,12 @@ class PurchaseReturnController extends Controller
             ], 500);
         }
 
-
-        
-  
-
     }
 
     public function pay($id)
     {
-
-
         $payAmount = 0;
-        $accounts = Account::all();
+        $accounts = Account::where('is_default',0)->get();
         $purchaseReturn = PurchaseReturn::with(['centralPurchase', 'supplier', 'account'])->findOrFail($id);
 
         //Purchase Transaction
@@ -575,7 +665,7 @@ class PurchaseReturnController extends Controller
             $payAmount = collect($purchase->purchaseTransactions)->sum('pivot.amount');
         }
 
-        $transactions = collect($purchaseReturn->purchaseReturnTransactions)->where('account_id','!=',2)->sortBy('date')->values()->all();
+        $transactions = collect($purchaseReturn->purchaseReturnTransactions)->where('account_id','!=',config('accounts.piutang',34))->sortBy('date')->values()->all();
    
         return view('purchase-return.pay', [
             'purchaseReturn' => $purchaseReturn,

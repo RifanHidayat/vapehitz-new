@@ -496,12 +496,17 @@
                             <p v-if="totalPayment > netTotal" class="text-soft"><em class="icon ni ni-info text-warning align-middle" style="font-size: 1.2em;"></em> Total penerimaan lebih besar dari net total</p>
                         </div>
                     </div>
+                    <div v-if="overStock" class="alert alert-icon alert-warning mt-2" role="alert">
+                        <em class="icon ni ni-alert-circle"></em>
+                        Jumlah penjualan <em>(Booking + Qty + Free)</em> melebihi stok
+                    </div>
                     <div class="text-right">
-                        <button class="btn btn-primary" type="submit" :disabled="loading || totalPayment > netTotal">
+                        <button class="btn btn-primary" type="submit" :disabled="loading || totalPayment > netTotal || overStock">
                             <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span>Simpan</span>
                         </button>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -996,7 +1001,7 @@
                 return number.replaceAll(".", "");
             },
             subTotalProduct: function(product) {
-                return Number(product.quantity) * Number(product.agent_price);
+                return Number(product.quantity) * Number(product.price);
             },
             calculateBooked: function(product) {
                 return Number(product.quantity) + Number(product.free);
@@ -1145,7 +1150,35 @@
                 const remainingPayment = this.netTotal - this.totalPayment;
                 return remainingPayment;
             },
+            overStock: function() {
+                const overStockProducts = this.selectedProducts.filter(product => {
+                    const taken = Number(product.booked) + Number(product.quantity) + Number(product.free);
+                    return taken > product.central_stock;
+                })
+
+                if (overStockProducts.length > 0) {
+                    return true;
+                }
+
+                return false;
+            }
         },
+        watch: {
+            selectedProducts: {
+                handler: function(newval, oldval) {
+                    this.selectedProducts.forEach(product => {
+                        // goods.total = (Number(goods.price) * Number(goods.quantity)) - Number(goods.discount);
+                        const taken = Number(product.booked) + Number(product.quantity) + Number(product.free);
+                        if (taken > product.central_stock) {
+                            product.backgroundColor = 'bg-warning-dim';
+                        } else {
+                            product.backgroundColor = 'bg-white';
+                        }
+                    });
+                },
+                deep: true
+            }
+        }
     })
 </script>
 <script>
@@ -1171,7 +1204,8 @@
                         data: 'action',
                         name: 'action'
                     },
-                ]
+                ],
+
             })
             $.fn.DataTable.ext.pager.numbers_length = 7;
         }
@@ -1190,8 +1224,8 @@
                 data['quantity'] = 1;
                 data['free'] = 0;
                 data['editable'] = 0;
-                data['price'] = data.agent_price;
-                data['subTotal'] = data.agent_price;
+                data['price'] = data.ws_price;
+                data['subTotal'] = data.ws_price;
                 data['backgroundColor'] = 'bg-white';
                 check.push(data);
             }
@@ -1207,7 +1241,7 @@
                 // }
                 const product = app.$data.selectedProducts[selectedIndex];
                 if (typeof product !== "undefined") {
-                    product.price = product.agent_price;
+                    product.price = product.ws_price;
                     if (!product.editable) {
                         product.subTotal = product.price * product.quantity;
                     }

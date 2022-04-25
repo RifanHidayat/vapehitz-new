@@ -33,7 +33,15 @@
             <td></td>
             <td></td>
             <td></td>
-            <td>{{ $product->productCategory->name . ':' }}{{ $product->productSubcategory->name . ' - ' }}{{ $product->name }}</td>
+            <td>
+                @if($product->productCategory !== null)
+                {{ $product->productCategory->name . ':' }}
+                @endif
+                @if($product->productSubcategory !== null)
+                {{ $product->productSubcategory->name . ' - ' }}
+                @endif
+                {{ $product->name }}
+            </td>
             <td data-format="#,##0_-">{{ $product->pivot->quantity }}</td>
             <td data-format="#,##0_-">{{ $product->pivot->free }}</td>
             <td data-format="#,##0_-">{{ $product->pivot->price }}</td>
@@ -44,10 +52,35 @@
         <?php $invoiceTotal += $amount ?>
         @endforeach
         <tr>
+            <td>Total Amount</td>
+            @for($i = 0; $i < ($emptyCellCount); $i++) <td>
+                </td> @endfor
+                <td data-format="#,##0_-">{{ $sale->subtotal }}</td>
+        </tr>
+        <tr>
+            <td>Diskon</td>
+            @for($i = 0; $i < ($emptyCellCount); $i++) <td>
+                </td> @endfor
+                <?php 
+                $discount = $sale->discount;
+                if($sale->discount_type == 'percentage') {
+                    $discount = $sale->subtotal * ($sale->discount / 100);
+                }
+                ?>
+                <td data-format="#,##0_-">-{{ $discount }}</td>
+        </tr>
+        <tr>
+            <td>Biaya Lainnya ({{$sale->other_cost_description}})</td>
+            @for($i = 0; $i < ($emptyCellCount); $i++) <td>
+                </td> @endfor
+                <td data-format="#,##0_-">{{ $sale->other_cost }}</td>
+        </tr>
+        <tr>
             <td>Total for {{ $sale->code }}</td>
             @for($i = 0; $i < ($emptyCellCount); $i++) <td>
                 </td> @endfor
-                <td data-format="#,##0_-">{{ $invoiceTotal }}</td>
+                <?php $grandTotal = $sale->subtotal - $discount + $sale->other_cost ?>
+                <td data-format="#,##0_-"><strong>{{ $grandTotal }}</strong></td>
         </tr>
         @endforeach
         <tr>

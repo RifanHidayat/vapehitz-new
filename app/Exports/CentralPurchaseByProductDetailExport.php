@@ -74,6 +74,7 @@ class CentralPurchaseByProductDetailExport implements FromView, ShouldAutoSize
         }]);
 
         $purchases = $query->get();
+       // return $purchases;
         // ->groupBy(function ($item, $key) {
         //     return $item->code . ' - ' . $item->name;
         // })->all();

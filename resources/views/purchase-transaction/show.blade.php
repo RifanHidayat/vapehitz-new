@@ -95,6 +95,12 @@
                             <div class="data-value">{{ $purchaseTransaction->payment_method }} ({{ $purchaseTransaction->account->name }})</div>
                         </div>
                     </li>
+                      <li class="data-item">
+                        <div class="data-col">
+                            <div class="data-label">Note</div>
+                            <div class="data-value">{{ $purchaseTransaction->note }} </div>
+                        </div>
+                    </li>
 
                 </ul>
 

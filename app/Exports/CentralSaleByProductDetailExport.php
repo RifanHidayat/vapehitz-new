@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-class CentralSaleByProductDetailExport implements FromView, ShouldAutoSize
+class CentralSaleByProductDetailExport implements FromView, ShouldAutoSize, WithEvents
 {
     private $request;
     private $allColumns = [
@@ -80,7 +82,7 @@ class CentralSaleByProductDetailExport implements FromView, ShouldAutoSize
         //     return $item->product->id . ' - ' . $item->product->name;
         // })->all();
         $query = Product::whereHas('centralSales', function (Builder $query) use ($startDate, $endDate) {
-            $query->whereBetween(DB::raw('DATE(date)'), [$startDate, $endDate]);
+            $query->whereBetween(DB::raw('DATE(date)'), [$startDate, $endDate])->where('status', 'approved');
         })->with(['productCategory', 'productSubcategory', 'centralSales' => function ($query) use ($customer, $shipment, $status) {
             $query->with(['customer', 'createdBy']);
             if ($customer !== '' && $customer !== null) {
@@ -110,5 +112,16 @@ class CentralSaleByProductDetailExport implements FromView, ShouldAutoSize
         //     'column_selections' => $columnSelections,
         //     'all_columns' => $this->allColumns,
         // ]);
+    }
+    
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+   
+                $event->sheet->getDelegate()->freezePane('A2');
+   
+            },
+        ];
     }
 }

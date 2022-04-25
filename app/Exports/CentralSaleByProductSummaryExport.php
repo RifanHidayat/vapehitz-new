@@ -79,7 +79,7 @@ class CentralSaleByProductSummaryExport implements FromView, ShouldAutoSize
         //     return $item->product->id . ' - ' . $item->product->name;
         // })->all();
         $query = Product::whereHas('centralSales', function (Builder $query) use ($startDate, $endDate) {
-            $query->whereBetween(DB::raw('DATE(date)'), [$startDate, $endDate]);
+            $query->whereBetween(DB::raw('DATE(date)'), [$startDate, $endDate])->where('status', 'approved');
         })->with(['productCategory', 'productSubcategory', 'centralSales' => function ($query) use ($customer, $shipment, $status) {
             $query->with(['customer']);
             if ($customer !== '' && $customer !== null) {

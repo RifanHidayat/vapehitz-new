@@ -11,6 +11,6 @@ class RequestToRetail extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class)->withPivot('retail_stock', 'quantity');
+          return $this->belongsToMany(Product::class)->withPivot('retail_stock', 'quantity','central_stock');
     }
 }

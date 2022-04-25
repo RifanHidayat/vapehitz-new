@@ -101,12 +101,12 @@
     
     <div class="content" style="width: 100%; float:left;margin-top:15px;" >
     <div class="table-balance"style="width: 100%; float:left" >
-       <table border="1" align="left" style="border-collapse: collapse;padding-top: 5px;padding-bottom: 10px;padding-left: 10px;width:50%;overflow: visible|hidden|wrap" id="table-account">
+       <table border="1" align="left" style="border-collapse: collapse;padding-top: 5px;padding-bottom: 10px;padding-left: 10px;width:100%;overflow: visible|hidden|wrap" id="table-account">
                     <thead>
                         <tr >
-                            <th align="right" style="width: 30%;">Total In</th>
-                            <th align="right" style="width: 30%;">Total Out</th>
-                            <th align="right" style="width: 30%;">Balance</th>
+                            <th align="left" style="width: 30%;">Total In</th>
+                            <th align="left" style="width: 30%;">Total Out</th>
+                            <th align="left" style="width: 30%;">Balance</th>
                         <tr>
                     </thead>
                     <tbody>
@@ -135,14 +135,14 @@
                     <tbody border="0">
                     @php $balance = 0; @endphp
                     @foreach($transactions as $transaction)
-                    @php $transaction->account_type=="in"?$balance+=$transaction->amount:$balance-=$transaction->amount   @endphp
+                    @php $transaction->type=="in"?$balance+=$transaction->amount:$balance-=$transaction->amount   @endphp
                     <tr>
                         <td  valign="top">{{ date_format(date_create($transaction->date), "d/m/Y") }}</td>
                         <td valign="top">{{ $transaction->description}}</td>
                         <td valign="top">{{ $transaction->note}}</td>
-                        <td align="right" valign="top">{{ $transaction->account_type=="in"?$transaction->amount:"" }}</td>
-                        <td align="right" valign="top">{{ $transaction->account_type=="out"?$transaction->amount:"" }}</td>
-                        <td align="right" valign="top">{{ $balance}}</td>
+                        <td align="right" valign="top">{{ $transaction->type=="in"?number_format($transaction->amount):"" }}</td>
+                        <td align="right" valign="top">{{ $transaction->type=="out"?number_format($transaction->amount):"" }}</td>
+                        <td align="right" valign="top">{{number_format($balance)}}</td>
                     </tr>
                    </tbody>
                    @endforeach    

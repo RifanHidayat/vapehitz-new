@@ -157,6 +157,7 @@ class SupplierController extends Controller
         ]);
     }
 
+
     public function payment(Request $request)
     {
         $date = $request->date;
@@ -177,9 +178,11 @@ class SupplierController extends Controller
         $accountTransaction = new AccountTransaction;
         // return $centralPurchaseSelected;
         //purchase transaction
+         DB::beginTransaction();
         try {
             $purchaseTransaction->save();
         } catch (Exception $e) {
+                  DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -187,6 +190,52 @@ class SupplierController extends Controller
                 'errors' => $e,
             ], 500);
         }
+            $accountTransaction = new AccountTransaction();
+            $accountTransaction->date = $request->date;
+            $accountTransaction->account_id = $request->account_id;
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "out";
+             $accountTransaction->table_name="purchase_transactions";
+            $accountTransaction->table_id=$purchaseTransaction->id;
+             $accountTransaction->description="pembayaran  Pembelian dengan No. Transaksi".$transactionNumber;
+
+             try{
+                 $accountTransaction->save();
+
+
+             }catch(Exception $e){
+                       DB::rollBack();
+                  return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e . "e",
+            ], 500);
+
+             }
+            $accountTransaction = new AccountTransaction();
+            $accountTransaction->date = $request->date;
+            $accountTransaction->account_id = '3';
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "out";
+            $accountTransaction->table_name="purchase_transactions";
+            $accountTransaction->table_id=$purchaseTransaction->id;
+             $accountTransaction->description="Pembayaran hutang dengan No. Transaksi".$transactionNumber;
+
+             try{
+                 $accountTransaction->save();
+
+
+             }catch(Exception $e){
+                       DB::rollBack();
+                  return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e . "e",
+            ], 500);
+
+             }
 
 
         //account transaction
@@ -239,7 +288,15 @@ class SupplierController extends Controller
 
         try {
             $purchaseTransaction->centralPurchases()->attach($keyCentralPurchase);
+             DB::commit();
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => [],
+            ]);
         } catch (Exception $e) {
+            DB::rollBack();
             $purchaseTransaction->delete();
             return response()->json([
                 'message' => 'Internal error',
@@ -249,6 +306,7 @@ class SupplierController extends Controller
             ], 500);
         }
     }
+
 
 
     /**
@@ -329,6 +387,16 @@ class SupplierController extends Controller
         $suppliers = Supplier::all();
         return DataTables::of($suppliers)
             ->addIndexColumn()
+                ->addColumn('payRemaining', function ($row) {
+                $supplier = Supplier::with(['centralPurchases', 'purchaseTransactions'=>function($query){
+                    $query->orderBy('date');
+                } ])->find($row->id);
+                $payAmountentralPurchase = collect($supplier->purchaseTransactions)->where('is_default',0)->sum('amount');
+                $grandTotalCentralPurchase = collect($supplier->centralPurchases)->sum('netto');
+
+                return number_format($grandTotalCentralPurchase-$payAmountentralPurchase);
+
+            })
             ->addColumn('action', function ($row) {
                 $permission = json_decode(Auth::user()->group->permission);
                 if (in_array("edit_supplier", $permission)) {
@@ -368,33 +436,46 @@ class SupplierController extends Controller
 
     public function datatableSupplierPayment($id)
     {
-        $centralPurchase = CentralPurchase::with(['supplier'])->select('central_purchases.*')->where('supplier_id', '=', $id)->orderBy('date');
-        return DataTables::eloquent($centralPurchase)
+        $centralPurchases = CentralPurchase::with(['supplier'])
+        ->where('supplier_id',$id)
+        ->orderBy('date')
+        ->get();
+
+        $centralPurchaseCollect=collect($centralPurchases)
+        ->each(function($centralPurchase){
+            $purchase = CentralPurchase::with(['supplier', 'products'])
+            ->findOrFail($centralPurchase->id);
+            
+            $transactions = collect($purchase->purchaseTransactions)
+            ->where('is_default',0)
+            ->sum('pivot.amount');
+
+            $centralPurchase['remaining_amount']=$centralPurchase['netto']-$transactions;
+            $centralPurchase['pay_amount']=$transactions;
+
+        })
+        ->where('remaining_amount','!=',0)
+        ->values()
+        ->all();
+        return Datatables::of($centralPurchaseCollect)
             ->addIndexColumn()
             ->addColumn('date', function ($row) {
                 return ($row->date);
             })
-
             ->addColumn('action', function ($row) {
                 $button = '  <input class="checked-central-purchase" type="checkbox" value="true">';
                 return $button;
             })
-
             ->addColumn('netto', function ($row) {
                 return (number_format($row->netto));
             })
-
             ->addColumn('payAmount', function ($row) {
-                $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($row->id);
-                $transactions = collect($purchase->purchaseTransactions)->where('is_default',0)->sum('pivot.amount');
-                return (number_format($transactions));
+           
+                return (number_format($row->pay_amount));
             })
-
             ->addColumn('remainingAmount', function ($row) {
-                $paidOff = '<div><span class="badge badge-sm badge-dim badge-outline-success d-none d-md-inline-flex">Lunas</span></div>';
-                $purchase = CentralPurchase::with(['supplier', 'products'])->findOrFail($row->id);
-                $transactions = collect($purchase->purchaseTransactions)->where('is_default',0)->sum('pivot.amount');
-                return number_format(($row->netto) - ($transactions));
+                
+                return number_format(($row->remaining_amount));
             })
 
             ->make(true);

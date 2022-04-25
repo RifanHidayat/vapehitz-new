@@ -159,7 +159,7 @@
                                 <div class="form-group col-lg-6 col-md-12">
                                     <label class="form-label" for="full-name-1">Akun</label>
                                     <div class="form-control-wrap">
-                                        <select v-model="accountId" class="form-control" required>
+                                        <select v-model="accountId" class="form-control" required id="accounts">
                                             <option v-for="(account, index) in accountOptions" :value="account.id">@{{ account.name }}</option>
                                         </select>
                                     </div>
@@ -227,6 +227,12 @@
     <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
     @endsection
     @section('pagescript')
+    <script>
+        $(function() {
+         
+            $("#accounts").select2()
+        })
+    </script>
     <script>
     //varible global
     var centralPurchase;
@@ -304,7 +310,7 @@
                                 allowOutsideClick: false,
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                   // window.location.href = '/central-purchase';
+                                   window.location.href = '/supplier';
                                 }
                             })
                             // console.log(response);
@@ -487,5 +493,14 @@ $(function() {
       
         })
     });
+</script>
+<script>
+ $("#accounts").on('change', function() {
+    
+            app.$data.accountId = $(this).val();
+
+            // console.log(searchText);
+        });
+
 </script>
 @endsection

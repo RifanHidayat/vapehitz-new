@@ -439,6 +439,7 @@
                 numeralThousandsGroupStyle: 'thousand'
             },
             loading: false,
+            oldTakenProducts: JSON.parse(String.raw `{!! json_encode($old_taken_products) !!}`)
         },
         methods: {
             submitForm: function() {
@@ -465,6 +466,7 @@
                         // note: vm.note,
                         selected_products: vm.selectedProducts,
                         supplier_id: vm.suppliersId,
+                        old_taken_products: vm.oldTakenProducts,
                     })
                     .then(function(response) {
                         vm.loading = false;

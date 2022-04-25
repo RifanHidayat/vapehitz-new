@@ -43,7 +43,7 @@
                         <div class="form-group col-md-4">
                             <label class="form-label" for="full-name-1">Nominal</label>
                             <div class="form-control-wrap">
-                                <input type="text" v-model="amount" class="form-control text-right" class="form-control"  v-cleave="cleaveCurrency" placeholder="0.00">
+                                <input type="text" v-model="amount" class="form-control text-right" class="form-control"   placeholder="0.00">
                             </div>
                         </div>
                         <div class=" form-group col-md-4">
@@ -115,7 +115,7 @@
                             <td>
                                 @{{accountTransaction[0]['account']!=null?
                                     (
-                                        accountTransaction[0]['account']['account_type']=="out"
+                                        accountTransaction[0]['account']['type']=="out"
                                         ?accountTransaction[0]['account']['name']
                                         :accountTransaction[1]['account']['name']
                                     )
@@ -125,7 +125,7 @@
                             <td>
                                  @{{accountTransaction[1]['account']!=null?
                                     (
-                                        accountTransaction[1]['account']['account_type']=="in"
+                                        accountTransaction[1]['account']['type']=="in"
                                         ?accountTransaction[1]['account']['name']
                                         :accountTransaction[0]['account']['name']
                                     )
@@ -153,6 +153,13 @@
 <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
 @endsection
 @section('pagescript')
+<script>
+        $(function() {
+          
+            $("#account_in").select2({})
+            $("#account_out").select2({})
+        })
+    </script>
 <script>
     Vue.directive('cleave', {
         inserted: (el, binding) => {
@@ -192,7 +199,8 @@
         },
         methods: {
             submitForm: function() {
-               // this.sendData();
+                this.sendData();
+                console.log(this.account_in);
             },
             sendData: function() {
                 // console.log('submitted');
@@ -234,8 +242,9 @@
                     let vm = this;
                     console.log('w',id)
                     //vm.loading = true;
-                    console.log(vm.accountTransactions[index][0].account_type);
-                    axios.patch('/account-transaction/' + 1, {
+                    console.log(vm.accountTransactions[index][0].type);
+                    
+                    axios.patch('/account-transaction/' + id, {
                             number: this.number,
                             account_in: this.account_in,
                             account_out: this.account_out,
@@ -243,11 +252,11 @@
                             amount: this.amount,
                             note: this.note,
                             out_id:
-                            vm.accountTransactions[index][0].account_type=="out"
+                            vm.accountTransactions[index][0].type=="out"
                             ?vm.accountTransactions[index][0].id
                             :vm.accountTransactions[index][1].id,
                             in_id:
-                            vm.accountTransactions[index][1].account_type=="in"
+                            vm.accountTransactions[index][1].type=="in"
                             ?vm.accountTransactions[index][1].id
                             :vm.accountTransactions[index][0].id
                            
@@ -279,17 +288,16 @@
             },
             onEditAccountTransaction: function(index) {
                 const accountTransaction = this.accountTransactions[index];
-                console.log(accountTransaction)
+                
                 
                 this.number = accountTransaction[0].number;
-                
                 this.account_out = 
-                    accountTransaction[0].account_type=="out"
+                    accountTransaction[0].type=="out"
                     ? accountTransaction[0].account_id
                     :accountTransaction[1].account_id;
 
                 this.account_in = 
-                    accountTransaction[1].account_type=="in"
+                    accountTransaction[1].type=="in"
                     ? accountTransaction[1].account_id
                     :accountTransaction[0].account_id;
 
@@ -300,6 +308,9 @@
                 this.accountTransactions_edit_index = index;
                 this.is_edit_accountTransaction = true;
                 //console.log(account);
+                setAccount(accountTransaction[1].type=="in"
+                    ? accountTransaction[1].account_id
+                    :accountTransaction[0].account_id,this.account_out)
             },
             onCloseEdit: function() {
                 this.is_edit_accountTransaction = false;
@@ -366,6 +377,22 @@
         });
     
 }
+
+$('#account_in').on('change',function(){
+ 
+    app.$data.account_in=$(this).val()
+
+});
+$('#account_out').on('change',function(){
+    app.$data.account_out=$(this).val()
+
+});
+
+// function setAccount(account_in,account_out){
+//     console.log("tes")
+//     app.$data.account_out=account_out;
+//     app.$data.account_in=account_in;
+// }
 
 </script>
 @endsection

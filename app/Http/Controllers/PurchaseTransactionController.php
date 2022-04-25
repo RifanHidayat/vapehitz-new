@@ -9,6 +9,7 @@ use App\Models\PurchaseTransaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class PurchaseTransactionController extends Controller
@@ -34,37 +35,17 @@ class PurchaseTransactionController extends Controller
 
     public function store(Request $request)
     {
+        DB::beginTransaction();
         $date = $request->date;
         $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
         $transactionNumber = 'PT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
         $purchaseId = $request->purchase_id;
         $amount = $this->clearThousandFormat($request->amount);
 
- 
-        try{
-            $transaction = new PurchaseTransaction;
-            $transaction->code = $transactionNumber;
-            $transaction->date = $request->date;
-            $transaction->supplier_id = $request->supplier_id;
-            $transaction->amount = $amount;
-            $transaction->payment_method = $request->payment_method;
-            $transaction->note = $request->note;
-            $transaction->account_id = "3";
-            $transaction->account_type="out";
-            $transaction->is_default=1;
+       
 
-            $transaction->save();
-        }catch(Exception $e){
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'table'=>'Central Purchase',
-                'errors' => $e,
-               
-            ], 500);
-        }
-        
+ 
+
         //update amount central purchase
         try{
             $centralPurchase = CentralPurchase::find($purchaseId);
@@ -72,6 +53,7 @@ class PurchaseTransactionController extends Controller
             $centralPurchase->save();
 
         }catch(Exception $e){
+               DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -82,8 +64,6 @@ class PurchaseTransactionController extends Controller
         }
 
        
-
-        try {
             $date = $request->date;
             $transactionsByCurrentDateCount = PurchaseTransaction::query()->where('date', $date)->get()->count();
             $transactionNumber = 'PT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
@@ -99,9 +79,13 @@ class PurchaseTransactionController extends Controller
             $transaction->note = $request->note;
             $transaction->account_id = $request->account_id;
             $transaction->account_type = "out";
+
+        try {
+
             $transaction->save();
 
         } catch (Exception $e) {
+               DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -110,6 +94,61 @@ class PurchaseTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
+        $accountTransaction=new AccountTransaction;
+
+          $accountTransaction->date = $request->date;
+          $accountTransaction->account_id = "3";
+          $accountTransaction->amount = $amount;
+          $accountTransaction->type = "out";
+          $accountTransaction->description="Pembayaran Hutang dengan No.".$transactionNumber;
+          $accountTransaction->note = $request->note;
+          $accountTransaction->table_name="purchase_transactions";
+          $accountTransaction->table_id=$transaction->id;
+          
+
+            try{
+                $accountTransaction->save();
+
+            }catch(Exception $e){
+                   DB::rollBack();
+                return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'table'=>'Central Purchase',
+                'errors' => $e,
+               
+            ], 500);
+
+            }
+            $accountTransaction=new AccountTransaction;
+
+          $accountTransaction->date = $request->date;
+          $accountTransaction->account_id = $request->account_id;
+          $accountTransaction->amount = $amount;
+          $accountTransaction->type = "out";
+          $accountTransaction->description="Pembayaran Pembelian dengan No.".$transactionNumber;
+          $accountTransaction->note = $request->note;
+          $accountTransaction->table_name="purchase_transactions";
+          $accountTransaction->table_id=$transaction->id;
+          
+
+            try{
+                $accountTransaction->save();
+
+            }catch(Exception $e){
+                   DB::rollBack();
+                return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'table'=>'Central Purchase',
+                'errors' => $e,
+               
+            ], 500);
+
+            }
+
 
 
         // $keyedQuotations = collect($quotations)->mapWithKeys(function ($item) {
@@ -130,13 +169,15 @@ class PurchaseTransactionController extends Controller
                     'updated_at' => Carbon::now()->toDateTimeString(),
                 ]
             ]);
+             DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
                 'error' => false,
-                'data' => $transaction,
+                'data' => null,
             ]);
         } catch (Exception $e) {
+               DB::rollBack();
             $transaction->delete();
             return response()->json([
                 'message' => 'Internal error',
@@ -159,16 +200,41 @@ class PurchaseTransactionController extends Controller
     }
     public function destroy($id)
     {
-        // return response()->json([
-        //     'message' => 'Data has been deleted',
-        //     'code' => 200,
-        //     'error' => false,
-        //     'data' => null,
-        // ]);
+          DB::beginTransaction();
+   
         $PurchaseTransaction = PurchaseTransaction::findOrFail($id);
+         $accountTransactions = AccountTransaction::where('table_name','=','purchase_transactions')->where('table_id',$id)->get();
+       try{
+            foreach ($accountTransactions as $accountTransaction) {
+               
+                $accountTransaction->delete();
+            }
 
+       }catch(Exception $e){
+              DB::rollBack();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+
+       }
+       try{
+        DB::table('central_purchase_purchase_transaction')->where('purchase_transaction_id', $id)->delete();
+       }catch(Exception $e){
+              DB::rollBack();
+             return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+
+       }
         try {
             $PurchaseTransaction->delete();
+             DB::commit();
             return response()->json([
                 'message' => 'Data has been deleted',
                 'code' => 200,
@@ -177,6 +243,7 @@ class PurchaseTransactionController extends Controller
             ]);
 
         } catch (Exception $e) {
+               DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -184,6 +251,7 @@ class PurchaseTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
+   
     }
 
   
@@ -203,18 +271,26 @@ class PurchaseTransactionController extends Controller
                 return (number_format($row->amount));
             })
             ->addColumn('action', function ($row) {
+                if (($row->payment_init==0)){
+                    $delete=' <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
+                    <span>Delete</span>
+                    </a>';
+
+                }else{
+                    $delete='';
+
+                }
                 $button = '
             <div class="drodown">
             <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-toggle="dropdown" aria-expanded="true"><em class="icon ni ni-more-h"></em></a>
             <div class="dropdown-menu dropdown-menu-right">
                 <ul class="link-list-opt no-bdr">
                   
-                    <a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
-                    <span>Delete</span>
-                    </a>
+                  '.$delete.'
                     <a href="/purchase-transaction/show/' . $row->id . '"><em class="icon fas fa-eye"></em>
                         <span>Detail</span>
                     </a>
+               
                    
                 </ul>
             </div>

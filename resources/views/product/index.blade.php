@@ -25,7 +25,7 @@
                 <div class="toggle-expand-content" data-content="pageMenu">
                     <ul class="nk-block-tools g-3">
                         <li>
-                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                            <a href="/product/export"  class="btn btn-white btn-dim btn-outline-primary" data-toggle="tooltip" data-placement="top" title="On Development">
                                 <em class="icon ni ni-download-cloud"></em>
                                 <span>Export</span>
                             </a>
@@ -63,8 +63,14 @@
                         <th>Kategori</th>
                         <th>Subkategori</th>
                         <th>Nama</th>
-                        <th>Berat</th>
-                        <th>Harga Beli</th>
+                        <th>Stok Pusat</th>
+                        <th>Stok Studio</th>
+                        <th>Stok Retail</th>
+                        <th>Harga Jual Agen</th>
+                        <th>Harga Jual WS</th>
+                        <th>Harga Jual Retail</th>
+                        <!-- <th>Berat</th>
+                        <th>Harga Beli</th> -->
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -147,23 +153,85 @@
                     },
                     {
                         data: 'product_category.name',
-                        name: 'productCategory.name'
+                        name: 'productCategory.name',
+                        render: function(data) {
+                            if(data) {
+                                return data;
+                            } else {
+                                return '';
+                            }
+                        }
                     },
                     {
                         data: 'product_subcategory.name',
-                        name: 'productSubcategory.name'
+                        name: 'productSubcategory.name',
+                        render: function(data) {
+                            if(data) {
+                                return data;
+                            } else {
+                                return '';
+                            }
+                        }
                     },
                     {
                         data: 'name',
                         name: 'name'
                     },
+                    // {
+                    //     data: 'weight',
+                    //     name: 'weight'
+                    // },
+                    // {
+                    //     data: 'purchase_price',
+                    //     name: 'purchase_price',
+                    //     render: function(data) {
+                    //         return Intl.NumberFormat('De-de').format(data);
+                    //     },
+                    //     className: 'text-right'
+                    // },
                     {
-                        data: 'weight',
-                        name: 'weight'
+                        data: 'central_stock',
+                        name: 'products.central_stock',
+                        render: function(data) {
+                            return Intl.NumberFormat('De-de').format(data);
+                        },
+                        className: 'text-right'
                     },
                     {
-                        data: 'purchase_price',
-                        name: 'purchase_price',
+                        data: 'studio_stock',
+                        name: 'products.studio_stock',
+                        render: function(data) {
+                            return Intl.NumberFormat('De-de').format(data);
+                        },
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'retail_stock',
+                        name: 'products.retail_stock',
+                        render: function(data) {
+                            return Intl.NumberFormat('De-de').format(data);
+                        },
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'agent_price',
+                        name: 'products.agent_price',
+                        render: function(data) {
+                            return Intl.NumberFormat('De-de').format(data);
+                        },
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'ws_price',
+                        name: 'products.ws_price',
+                        render: function(data) {
+                            return Intl.NumberFormat('De-de').format(data);
+                        },
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'retail_price',
+                        name: 'products.retail_price',
                         render: function(data) {
                             return Intl.NumberFormat('De-de').format(data);
                         },

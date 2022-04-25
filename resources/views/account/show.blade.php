@@ -41,7 +41,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="/account/reports/{{$account->id}}?start_date={{$start_date}}&end_date={{$end_date}}" class="btn btn-white btn-dim btn-outline-primary" data-toggle="tooltip" data-placement="top" title="On Development">
+                            <a href="/account/reports/{{$account->id}}?start_date={{$start_date}}&end_date={{$end_date}}" class="btn btn-white btn-dim btn-outline-primary" target="_blank" data-toggle="tooltip" data-placement="top" title="On Development">
                                 <em class="icon ni ni-reports"></em>
                                 <span>Reports</span>
                             </a>
@@ -66,7 +66,11 @@
                                 <div style="float:left" >
                                    
                                </div>
+                             
                                 <div style="float:right" align="right">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  @click="clearFilter">
+                                 <em class="icon ni ni-appearance"></em>&nbsp;Clear
+                                </button>
                                
                                 <a class="btn btn-primary" data-toggle="collapse" href="#collapseFilter" role="button" aria-expanded="false" aria-controls="collapseFilter"><em class="icon ni ni-setting align-middle"></em>&nbsp; Filter</a>
                                
@@ -233,9 +237,11 @@
             },
             applyFilter: function() {
                 window.location.href = '/account/show/'+<?php echo $account_id ?>+`?start_date=${this.startDate}&end_date=${this.endDate}`; 
-                tes()
+             
+            },
+            clearFilter:function(){
+                window.location.href = '/account/show/'+<?php echo $account_id ?>; 
 
-                
             }
         }
     })

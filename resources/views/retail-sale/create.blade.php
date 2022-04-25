@@ -482,9 +482,18 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                // window.location.href = '/retail-sale';
+                                window.location.href = '/retail-sale';
                             }
                         })
+
+                        const {
+                            id
+                        } = response.data.data;
+
+                        let a = document.createElement('a');
+                        a.target = '_blank';
+                        a.href = '/retail-sale/print/' + id;
+                        a.click();
                         // console.log(response);
                     })
                     .catch(function(error) {
@@ -637,6 +646,13 @@
                 columns: [{
                         data: 'product_category.name',
                         name: 'productCategory.name',
+                        render: function(data) {
+                            if(data) {
+                                return data;
+                            } else {
+                                return '';
+                            }
+                        }
                     },
                     {
                         data: 'name',

@@ -72,7 +72,7 @@
 </head>
 
 <body>
-    <h2 style="font-weight: lighter;">PERMINTAAN BARANG KE PUSAT</h2>
+    <h2 style="font-weight: lighter;">PERMINTAAN BARANG DARI STUDIO KE PUSAT</h2>
     <div class="header">
         <table class="table">
             <tr>

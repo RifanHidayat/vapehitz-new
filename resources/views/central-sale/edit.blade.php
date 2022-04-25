@@ -6,7 +6,7 @@
 <div class="nk-block-head nk-block-head-lg wide-sm">
     <div class="nk-block-head-content">
         <div class="nk-block-head-sub"><a class="back-to" href="/central-sale"><em class="icon ni ni-arrow-left"></em><span>Penjualan Barang</span></a></div>
-        <h2 class="nk-block-title fw-normal">Tambah Data Penjualan Barang</h2>
+        <h2 class="nk-block-title fw-normal">Edit Data Penjualan Barang <span class="badge badge-success text-capitalize">Pending</span></h2>
     </div>
 </div><!-- .nk-block -->
 <form @submit.prevent="submitForm">
@@ -493,14 +493,19 @@
                                     </div>
                                 </div>
                             </div>
+                            <p v-if="totalPayment > netTotal" class="text-soft"><em class="icon ni ni-info text-warning align-middle" style="font-size: 1.2em;"></em> Total penerimaan lebih besar dari net total</p>
                         </div>
+                    </div>
+                    <div v-if="overStock" class="alert alert-icon alert-warning mt-2" role="alert">
+                        <em class="icon ni ni-alert-circle"></em>
+                        Jumlah penjualan <em>(Booking + Qty + Free)</em> melebihi stok
                     </div>
                     <div class="text-right">
                         <!-- <button type="button" @click="reject" class="btn btn-danger" :disabled="loadingReject || loading">
                             <span v-if="loadingReject" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span>Reject</span>
                         </button> -->
-                        <button type="submit" class="btn btn-primary" :disabled="loading">
+                        <button type="submit" class="btn btn-primary" :disabled="loading || totalPayment > netTotal || overStock">
                             <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span>Simpan</span>
                         </button>
@@ -754,6 +759,7 @@
             is_edit_shipment: false,
             prefix: '',
             selectedProducts: JSON.parse(String.raw `{!! $selected_products !!}`),
+            oldTakenProducts: JSON.parse(String.raw `{!! json_encode($old_taken_products) !!}`),
             check: [],
             productPriceLocked: true,
             priceAuthProductIndex: null,
@@ -814,6 +820,7 @@
                         // price: vm.agent_price,
                         // free: vm.free,
                         selected_products: vm.selectedProducts,
+                        old_taken_products: vm.oldTakenProducts,
                     })
                     .then(function(response) {
                         vm.loading = false;
@@ -1146,7 +1153,35 @@
                 const remainingPayment = this.netTotal - this.totalPayment;
                 return remainingPayment;
             },
+            overStock: function() {
+                const overStockProducts = this.selectedProducts.filter(product => {
+                    const taken = Number(product.booked) + Number(product.quantity) + Number(product.free);
+                    return taken > product.central_stock;
+                })
+
+                if (overStockProducts.length > 0) {
+                    return true;
+                }
+
+                return false;
+            }
         },
+        watch: {
+            selectedProducts: {
+                handler: function(newval, oldval) {
+                    this.selectedProducts.forEach(product => {
+                        // goods.total = (Number(goods.price) * Number(goods.quantity)) - Number(goods.discount);
+                        const taken = Number(product.booked) + Number(product.quantity) + Number(product.free);
+                        if (taken > product.central_stock) {
+                            product.backgroundColor = 'bg-warning-dim';
+                        } else {
+                            product.backgroundColor = 'bg-white';
+                        }
+                    });
+                },
+                deep: true
+            }
+        }
     })
 </script>
 <script>

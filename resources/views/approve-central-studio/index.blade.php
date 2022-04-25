@@ -16,7 +16,7 @@
                 <div class="toggle-expand-content" data-content="pageMenu">
                     <ul class="nk-block-tools g-3">
                         <li>
-                            <a href="#" class="btn btn-white btn-dim btn-outline-primary disabled" data-toggle="tooltip" data-placement="top" title="On Development">
+                            <a href="/approve-central-studio/export" class="btn btn-white btn-dim btn-outline-primary" data-toggle="tooltip" data-placement="top" title="On Development">
                                 <em class="icon ni ni-download-cloud"></em>
                                 <span>Export</span>
                             </a>

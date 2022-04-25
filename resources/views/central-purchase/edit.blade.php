@@ -322,7 +322,7 @@
                                 <div class="form-group col-lg-6 col-md-12">
                                     <label class="form-label" for="full-name-1">Akun</label>
                                     <div class="form-control-wrap">
-                                        <select v-model="accountId" class="form-control">
+                                        <select v-model="accountId" class="form-control" id="accounts">
                                             <option v-for="(account, index) in accountOptions" :value="account.id">@{{ account.name }}</option>
                                         </select>
                                     </div>
@@ -458,6 +458,12 @@
 @endsection
 @section('pagescript')
 <script>
+        $(function() {
+         
+            $("#accounts").select2()
+        })
+    </script>
+<script>
     Vue.directive('cleave', {
         inserted: (el, binding) => {
             el.cleave = new Cleave(el, binding.value || {})
@@ -480,10 +486,10 @@
             suppliersId: '{{$central_purchases->supplier_id}}',
             shippingCost: '{{$central_purchases->shipping_cost}}',
             discount: '{{$central_purchases->discount}}',
-            isPaid: false,
+            isPaid: '{{$central_purchases->is_paid==0?false:true}}',
             paymentMethod: '{{$central_purchases->payment_method}}',
             accounts: JSON.parse('{!! $accounts !!}'),
-            accountId: '',
+            accountId: '{{$central_purchases->account_id}}',
             suppliers: JSON.parse('{!! $suppliers !!}'),
             cart: [],
             selectedProducts: JSON.parse('{!! $central_purchases->products !!}'),
@@ -619,6 +625,7 @@
                 return netTotal;
             },
             payment: function() {
+                $("#accounts").select2()
                 if (this.isPaid) {
                     return this.netTotal;
                 }
@@ -687,6 +694,7 @@
             // If product already in cart or selected products
             if (productIds.indexOf(data.id) < 0) {
                 data['quantity'] = 1;
+                 data['free'] = 0;
                 cart.push(data);
             }
 

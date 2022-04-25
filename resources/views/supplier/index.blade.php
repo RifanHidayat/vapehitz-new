@@ -55,6 +55,7 @@
                                 <!-- <th>No. Tlp</th> -->
                                 <th>No. Tlp/Hp/Wa</th>
                                 <th>Email</th>
+                                <th>Hutang</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -154,6 +155,10 @@
                     {
                         data: 'email',
                         name: 'email'
+                    },
+                    {
+                        data: 'payRemaining',
+                        name: 'payRemaining'
                     },
                     {
                         data: 'status',

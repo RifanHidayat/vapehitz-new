@@ -55,7 +55,7 @@ class CentralSaleByCustomerSummaryExport implements FromView, ShouldAutoSize
         $sortBy = $this->request['sort_by'];
         $sortIn = $this->request['sort_in'];
         // $query = CentralSale::with(['products', 'customer'])->whereBetween('date', [$startDate, $endDate]);
-        $query = CentralSale::with(['customer'])->whereBetween(DB::raw('DATE(date)'), [$startDate, $endDate]);
+        $query = CentralSale::with(['customer'])->whereBetween(DB::raw('DATE(date)'), [$startDate, $endDate])->where('status', 'approved');
         if ($customer !== '' && $customer !== null) {
             $query->where('customer_id', $customer);
         }

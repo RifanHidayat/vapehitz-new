@@ -56,10 +56,12 @@ class RetailRequestToCentralController extends Controller
         $reqtocentral->code = $request->code;
         $reqtocentral->date = $request->date;
         $products = $request->selected_products;
+          DB::beginTransaction();
 
         try {
             $reqtocentral->save();
         } catch (Exception $e) {
+               DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -88,6 +90,7 @@ class RetailRequestToCentralController extends Controller
             //     'data' => $reqtocentral,
             // ]);
         } catch (Exception $e) {
+               DB::rollBack();
             $reqtocentral->delete();
             return response()->json([
                 'message' => 'Internal error',
@@ -109,6 +112,7 @@ class RetailRequestToCentralController extends Controller
                 $productRow->retail_stock = $product['retail_stock'];
                 $productRow->save();
             }
+              DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -116,6 +120,7 @@ class RetailRequestToCentralController extends Controller
                 'data' => $reqtocentral,
             ]);
         } catch (Exception $e) {
+               DB::rollBack();
             $reqtocentral->products()->detach();
             $reqtocentral->delete();
             return response()->json([
@@ -168,10 +173,12 @@ class RetailRequestToCentralController extends Controller
         $retailRequestToCentral->code = $request->code;
         $retailRequestToCentral->date = $request->date;
         $products = $request->selected_products;
+         DB::beginTransaction();
 
         try {
             $retailRequestToCentral->save();
         } catch (Exception $e) {
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -200,6 +207,7 @@ class RetailRequestToCentralController extends Controller
             // ]);
         } catch (Exception $e) {
             $retailRequestToCentral->delete();
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -210,6 +218,7 @@ class RetailRequestToCentralController extends Controller
         try {
             $retailRequestToCentral->products()->attach($keyedProducts);
         } catch (Exception $e) {
+               DB::rollBack();
             $retailRequestToCentral->delete();
             return response()->json([
                 'message' => 'Internal error',
@@ -229,6 +238,7 @@ class RetailRequestToCentralController extends Controller
                 $productRow->central_stock = $product['central_stock'];
                 $productRow->save();
             }
+             DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -236,6 +246,7 @@ class RetailRequestToCentralController extends Controller
                 'data' => $retailRequestToCentral,
             ]);
         } catch (Exception $e) {
+               DB::rollBack();
             $retailRequestToCentral->products()->detach();
             $retailRequestToCentral->delete();
             return response()->json([
@@ -255,6 +266,7 @@ class RetailRequestToCentralController extends Controller
      */
     public function destroy($id)
     {
+         DB::beginTransaction();
         $retailRequestToCentral = RetailRequestToCentral::findOrFail($id);
         try {
             $retailRequestToCentral->products()->detach();
@@ -265,6 +277,7 @@ class RetailRequestToCentralController extends Controller
             //     'data' => $retailRequestToCentral,
             // ]);
         } catch (Exception $e) {
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -274,6 +287,7 @@ class RetailRequestToCentralController extends Controller
         }
         try {
             $retailRequestToCentral->delete();
+            DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -281,6 +295,7 @@ class RetailRequestToCentralController extends Controller
                 'data' => $retailRequestToCentral,
             ]);
         } catch (Exception $e) {
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -328,13 +343,20 @@ class RetailRequestToCentralController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $edit = '
+               if ($row->status=="pending"){
+                    $edit = '
                 <a href="/retail-request-to-central/edit/' . $row->id . '"><em class="icon fas fa-pencil-alt"></em>
                     <span>Edit</span>
                 </a>';
                 $delete = '<a href="#" class="btn-delete" data-id="' . $row->id . '"><em class="icon fas fa-trash-alt"></em>
                    <span>Delete</span>
                    </a>';
+
+               }else{
+                $edit = '';
+                $delete = '';
+                   
+               }
                 $print = '<a href="/retail-request-to-central/print/' . $row->id . '" target="_blank"><em class="icon fas fa-print"></em>
                    <span>Cetak</span>
                    </a>';

@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SALES RECEIPT </title>
+    <title>SALES RECEIPT - {{ $sale->code }}</title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 14px;
+            font-size: 10px;
         }
 
         .text-uppercase {
@@ -48,7 +48,7 @@
         .table-product thead tr td,
         .table-product tbody tr td {
             padding: 3px 5px;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         .divider-dash {
@@ -59,6 +59,7 @@
 
         .table-summary tr td {
             padding: 5px;
+            font-size: 10px;
         }
     </style>
 </head>
@@ -90,15 +91,17 @@
         <table class="table">
             <thead>
                 <tr>
-                    <td class="text-uppercase text-bold">Ship Date</td>
-                    <td class="text-uppercase text-bold">Ship Via</td>
-                    <td class="text-uppercase text-bold">FOB Ship Point</td>
-                    <td class="text-uppercase text-bold">PMT Method</td>
+                    <td class="text-uppercase text-bold" style="width: 20%;">Ship Date</td>
+                    <td class="text-uppercase text-bold" style="width: 20%;">Due Date</td>
+                    <td class="text-uppercase text-bold" style="width: 20%;">Ship Via</td>
+                    <td class="text-uppercase text-bold" style="width: 20%;">FOB Ship Point</td>
+                    <td class="text-uppercase text-bold" style="width: 20%;">PMT Method</td>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td class="text-uppercase">{{ date("d/m/Y", strtotime($sale->date)) }}</td>
+                    <td class="text-uppercase">{{ date("d/m/Y", strtotime($sale->due_date)) }}</td>
                     @if($sale->shipment !== null)
                     <td class="text-uppercase">{{ $sale->shipment->name }}</td>
                     @else
@@ -118,6 +121,7 @@
                     <td class="text-uppercase">Product</td>
                     <td class="text-uppercase">Description</td>
                     <td class="text-uppercase text-right">Qty</td>
+                    <td class="text-uppercase text-right">Free</td>
                     <td class="text-uppercase text-right">Price</td>
                     <td class="text-uppercase text-right">Amount</td>
                 </tr>
@@ -128,6 +132,7 @@
                     <td class="text-uppercase">{{ $product->name }}</td>
                     <td>-</td>
                     <td class="text-right">{{ number_format($product->pivot->quantity, 0, ',', '.') }}</td>
+                    <td class="text-right">{{ number_format($product->pivot->free, 0, ',', '.') }}</td>
                     <td class="text-right">{{ number_format($product->pivot->price, 0, ',', '.') }}</td>
                     <td class="text-right">{{ number_format($product->pivot->amount, 0, ',', '.') }}</td>
                 </tr>
@@ -138,7 +143,7 @@
     <div class="divider-dash"></div>
     <table class="table table-summary">
         <tr>
-            <td style="width: 50%;">BCA: 7751175969 a.n Dandy Erkana</td>
+            <td style="width: 50%;"></td>
             <td class="text-uppercase">Total Amount</td>
             <td class="text-right">{{ number_format($sale->total_cost, 0, ',', '.') }}</td>
         </tr>

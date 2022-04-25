@@ -33,7 +33,15 @@
             @else
             <td></td>
             @endif
-            <td>{{ $product->productCategory->name . ':' }}{{ $product->productSubcategory->name . ' - ' }}{{ $product->name }}</td>
+            <td>
+                @if($product->productCategory !== null)
+                {{ $product->productCategory->name . ':' }}
+                @endif
+                @if($product->productSubcategory !== null)
+                {{ $product->productSubcategory->name . ' - ' }}
+                @endif
+                {{ $product->name }}
+            </td>
             <td data-format="#,##0_-">{{ $product->pivot->quantity }}</td>
             <td data-format="#,##0_-">{{ 0 }}</td>
             <td data-format="#,##0_-">{{ $product->pivot->price }}</td>

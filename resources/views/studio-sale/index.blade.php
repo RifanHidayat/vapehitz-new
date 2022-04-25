@@ -53,6 +53,7 @@
                         <tr class="text-center">
                             <th>No.</th>
                             <th>Tanggal</th>
+                            <th>Sales</th>
                             <th>Total</th>
                             <th>Action</th>
                         </tr>
@@ -88,6 +89,11 @@
                         className: 'text-center',
                     },
                     {
+                        data: 'sales_name',
+                        name: 'createdBy.name',
+                        className: 'text-center',
+                    },
+                    {
                         data: 'net_total',
                         name: 'studio_sales.net_total',
                         render: function(data) {
@@ -102,7 +108,8 @@
                         // ordering: false,
                     },
 
-                ]
+                ],
+                "order": [[ 1, 'desc' ]],
             })
             $.fn.DataTable.ext.pager.numbers_length = 7;
         }

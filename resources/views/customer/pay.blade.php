@@ -106,11 +106,10 @@
                         </div>
                     </div>
                     <div class="card-footer border-top bg-white text-right">
-                        <button v-if="totalPayments < netto" class="btn btn-primary" type="submit" :disabled="loading">
+                        <button class="btn btn-primary" type="submit" :disabled="loading">
                             <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span>Simpan</span>
                         </button>
-                        <span v-else class="badge badge-sm badge-dim badge-outline-success d-none d-md-inline-flex">Lunas</span>
                     </div>
                 </div>
             </form>
@@ -128,8 +127,8 @@
                             <div class="d-flex align-items-center">
                                 <em class="icon ni ni-report-profit mr-2" style="font-size: 2em;"></em>
                                 <div class="info">
-                                    <span class="title">Total Invoice</span>
-                                    <p class="amount"><strong>0</strong></p>
+                                    <span class="title">Total Sisa Pembayaran Invoice</span>
+                                    <p class="amount"><strong>@{{ currencyFormat(totalAllSales) }}</strong></p>
                                 </div>
                             </div>
                         </div>
@@ -148,12 +147,20 @@
                             <div class="d-flex align-items-center">
                                 <em class="icon ni ni-list-check mr-2" style="font-size: 2em;"></em>
                                 <div class="info">
-                                    <span class="title">Total Invoice Dipilih</span>
+                                    <span class="title">Total Sisa Pembayaran Invoice Dipilih</span>
                                     <p class="amount"><strong>@{{ currencyFormat(totalSelectedSales) }}</strong></p>
                                 </div>
                             </div>
                         </div>
-
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <em class="icon ni ni-list-check mr-2" style="font-size: 2em;"></em>
+                                <div class="info">
+                                    <span class="title">Total Sisa Setelah Pembayaran</span>
+                                    <p class="amount"><strong>@{{ currencyFormat(remainingDebt) }}</strong></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -199,6 +206,7 @@
                                     </th>
                                     <th>No. Invoice</th>
                                     <th>Tanggal</th>
+                                    <th>Keterangan</th>
                                     <th>Sisa Pembayaran</th>
                                 </tr>
                             </thead>
@@ -211,8 +219,9 @@
                                             <label class="custom-control-label" for="customCheck{{ $index }}"></label>
                                         </div>
                                     </td>
-                                    <td><a href="#">{{ $sale->code }}</a></td>
-                                    <td>{{ date("d-m-Y", strtotime($sale->date)) }}</td>
+                                    <td><a href="/central-sale/show/{{ $sale->id }}" target="_blank">{{ $sale->code }}</a></td>
+                                    <td>{{ date("Y-m-d", strtotime($sale->date)) }}</td>
+                                    <td>{{ $sale->detail }}</td>
                                     <td class="text-right">{{ number_format($sale->net_total - $sale->total_payment) }}</td>
                                 </tr>
                                 @endforeach
@@ -248,22 +257,16 @@
     let app = new Vue({
         el: '#app',
         data: {
-            // code: '{{ $sale->code }}',
             date: '{{ date("Y-m-d") }}',
             payAmount: 0,
-            customerId: '{{ $sale->customer->id }}',
-            shippingCost: '{{ $sale->shipping_cost }}',
-            discount: '{{ $sale->discount }}',
             isPaid: false,
-            paymentMethod: '{{ $sale->payment_method }}',
             accounts: JSON.parse('{!! $accounts !!}'),
             accountId: '',
-            saleId: '{{ $sale->id }}',
-            netto: '{{ $sale->net_total }}',
+            customerId: '{{ $customer->id }}',
             suppliers: [],
             cart: [],
+            paymentMethod: 'transfer',
             note: '',
-            selectedProducts: JSON.parse(String.raw `{!! $sale->products !!}`),
             transactions: [],
             sales: JSON.parse(String.raw `{!! json_encode($sales) !!}`),
             loading: false,
@@ -302,7 +305,7 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                // window.location.href = '/customer';
+                                window.location.href = '/central-sale-transaction';
                             }
                         })
                         // console.log(response);
@@ -333,34 +336,19 @@
                 let vm = this;
                 return vm.sales.filter(sale => vm.checkedSales.indexOf(sale.id.toString()) > -1);
             },
-            // subTotal: function() {
-            //     const subTotal = this.selectedProducts.map(product => {
-            //         const amount = Number(product.pivot.quantity) * Number(product.pivot.price);
-            //         return amount;
-            //     }).reduce((acc, cur) => {
-            //         return acc + cur;
-            //     }, 0);
-
-            //     return subTotal;
-            // },
-            // netTotal: function() {
-            //     const netTotal = Number(this.subTotal) + Number(this.shippingCost) - Number(this.discount);
-            //     return netTotal;
-            // },
-            // payment: function() {
-            //     if (this.isPaid) {
-            //         return this.netTotal;
-            //     }
-
-            //     return 0;
-            // },
-            // changePayment: function() {
-            //     return this.netTotal - this.payment;
-            // },
-            totalSelectedSales: function() {
-                return this.selectedSales.map(sale => Number(sale.net_total)).reduce((acc, cur) => {
+            totalAllSales: function() {
+                return this.sales.map(sale => Number(sale.net_total) - Number(sale.total_payment)).reduce((acc, cur) => {
                     return acc + cur;
                 }, 0);
+            },
+            totalSelectedSales: function() {
+                return this.selectedSales.map(sale => Number(sale.net_total) - Number(sale.total_payment)).reduce((acc, cur) => {
+                    return acc + cur;
+                }, 0);
+            },
+            remainingDebt: function() {
+                const payment = this.payAmount.toString().replaceAll('.', '');
+                return this.totalAllSales - Number(payment);
             },
             accountOptions: function() {
                 let vm = this;

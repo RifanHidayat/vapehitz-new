@@ -8,6 +8,7 @@ use App\Models\CentralSaleReturnTransaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class CentralSaleReturnTransactionController extends Controller
@@ -40,50 +41,25 @@ class CentralSaleReturnTransactionController extends Controller
      */
     public function store(Request $request)
     {
-        $date = $request->date;
-        $transactionsByCurrentDateCount = CentralSaleReturnTransaction::query()->where('date', $date)->get()->count();
-        $transactionNumber = 'SRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
-
-        $saleReturnId = $request->sale_return_id;
-        $amount = $this->clearThousandFormat($request->amount);
-
-        $transaction = new CentralSaleReturnTransaction;
-        $transaction->code = $transactionNumber;
-        $transaction->date = $request->date;
-        $transaction->account_id = $request->account_id;
-        $transaction->customer_id = $request->customer_id;
-        $transaction->amount = $amount;
-        $transaction->payment_method = $request->payment_method;
-        $transaction->note = $request->note;
-
+        DB::beginTransaction();
         try {
+            $date = $request->date;
+            $transactionsByCurrentDateCount = CentralSaleReturnTransaction::query()->where('date', $date)->get()->count();
+            $transactionNumber = 'SRT/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+
+            $saleReturnId = $request->sale_return_id;
+            $amount = $this->clearThousandFormat($request->amount);
+
+            $transaction = new CentralSaleReturnTransaction;
+            $transaction->code = $transactionNumber;
+            $transaction->date = $request->date;
+            $transaction->account_id = $request->account_id;
+            $transaction->customer_id = $request->customer_id;
+            $transaction->amount = $amount;
+            $transaction->payment_method = $request->payment_method;
+            $transaction->note = $request->note;
             $transaction->save();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $transaction,
-            // ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
 
-        // $keyedQuotations = collect($quotations)->mapWithKeys(function ($item) {
-        //     return [
-        //         $item['id'] => [
-        //             'estimation_id' => $item['selected_estimation'],
-        //             'created_at' => Carbon::now()->toDateTimeString(),
-        //             'updated_at' => Carbon::now()->toDateTimeString(),
-        //         ]
-        //     ];
-        // })->all();
-
-        try {
             $transaction->centralSaleReturns()->attach([
                 $saleReturnId => [
                     'amount' => $amount,
@@ -91,34 +67,38 @@ class CentralSaleReturnTransactionController extends Controller
                     'updated_at' => Carbon::now()->toDateTimeString(),
                 ]
             ]);
-        } catch (Exception $e) {
-            $transaction->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
 
-        // Account Transaction
-        $saleReturn = CentralSaleReturn::find($saleReturnId);
-        $accountTransaction = new AccountTransaction;
-        $accountTransaction->account_in = $request->account_id;
-        $accountTransaction->amount = $amount;
-        $accountTransaction->type = "in";
-        $accountTransaction->note = "Penyelesaian retur penjualan pusat No. " . $saleReturn->code;
-        $accountTransaction->date = $request->date;
-
-        try {
+            $accountTransaction = new AccountTransaction;
+            $accountTransaction->account_id = $request->account_id;
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "out";
+            $accountTransaction->note = "Penyelesaian retur penjualan pusat No. " . $transactionNumber;
+            $accountTransaction->date = $request->date;
+            $accountTransaction->table_name = 'central_sale_return_transactions';
+            $accountTransaction->table_id = $transaction->id;
             $accountTransaction->save();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $transaction,
-            // ]);
+
+            // Account Transaction
+            $accountTransaction = new AccountTransaction;
+            $accountTransaction->account_id = config('accounts.hutang', 0);
+            $accountTransaction->amount = $amount;
+            $accountTransaction->type = "out";
+            $accountTransaction->note = "Penyelesaian retur penjualan pusat No. " . $transactionNumber;
+            $accountTransaction->date = $request->date;
+            $accountTransaction->table_name = 'central_sale_return_transactions';
+            $accountTransaction->table_id = $transaction->id;
+            $accountTransaction->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $transaction,
+            ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -126,13 +106,6 @@ class CentralSaleReturnTransactionController extends Controller
                 'errors' => $e,
             ], 500);
         }
-
-        return response()->json([
-            'message' => 'Data has been saved',
-            'code' => 200,
-            'error' => false,
-            'data' => $transaction,
-        ]);
     }
 
     /**
@@ -181,29 +154,25 @@ class CentralSaleReturnTransactionController extends Controller
      */
     public function destroy($id)
     {
-        $transaction = CentralSaleReturnTransaction::findOrFail($id);
+        DB::beginTransaction();
         try {
+            $transaction = CentralSaleReturnTransaction::findOrFail($id);
             $transaction->centralSaleReturns()->detach();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error detaching',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
 
-        try {
+            AccountTransaction::where('table_name', 'central_sale_return_transactions')->where('table_id', $transaction->id)->delete();
+
             $transaction->delete();
+            DB::commit();
+
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
                 'error' => false,
-                'data' => $transaction,
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
-                'message' => 'Internal error',
+                'message' => 'Internal error detaching',
                 'code' => 500,
                 'error' => true,
                 'errors' => $e,

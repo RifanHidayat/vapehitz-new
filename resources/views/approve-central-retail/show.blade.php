@@ -42,8 +42,8 @@
                                 <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
                                     <td>@{{product.code}}</td>
                                     <td>@{{product.name}}</td>
-                                    <td>@{{product.central_stock}}</td>
-                                    <td>@{{product.studio_stock}}</td>
+                                    <td>@{{product.pivot.central_stock}}</td>
+                                    <td>@{{product.pivot.retail_stock}}</td>
                                     <td>
                                         @{{product.quantity}}
                                     </td>
@@ -62,7 +62,7 @@
     let app = new Vue({
         el: '#app',
         data: {
-            selectedProducts: JSON.parse('{!! $approve_central->products !!}'),
+            selectedProducts: JSON.parse(String.raw`{!! $approve_central->products !!}`),
             loading: false,
         },
     })

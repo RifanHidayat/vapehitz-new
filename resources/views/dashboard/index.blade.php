@@ -43,7 +43,7 @@
 </div><!-- .nk-block-head -->
 <div class="nk-block">
     <div class="row g-gs">
-        <div class="col-xxl-6">
+        <div class="col-xxl-12">
             <div class="card card-bordered h-100">
                 <div class="card-inner">
                     <div class="card-title-group align-start gx-3 mb-3">
@@ -80,7 +80,7 @@
                 </div>
             </div><!-- .card -->
         </div><!-- .col -->
-        <div class="col-xxl-8">
+        <div class="col-xxl-12">
             <div class="card card-bordered card-full">
                 <div class="card-inner">
                     <div class="card-title-group">

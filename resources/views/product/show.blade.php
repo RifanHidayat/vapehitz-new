@@ -112,13 +112,21 @@
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Kategori</div>
+                            @if($products->productCategory !== null)
                             <div class="data-value">{{ $products->productCategory->name }}</div>
+                            @else
+                            <div class="data-value"></div>
+                            @endif
                         </div>
                     </li>
                     <li class="data-item">
                         <div class="data-col">
                             <div class="data-label">Subkategori</div>
+                            @if($products->productSubcategory !== null)
                             <div class="data-value">{{ $products->productSubcategory->name }}</div>
+                            @else
+                            <div class="data-value"></div>
+                            @endif
                         </div>
                     </li>
                     <li class="data-item">

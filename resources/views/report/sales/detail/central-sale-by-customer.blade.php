@@ -4,12 +4,13 @@
 
 @section('content')
 <div class="components-preview mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
-        <div class="nk-block-head-content">
-            <!-- <div class="nk-block-head-sub"><a class="back-to" href="html/components.html"><em class="icon ni ni-arrow-left"></em><span>Manage</span></a></div> -->
-            <h4 class="nk-block-title fw-normal">Transaksi Penjualan Barang</h4>
-        </div>
-    </div>
+    <div class="nk-block-head-content">
+            <h3 class="nk-block-title page-title">Laporan Central Sales By Customer</h3>
+            <div class="nk-block-des text-soft">
+                <p>Laporan penjualan pusat berdasarkan pelanggan</p>
+            </div>
+    </div><!-- .nk-block-head-content -->
+    <br>
     <div class="nk-block nk-block-lg">
         <!-- <a href="/central-sale/create" class="btn btn-primary">Tambah</a>
         <p></p>
@@ -68,7 +69,7 @@
                                 <label class="form-label" for="filter-status">Status</label>
                                 <div class="form-control-wrap ">
                                     <div class="form-control-select">
-                                        <select class="form-control" id="filter-status">
+                                        <select v-model="filter.status" class="form-control" id="filter-status">
                                             <option value="">All</option>
                                             <option value="pending">Pending</option>
                                             <option value="approved">Approved</option>
@@ -100,7 +101,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-label">Kolom</label>
@@ -114,7 +115,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="row mt-3">
                             <div class="col-md-12 text-right">
                                 <button type="button" class="btn btn-primary" @click="applyFilter">Apply</button>
@@ -126,37 +127,34 @@
                     </div> -->
                 </div>
                 <div class="divider"></div>
-                <div class="text-center">
+                <!-- <div class="text-center">
                     <em class="icon ni ni-share-alt" style="font-size: 5em;"></em>
                     <p class="text-soft mt-2">Report preview is under construction</p>
+                </div> -->
+                <div v-if="tableDataLoading" class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
-                <!-- <div class="table-responsive">
-                    <table class="table table-striped" id="centralSale">
+                <div class="table-responsive" style="max-height: 500px;">
+                    <table class="table table-striped">
                         <thead>
-                            <tr class="text-center">
-                                <th>No. Invoice</th>
-                                <th>Tanggal Invoice</th>
+                            <tr>
                                 <th>Customer</th>
-                                <th>Shipment</th>
-
-                                <th>Penerima</th>
-                                <th>Subtotal</th>
-                                <th>Discount</th>
-                                <th>Shipping</th>
-                                <th>Grand Total</th>
-                                <th>Pembayaran 1</th>
-                                <th>Pembayaran 2</th>
-                                <th>Sisa</th>
-                                <th>Berat (gr)</th>
-                                <th>Status</th>
-                                <th>Status Cetak</th>
-
+                                <th>Date</th>
+                                <th>No.</th>
+                                <th>Created By</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Free</th>
+                                <th>Price</th>
+                                <th>Amount</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="datatable-tbody">
                         </tbody>
                     </table>
-                </div> -->
+                </div>
             </div>
         </div>
     </div>
@@ -238,11 +236,14 @@
                 shipment: '',
                 sortBy: '',
                 sortIn: 'asc',
-            }
+            },
+            tableData: [],
+            tableDataLoading: true,
         },
         mounted() {
             this.applyFilter();
-            console.log(this.filter.columns.map(column => column.id))
+            // this.loadTable(this.generatedRequest);
+            // console.log(this.filter.columns.map(column => column.id))
         },
         methods: {
             applyFilter: function() {
@@ -256,6 +257,24 @@
                     `&sort_by=${this.filter.sortBy}` +
                     `&sort_in=${this.filter.sortIn}` +
                     `&report_type=detail`;
+
+                this.tableDataLoading = true;
+                this.loadTable(this.generatedRequest);
+            },
+            loadTable: function(request) {
+                let vm = this;
+                axios.get('/report/central-sale/customer/detail-data' + request)
+                    .then(function(res) {
+                        // vm.tableData = res.data.data;
+                        const tbody = document.getElementById('datatable-tbody');
+                        // console.log(tbody);
+                        tbody.innerHTML = res.data;
+                        vm.tableDataLoading = false;
+                        // console.log(res);
+                    }).catch(function(err) {
+                        vm.tableDataLoading = false;
+                        console.log('cant load table with error : ' + err)
+                    })
             }
         },
         computed: {

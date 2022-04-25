@@ -10,6 +10,6 @@ class RequestToStudio extends Model
     use HasFactory;
     public function products()
     {
-        return $this->belongsToMany(Product::class)->withPivot('studio_stock', 'quantity');
+        return $this->belongsToMany(Product::class)->withPivot('studio_stock', 'quantity','central_stock');
     }
 }

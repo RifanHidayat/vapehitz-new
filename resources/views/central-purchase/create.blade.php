@@ -274,7 +274,7 @@
                                 <div class="form-group col-lg-6 col-md-12">
                                     <label class="form-label" for="full-name-1">Akun</label>
                                     <div class="form-control-wrap">
-                                        <select v-model="accountId" class="form-control">
+                                        <select v-model="accountId" class="form-control" id="accounts">
                                             <option value=""></option>
                                             <option v-for="(account, index) in accountOptions" :value="account.id">@{{ account.name }}</option>
                                         </select>
@@ -412,6 +412,12 @@
 <script src="https://cdn.jsdelivr.net/npm/vue-cleave-component@2"></script>
 @endsection
 @section('pagescript')
+<script>
+        $(function() {
+         
+            $("#accounts").select2()
+        })
+    </script>
 <script>
     Vue.directive('cleave', {
         inserted: (el, binding) => {
@@ -580,6 +586,7 @@
                 return netTotal;
             },
             payment: function() {
+                 $("#accounts").select2()
                 if (this.isPaid) {
                     return this.netTotal;
                 }

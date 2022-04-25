@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Exports\ApproveCentralStudioExport;
 use App\Models\StudioRequestToCentral;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use PDF;
 
 class ApproveCentralStudioController extends Controller
 {
@@ -53,14 +57,30 @@ class ApproveCentralStudioController extends Controller
         $approveCentral = StudioRequestToCentral::with('products')->findOrFail($id);
         $selectedProducts = collect($approveCentral->products)->each(function ($product) {
             $product['quantity'] = $product->pivot->quantity;
+             $product['studio_stock'] = $product->pivot->studio_stock;
         });
         return view('approve-central-studio.show', [
             'approve_central' => $approveCentral,
         ]);
     }
 
+    public function print($id)
+    {
+        // return view('central-sale.print');
+        $req = StudioRequestToCentral::with(['products'])->findOrFail($id);
+
+        $data = [
+            'req' => $req,
+        ];
+
+        $pdf = PDF::loadView('studio-request-to-central.print', $data);
+        return $pdf->stream($req->code . '.pdf');
+    }
+
+
     public function approve($id)
     {
+        
         $approveCentral = StudioRequestToCentral::findOrFail($id);
         $selectedProducts = collect($approveCentral->products)->each(function ($product) {
             $product['quantity'] = $product->pivot->quantity;
@@ -69,18 +89,30 @@ class ApproveCentralStudioController extends Controller
             'approve_central' => $approveCentral,
         ]);
     }
+    
+    
+    public function export(){
+      
+           
+        return Excel::download(new ApproveCentralStudioExport(), "Permintaan dari studio" . '.xlsx');
+       
+    }
 
     public function approved(Request $request, $id)
     {
+         DB::beginTransaction();
         $approveCentral = StudioRequestToCentral::findOrFail($id);
         $approveCentral->code = $request->code;
         $approveCentral->date = $request->date;
         $approveCentral->status = "approved";
         $products = $request->selected_products;
 
+        //return $products;
+
         try {
             $approveCentral->save();
         } catch (Exception $e) {
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -110,7 +142,9 @@ class ApproveCentralStudioController extends Controller
             //     'data' => $approveCentral,
             // ]);
         } catch (Exception $e) {
+            
             $approveCentral->delete();
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -122,6 +156,7 @@ class ApproveCentralStudioController extends Controller
             $approveCentral->products()->attach($keyedProducts);
         } catch (Exception $e) {
             $approveCentral->delete();
+              DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -140,6 +175,7 @@ class ApproveCentralStudioController extends Controller
                 $productRow->studio_stock = $productRow->studio_stock + $product['quantity'];
                 $productRow->save();
             }
+            DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -148,6 +184,7 @@ class ApproveCentralStudioController extends Controller
             ]);
         } catch (Exception $e) {
             $approveCentral->products()->detach();
+              DB::rollBack();
             $approveCentral->delete();
             return response()->json([
                 'message' => 'Internal error',
@@ -305,7 +342,10 @@ class ApproveCentralStudioController extends Controller
                 $show = '<a href="/approve-central-studio/show/' . $row->id . '" class="btn btn-outline-light btn-sm"><em class="icon fas fa-eye"></em>
                 <span>Detail</span>
             </a>';
-                $button = ".$show.";
+            $print = '<a href="/approve-central-studio/print/' . $row->id . '" class="btn btn-outline-light btn-sm"><em class="icon fas fa-print"></em>
+            <span>Print</span>
+        </a>';
+                $button = ".$show $print.";
                 return $button;
             })
             ->rawColumns(['status', 'action'])

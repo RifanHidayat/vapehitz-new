@@ -346,7 +346,7 @@
                         <table class="table" id="products-table">
                             <thead>
                                 <tr>
-                                    <th>Kategori</th>
+                                    <th>Kode</th>
                                     <th>Nama</th>
                                     <th>Action</th>
                                 </tr>
@@ -475,9 +475,20 @@
                             allowOutsideClick: false,
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                // window.location.href = '/retail-sale';
+                                window.location.href = '/studio-sale';
                             }
                         })
+
+                        console.log(response);
+
+                        const {
+                            id
+                        } = response.data.data;
+
+                        let a = document.createElement('a');
+                        a.target = '_blank';
+                        a.href = '/studio-sale/print/' + id;
+                        a.click();
                         // console.log(response);
                     })
                     .catch(function(error) {

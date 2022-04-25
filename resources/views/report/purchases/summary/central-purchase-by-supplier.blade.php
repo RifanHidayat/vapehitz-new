@@ -126,30 +126,20 @@
                     </div> -->
                 </div>
                 <div class="divider"></div>
+                <div v-if="tableDataLoading" class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
                 <div class="table-responsive">
-                    <table class="table table-striped" id="centralSale">
+                    <table class="table table-striped">
                         <thead>
-                            <tr class="text-center">
-                                <th>No. Invoice</th>
-                                <th>Tanggal Invoice</th>
+                            <tr>
                                 <th>Supplier</th>
-                                <th>Shipment</th>
-                                <!-- <th>Sales</th> -->
-                                <th>Penerima</th>
-                                <th>Subtotal</th>
-                                <th>Discount</th>
-                                <th>Shipping</th>
-                                <th>Grand Total</th>
-                                <th>Pembayaran 1</th>
-                                <th>Pembayaran 2</th>
-                                <th>Sisa</th>
-                                <th>Berat (gr)</th>
-                                <th>Status</th>
-                                <th>Status Cetak</th>
-                                <!-- <th>Action</th> -->
+                                <th>Total</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="datatable-tbody">
                         </tbody>
                     </table>
                 </div>
@@ -234,11 +224,12 @@
                 shipment: '',
                 sortBy: '',
                 sortIn: 'asc',
-            }
+            },
+            tableDataLoading: true,
         },
         mounted() {
             this.applyFilter();
-            console.log(this.filter.columns.map(column => column.id))
+            // console.log(this.filter.columns.map(column => column.id))
         },
         methods: {
             applyFilter: function() {
@@ -252,6 +243,24 @@
                     `&sort_by=${this.filter.sortBy}` +
                     `&sort_in=${this.filter.sortIn}` +
                     `&report_type=summary`;
+
+                this.tableDataLoading = true;
+                this.loadTable(this.generatedRequest);
+            },
+            loadTable: function(request) {
+                let vm = this;
+                axios.get('/report/central-purchase/supplier/summary-data' + request)
+                    .then(function(res) {
+                        // vm.tableData = res.data.data;
+                        const tbody = document.getElementById('datatable-tbody');
+                        // console.log(tbody);
+                        tbody.innerHTML = res.data;
+                        vm.tableDataLoading = false;
+                        // console.log(res);
+                    }).catch(function(err) {
+                        vm.tableDataLoading = false;
+                        console.log('cant load table with error : ' + err)
+                    })
             }
         },
         computed: {

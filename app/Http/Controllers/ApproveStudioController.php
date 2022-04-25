@@ -8,6 +8,8 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
+use PDF;
 
 class ApproveStudioController extends Controller
 {
@@ -42,6 +44,21 @@ class ApproveStudioController extends Controller
         //
     }
 
+    public function print($id)
+    {
+        // return view('central-sale.print');
+        $req = RequestToStudio::with(['products'])->findOrFail($id);
+
+        $data = [
+            'req' => $req,
+        ];
+        //return "tes";
+
+        $pdf = PDF::loadView('request-to-studio.print', $data);
+        return $pdf->stream($req->code . '.pdf');
+    }
+
+
     /**
      * Display the specified resource.
      *
@@ -54,6 +71,7 @@ class ApproveStudioController extends Controller
         $selectedProducts = collect($approveStudio->products)->each(function ($product) {
             $product['quantity'] = $product->pivot->quantity;
         });
+       // return $approveStudio;
         return view('approve-studio.show', [
             'approve_studio' => $approveStudio,
         ]);
@@ -72,6 +90,7 @@ class ApproveStudioController extends Controller
 
     public function approved(Request $request, $id)
     {
+        DB::beginTransaction();
         $approveStudio = RequestToStudio::findOrFail($id);
         $approveStudio->code = $request->code;
         $approveStudio->date = $request->date;
@@ -81,6 +100,7 @@ class ApproveStudioController extends Controller
         try {
             $approveStudio->save();
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -94,6 +114,7 @@ class ApproveStudioController extends Controller
                 $item['id'] => [
                     'studio_stock' => $item['studio_stock'],
                     'quantity' => $item['quantity'],
+                    'central_stock' => $item['central_stock'],
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString(),
                 ]
@@ -110,6 +131,7 @@ class ApproveStudioController extends Controller
             // ]);
         } catch (Exception $e) {
             $approveStudio->delete();
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -121,6 +143,7 @@ class ApproveStudioController extends Controller
             $approveStudio->products()->attach($keyedProducts);
         } catch (Exception $e) {
             $approveStudio->delete();
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -135,10 +158,11 @@ class ApproveStudioController extends Controller
                     continue;
                 }
 
-                $productRow->studio_stock = $productRow->studio_stock + $product['quantity'];
-                $productRow->central_stock = $productRow->central_stock - $product['quantity'];
+                $productRow->studio_stock = $productRow->studio_stock - $product['quantity'];
+                $productRow->central_stock = $productRow->central_stock + $product['quantity'];
                 $productRow->save();
             }
+            DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -148,6 +172,7 @@ class ApproveStudioController extends Controller
         } catch (Exception $e) {
             $approveStudio->products()->detach();
             $approveStudio->delete();
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -300,10 +325,13 @@ class ApproveStudioController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $show = '<a href="/approve-studio/show/' . $row->id . '" class="btn btn-outline-warning btn-sm"><em class="icon fas fa-eye"></em>
+                $show = '<a href="/approve-studio/show/' . $row->id . '" class="btn btn-outline-light btn-sm"><em class="icon fas fa-eye"></em>
                 <span>Detail</span>
             </a>';
-                $button = ".$show.";
+            $print = '<a href="/approve-studio/print/' . $row->id . '" class="btn btn-outline-light btn-sm"><em class="icon fas fa-print"></em>
+            <span>Print</span>
+        </a>';
+                $button = ".$show. $print";
                 return $button;
             })
             ->rawColumns(['status', 'action'])

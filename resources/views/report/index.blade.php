@@ -65,7 +65,7 @@
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-md-9">
                                     <a href="/report/central-sale/product/summary">
-                                        <p><strong>Central Sales By Product Detail</strong></p>
+                                        <p><strong>Central Sales By Product Summary</strong></p>
                                     </a>
                                 </div>
                                 <div class="col-md-2 text-right">
@@ -156,6 +156,74 @@
                                 <div class="col-md-9">
                                     <a href="/report/central-purchase/product/summary">
                                         <p><strong>Central Purchase By Product Summary</strong></p>
+                                    </a>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <a class="btn btn-icon btn-trigger"><em class="icon ni ni-star" style="font-size: 1.4rem;"></em></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div>
+                <h4 class="mt-4">Supplier</h4>
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12 mt-3">
+                        <div class="border py-1 px-3 round">
+                            <div class="row align-items-center justify-content-between">
+                                <div class="col-md-9">
+                                <a href="/report/central-purchase/supplier/detail">
+                                        <p><strong>Central Purchase debt By Supplier Detail</strong></p>
+                                    </a>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <a class="btn btn-icon btn-trigger"><em class="icon ni ni-star" style="font-size: 1.4rem;"></em></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  
+                 
+                    <div class="col-lg-6 col-sm-12 mt-3">
+                        <div class="border py-1 px-3 round">
+                            <div class="row align-items-center justify-content-between">
+                                <div class="col-md-9">
+                                    <a href="/report/central-purchase/supplier/summary">
+                                        <p><strong>Central Purchase debt By Supplier Summary</strong></p>
+                                    </a>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <a class="btn btn-icon btn-trigger"><em class="icon ni ni-star" style="font-size: 1.4rem;"></em></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h4 class="mt-4">Customer</h4>
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12 mt-3">
+                        <div class="border py-1 px-3 round">
+                            <div class="row align-items-center justify-content-between">
+                                <div class="col-md-9">
+                                    <a href="/report/customer/piutang/detail">
+                                        <p><strong>Piutang Detail</strong></p>
+                                    </a>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <a class="btn btn-icon btn-trigger"><em class="icon ni ni-star" style="font-size: 1.4rem;"></em></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12 mt-3">
+                        <div class="border py-1 px-3 round">
+                            <div class="row align-items-center justify-content-between">
+                                <div class="col-md-9">
+                                    <a href="/report/customer/piutang/summary">
+                                        <p><strong>Piutang Summary</strong></p>
                                     </a>
                                 </div>
                                 <div class="col-md-2 text-right">

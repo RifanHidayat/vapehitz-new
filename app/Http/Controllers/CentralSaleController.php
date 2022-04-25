@@ -51,7 +51,7 @@ class CentralSaleController extends Controller
     {
         $customers = Customer::all();
         $shipments = Shipment::all();
-        $accounts = Account::all();
+        $accounts = Account::where('type', '!=', 'none')->get();
         $maxid = DB::table('central_sales')->max('id');
         $code = "SO/" . date('dmy') . "/" . sprintf('%04d', $maxid + 1);
 
@@ -72,7 +72,7 @@ class CentralSaleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function storeOld(Request $request)
     {
         $centralSale = new CentralSale;
         $centralSale->code = $request->code;
@@ -126,7 +126,7 @@ class CentralSaleController extends Controller
                     $product['quantity'] = 1;
                     $product['free'] = 0;
                     $product['editable'] = 0;
-                    $product['subTotal'] = $product['agent_price'];
+                    $product['subTotal'] = $product['ws_price'];
                     $product['backgroundColor'] = 'bg-warning-dim';
                     array_push($newSelectedProducts, $product);
                     $unavailableStockProductCount++;
@@ -241,6 +241,154 @@ class CentralSaleController extends Controller
     }
 
     /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $products = $request->selected_products;
+
+        try {
+            $unavailableStockProductCount = 0;
+            $newSelectedProducts = [];
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+
+                // let taken = Number(booked) + Number(quantity) + Number(free);
+                // console.log(taken);
+                // if (taken > Number(central_stock)) {
+                //     const maxAvailable = Number(central_stock) - (Number(booked) + Number(quantity));
+                //     // console.log(central_stock, booked, quantity, maxAvailable);
+                //     product.free = maxAvailable;
+                //     product.subTotal = this.getProductSubtotal(product);
+                // }
+
+                $taken = $productRow->booked + $product['quantity'] + $product['free'];
+                if ($taken > $productRow->central_stock) {
+                    // array_push($unavailableStockProductIds, $productRow);
+                    $product['booked'] = $productRow->booked;
+                    $product['central_stock'] = $productRow->central_stock;
+                    $product['quantity'] = 1;
+                    $product['free'] = 0;
+                    $product['editable'] = 0;
+                    $product['subTotal'] = $product['ws_price'];
+                    $product['backgroundColor'] = 'bg-warning-dim';
+                    array_push($newSelectedProducts, $product);
+                    $unavailableStockProductCount++;
+                } else {
+                    array_push($newSelectedProducts, $product);
+                }
+                // if ($productRow == null) {
+                //     continue;
+                // }
+
+                // $productRow->booked = $productRow->booked + $product['quantity'];
+                // $productRow->save();
+            }
+
+            if ($unavailableStockProductCount > 0) {
+                return response()->json([
+                    'message' => 'Insufficient stock',
+                    'data' => [
+                        'selected_products' => $newSelectedProducts,
+                    ],
+                    'code' => 400,
+                    'error' => true,
+                    'error_type' => 'unsufficient_stock'
+                ], 400);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $centralSale = new CentralSale;
+            $centralSale->code = $request->code;
+            $centralSale->date = $request->date . ' ' . date('H:i:s');
+            $centralSale->due_date = date('Y-m-d', strtotime("+" . $request->debt . " day", strtotime($request->date)));
+            $centralSale->customer_id = $request->customer_id;
+            $centralSale->shipment_id = $request->shipment_id;
+            $centralSale->debt = $request->debt;
+            $centralSale->total_weight = $request->total_weight;
+            $centralSale->total_cost = $request->total_cost;
+            $centralSale->discount = $request->discount;
+            $centralSale->discount_type = $request->discount_type;
+            $centralSale->subtotal = $request->subtotal;
+            $centralSale->shipping_cost = $request->shipping_cost;
+            $centralSale->other_cost = $request->other_cost;
+            $centralSale->detail_other_cost = $request->detail_other_cost;
+            $centralSale->deposit_customer = $request->deposit_customer;
+            $centralSale->net_total = $request->net_total;
+            $centralSale->receipt_1 = $request->receipt_1;
+            $centralSale->receive_1 = $request->receive_1;
+            $centralSale->receipt_2 = $request->receipt_2;
+            $centralSale->receive_2 = $request->receive_2;
+            $centralSale->recipient = $request->recipient;
+            $centralSale->payment_amount = $request->payment_amount;
+            $centralSale->remaining_payment = $request->remaining_payment;
+            $centralSale->address_recipient = $request->address_recipient;
+            $centralSale->detail = $request->detail;
+            $centralSale->created_by = Auth::id();
+
+            $centralSale->save();
+
+            $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+                return [
+                    $item['id'] => [
+                        'stock' => $item['central_stock'],
+                        'booked' => $item['booked'],
+                        'price' => str_replace(".", "", $item['price']),
+                        'quantity' => $item['quantity'],
+                        'free' => $item['free'],
+                        'amount' => $item['subTotal'],
+                        'editable' => $item['editable'] == true ? 1 : 0,
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ];
+            })->all();
+
+            $centralSale->products()->attach($keyedProducts);
+
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+                $productRow->booked = $productRow->booked + $product['quantity'] + $product['free'];
+                // $productRow->agent_price = str_replace(".", "", $product['price']);
+                $productRow->save();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $centralSale,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+
+    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -249,6 +397,7 @@ class CentralSaleController extends Controller
     public function show($id)
     {
         $centralSale = CentralSale::with('products.productCategory')->findOrFail($id);
+        // return collect($centralSale->centralSaleTransactions)->pluck('id')->all();
         $transactions = collect($centralSale->centralSaleTransactions)->sortBy('date')->values()->all();
         $returns = collect($centralSale->centralSaleReturns)->sortBy('date')->values()->all();
         // $returns = CentralSaleReturn::with(['products'])->where('central_sale_id', $id)->get();
@@ -278,10 +427,25 @@ class CentralSaleController extends Controller
 
         $customers = Customer::all();
         $shipments = Shipment::all();
-        $accounts = Account::all();
-        $selectedProducts = collect($centralSale->products)->each(function ($product) {
+        $accounts = Account::where('type', '!=', 'none')->get();
+
+        $oldTakenProducts = collect($centralSale->products)->groupBy('id')->map(function ($group, $productId) {
+            return [
+                'id' => $productId,
+                'taken' => collect($group)->sum(function ($product) {
+                    return $product->pivot->quantity + $product->pivot->free;
+                }),
+            ];
+        })->values()->all();
+
+        $selectedProducts = collect($centralSale->products)->each(function ($product) use ($centralSale) {
             // $product['stock'] = $product->pivot->stock;
-            $product['booked'] = $product->booked - ($product->pivot->quantity + $product->pivot->free);
+            $booked = $product->booked - ($product->pivot->quantity + $product->pivot->free);
+            if ($centralSale->status == 'approved') {
+                $booked = $product->booked;
+                $product->central_stock = $product->central_stock + ($product->pivot->quantity + $product->pivot->free);
+            }
+            $product['booked'] = $booked;
             $product['quantity'] = $product->pivot->quantity;
             $product['price'] = $product->pivot->price;
             $product['free'] = $product->pivot->free;
@@ -294,12 +458,25 @@ class CentralSaleController extends Controller
 
         $sidebarClass = 'compact';
 
+        if ($centralSale->status == 'approved') {
+            return view('central-sale.edit-approved', [
+                'central_sale' => $centralSale,
+                'customers' => $customers,
+                'accounts' => $accounts,
+                'shipments' => $shipments,
+                'selected_products' => $selectedProducts,
+                'old_taken_products' => $oldTakenProducts,
+                'sidebar_class' => $sidebarClass,
+            ]);
+        }
+
         return view('central-sale.edit', [
             'central_sale' => $centralSale,
             'customers' => $customers,
             'accounts' => $accounts,
             'shipments' => $shipments,
             'selected_products' => $selectedProducts,
+            'old_taken_products' => $oldTakenProducts,
             'sidebar_class' => $sidebarClass,
         ]);
     }
@@ -311,7 +488,7 @@ class CentralSaleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateOld(Request $request, $id)
     {
         $centralSale = CentralSale::findOrFail($id);
         // $centralSale->code = $request->code;
@@ -362,7 +539,7 @@ class CentralSaleController extends Controller
                     $product['quantity'] = 1;
                     $product['free'] = 0;
                     $product['editable'] = 0;
-                    $product['subTotal'] = $product['agent_price'];
+                    $product['subTotal'] = $product['ws_price'];
                     $product['backgroundColor'] = 'bg-warning-dim';
                     array_push($newSelectedProducts, $product);
                     $unavailableStockProductCount++;
@@ -474,7 +651,7 @@ class CentralSaleController extends Controller
                     $productRow->central_stock = $productRow->central_stock - ($product['quantity'] + $product['free']);
                 }
 
-                $productRow->agent_price = str_replace(".", "", $product['price']);
+                $productRow->ws_price = str_replace(".", "", $product['price']);
 
                 $productRow->save();
             }
@@ -501,6 +678,18 @@ class CentralSaleController extends Controller
                 // $centralSale->delete();
                 return response()->json([
                     'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
+
+            try {
+                AccountTransaction::where('table_name', 'central_sales')->where('table_id', $centralSale->id)->delete();
+            } catch (Exception $e) {
+                // $centralSale->delete();
+                return response()->json([
+                    'message' => 'Internal error while deleting account transaction',
                     'code' => 500,
                     'error' => true,
                     'errors' => $e,
@@ -558,6 +747,26 @@ class CentralSaleController extends Controller
                     // ]);
                 } catch (Exception $e) {
                     $transaction->delete();
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
+
+                try {
+                    $accountTransaction = new AccountTransaction;
+                    $accountTransaction->account_id = $request->receipt_1;
+                    $accountTransaction->amount = $amount;
+                    $accountTransaction->type = "in";
+                    $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+                    $accountTransaction->date = $request->date;
+                    $accountTransaction->table_name = 'central_sales';
+                    $accountTransaction->table_id = $centralSale->id;
+
+                    $accountTransaction->save();
+                } catch (Exception $e) {
                     return response()->json([
                         'message' => 'Internal error',
                         'code' => 500,
@@ -625,6 +834,51 @@ class CentralSaleController extends Controller
                         'errors' => $e,
                     ], 500);
                 }
+
+                try {
+                    $accountTransaction = new AccountTransaction;
+                    $accountTransaction->account_id = $request->receipt_2;
+                    $accountTransaction->amount = $amount;
+                    $accountTransaction->type = "in";
+                    $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+                    $accountTransaction->date = $request->date;
+                    $accountTransaction->table_name = 'central_sales';
+                    $accountTransaction->table_id = $centralSale->id;
+
+                    $accountTransaction->save();
+                } catch (Exception $e) {
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
+            }
+
+            $receiveAmount1 = $this->clearThousandFormat($request->receive_1);
+            $receiveAmount2 = $this->clearThousandFormat($request->receive_2);
+            $totalReceiveAmount = (int) $receiveAmount1 + (int) $receiveAmount2;
+            if ($totalReceiveAmount < $request->net_total) {
+                try {
+                    $accountTransaction = new AccountTransaction;
+                    $accountTransaction->account_id = 2;
+                    $accountTransaction->amount = $request->net_total - $totalReceiveAmount;
+                    $accountTransaction->type = "in";
+                    $accountTransaction->note = "Piutang penjualan pusat No. " . $centralSale->code;
+                    $accountTransaction->date = $request->date;
+                    $accountTransaction->table_name = 'central_sales';
+                    $accountTransaction->table_id = $centralSale->id;
+
+                    $accountTransaction->save();
+                } catch (Exception $e) {
+                    return response()->json([
+                        'message' => 'Internal error',
+                        'code' => 500,
+                        'error' => true,
+                        'errors' => $e,
+                    ], 500);
+                }
             }
         }
 
@@ -648,13 +902,346 @@ class CentralSaleController extends Controller
             'data' => $centralSale,
         ]);
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $products = $request->selected_products;
+        $oldTakenProducts = $request->old_taken_products;
+        $centralSale = CentralSale::findOrFail($id);
+        // Check Available Stock
+        try {
+            $unavailableStockProductCount = 0;
+            $newSelectedProducts = [];
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+
+                $oldTakenProduct = collect($oldTakenProducts)->where('id', $product['id'])->first();
+
+                $taken = 0;
+                $oldTakenQuantity = 0;
+
+                if ($oldTakenProduct !== null) {
+                    $oldTakenQuantity = $oldTakenProduct['taken'];
+                }
+
+                if ($centralSale->status == 'pending') {
+                    $taken = ($productRow->booked - $oldTakenQuantity) + $product['quantity'] + $product['free'];
+                } else if ($centralSale->status == 'approved') {
+                    $taken = ($product['quantity'] + $product['free']) - $oldTakenQuantity;
+                }
+
+                if ($taken > $productRow->central_stock) {
+                    // array_push($unavailableStockProductIds, $productRow);
+                    $product['booked'] = $productRow->booked;
+                    $product['central_stock'] = $productRow->central_stock;
+                    $product['quantity'] = 1;
+                    $product['free'] = 0;
+                    $product['editable'] = 0;
+                    $product['subTotal'] = $product['ws_price'];
+                    $product['backgroundColor'] = 'bg-warning-dim';
+                    array_push($newSelectedProducts, $product);
+                    $unavailableStockProductCount++;
+                } else {
+                    array_push($newSelectedProducts, $product);
+                }
+                // if ($productRow == null) {
+                //     continue;
+                // }
+
+                // $productRow->booked = $productRow->booked + $product['quantity'];
+                // $productRow->save();
+            }
+
+            if ($unavailableStockProductCount > 0) {
+                return response()->json([
+                    'message' => 'Insufficient stock',
+                    'data' => [
+                        'selected_products' => $newSelectedProducts,
+                    ],
+                    'code' => 400,
+                    'error' => true,
+                    'error_type' => 'unsufficient_stock'
+                ], 400);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+
+
+        DB::beginTransaction();
+
+        try {
+            // $centralSale->code = $request->code;
+            $centralSale->date = date_format(date_create($request->date), "Y-m-d") . ' ' . date('H:i:s');
+            $centralSale->due_date = date('Y-m-d', strtotime("+" . $request->debt . " day", strtotime($request->date)));
+            $centralSale->customer_id = $request->customer_id;
+            $centralSale->shipment_id = $request->shipment_id;
+            $centralSale->debt = $request->debt;
+            $centralSale->total_weight = $request->total_weight;
+            $centralSale->total_cost = $request->total_cost;
+            $centralSale->discount = $request->discount;
+            $centralSale->discount_type = $request->discount_type;
+            $centralSale->subtotal = $request->subtotal;
+            $centralSale->shipping_cost = $request->shipping_cost;
+            $centralSale->other_cost = $request->other_cost;
+            $centralSale->detail_other_cost = $request->detail_other_cost;
+            $centralSale->deposit_customer = $request->deposit_customer;
+            $centralSale->net_total = $request->net_total;
+            $centralSale->receipt_1 = $request->receipt_1;
+            $centralSale->receive_1 = $request->receive_1;
+            $centralSale->receipt_2 = $request->receipt_2;
+            $centralSale->receive_2 = $request->receive_2;
+            $centralSale->recipient = $request->recipient;
+            $centralSale->payment_amount = $request->payment_amount;
+            $centralSale->remaining_payment = $request->remaining_payment;
+            $centralSale->address_recipient = $request->address_recipient;
+            $centralSale->detail = $request->detail;
+            $centralSale->save();
+
+            $centralSale->products()->detach();
+
+            $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+                return [
+                    $item['id'] => [
+                        'stock' => $item['central_stock'],
+                        'booked' => $item['booked'],
+                        'price' => str_replace(".", "", $item['price']),
+                        'quantity' => $item['quantity'],
+                        'free' => $item['free'],
+                        'amount' => $item['subTotal'],
+                        'editable' => $item['editable'] == true ? 1 : 0,
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ];
+            })->all();
+
+            $centralSale->products()->attach($keyedProducts);
+
+            foreach ($oldTakenProducts as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+                if ($centralSale->status == 'pending') {
+                    $productRow->booked = $productRow->booked - $product['taken'];
+                } else if ($centralSale->status == 'approved') {
+                    $productRow->central_stock = $productRow->central_stock + $product['taken'];
+                }
+                $productRow->save();
+            }
+
+
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                if ($centralSale->status == 'pending') {
+                    $productRow->booked = $productRow->booked + ($product['quantity'] + $product['free']);
+                } else if ($centralSale->status == 'approved') {
+                    $productRow->central_stock = $productRow->central_stock - ($product['quantity'] + $product['free']);
+                }
+                // if ($centralSale->status == 'pending') {
+                //     if (array_key_exists('old_booking_amount', $product)) {
+                //         $productRow->booked = $productRow->booked - $product['old_booking_amount'];
+                //         $productRow->booked = $productRow->booked + ($product['quantity'] + $product['free']);
+                //     }
+                // } else if ($centralSale->status == 'approved') {
+                //     $productRow->central_stock = $productRow->central_stock + $product['old_quantity_amount'];
+                //     $productRow->central_stock = $productRow->central_stock - ($product['quantity'] + $product['free']);
+                // }
+                // $productRow->ws_price = str_replace(".", "", $product['price']);
+                $productRow->save();
+            }
+
+            // Detach init transaction
+            if ($centralSale->status == 'approved') {
+                // Delete Init Transaction
+                $initTransactions = collect($centralSale->centralSaleTransactions)->where('is_init', 1)->pluck('id');
+                if (count($initTransactions) > 0) {
+                    CentralSaleTransaction::query()->whereIn('id', $initTransactions)->delete();
+                    $centralSale->centralSaleTransactions()->wherePivotIn('central_sale_transaction_id', $initTransactions)->detach();
+                }
+
+                AccountTransaction::where('table_name', 'central_sales')->where('table_id', $centralSale->id)->delete();
+
+                if (($request->receipt_1 !== '' && $request->receipt_1 !== null) && ($request->receive_1 !== '' && $request->receive_1 !== null)) {
+                    $date = $request->date;
+                    $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
+                    $saleId = $centralSale->id;
+                    $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+                    $amount = $this->clearThousandFormat($request->receive_1);
+
+                    $transaction = new CentralSaleTransaction;
+                    $transaction->code = $transactionNumber;
+                    $transaction->date = $date;
+                    $transaction->account_id = $request->receipt_1;
+                    $transaction->customer_id = $request->customer_id;
+                    $transaction->amount = $amount;
+                    // $transaction->payment_method = $request->payment_method;
+                    $transaction->payment_method = 'transfer';
+                    $transaction->is_init = 1;
+                    // $transaction->note = $request->note;
+
+                    $transaction->save();
+
+                    $transaction->centralSales()->attach([
+                        $saleId => [
+                            'amount' => $amount,
+                            'created_at' => Carbon::now()->toDateTimeString(),
+                            'updated_at' => Carbon::now()->toDateTimeString(),
+                        ]
+                    ]);
+
+                    // -------- Save to account transaction
+                    $accountTransaction = new AccountTransaction;
+                    $accountTransaction->account_id = $request->receipt_1;
+                    $accountTransaction->amount = $amount;
+                    $accountTransaction->type = "in";
+                    $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+                    $accountTransaction->date = $request->date;
+                    $accountTransaction->table_name = 'central_sales';
+                    $accountTransaction->table_id = $centralSale->id;
+                    $accountTransaction->save();
+                    // --------
+                }
+
+                if (($request->receipt_2 !== '' && $request->receipt_2 !== null) && ($request->receive_2 !== '' && $request->receive_2 !== null)) {
+                    $date = $request->date;
+                    $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
+                    $saleId = $centralSale->id;
+                    $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+                    $amount = $this->clearThousandFormat($request->receive_2);
+
+                    $transaction = new CentralSaleTransaction;
+                    $transaction->code = $transactionNumber;
+                    $transaction->date = $date;
+                    $transaction->account_id = $request->receipt_2;
+                    $transaction->customer_id = $request->customer_id;
+                    $transaction->amount = $amount;
+                    // $transaction->payment_method = $request->payment_method;
+                    $transaction->payment_method = 'transfer';
+                    $transaction->is_init = 1;
+                    // $transaction->note = $request->note;
+
+                    $transaction->save();
+
+                    $transaction->centralSales()->attach([
+                        $saleId => [
+                            'amount' => $amount,
+                            'created_at' => Carbon::now()->toDateTimeString(),
+                            'updated_at' => Carbon::now()->toDateTimeString(),
+                        ]
+                    ]);
+
+                    $accountTransaction = new AccountTransaction;
+                    $accountTransaction->account_id = $request->receipt_2;
+                    $accountTransaction->amount = $amount;
+                    $accountTransaction->type = "in";
+                    $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+                    $accountTransaction->date = $request->date;
+                    $accountTransaction->table_name = 'central_sales';
+                    $accountTransaction->table_id = $centralSale->id;
+
+                    $accountTransaction->save();
+                }
+
+                // -------- DISCOUNT
+                $discountAmount = $this->clearThousandFormat($request->discount);
+                if ($discountAmount > 0) {
+                    $discountType = $request->discount_type;
+
+                    $finalDiscountAmount = $discountAmount;
+
+                    if ($discountType == 'percentage') {
+                        $finalDiscountAmount = $this->clearThousandFormat($request->subtotal) * ($discountAmount / 100);
+                    }
+
+                    $accountTransaction = new AccountTransaction;
+                    $accountTransaction->account_id = config('accounts.sale_discount', 0);
+                    $accountTransaction->amount = $finalDiscountAmount;
+                    $accountTransaction->type = "in";
+                    $accountTransaction->note = "Diskon penjualan pusat No. " . $centralSale->code;
+                    $accountTransaction->date = $request->date;
+                    $accountTransaction->table_name = 'central_sales';
+                    $accountTransaction->table_id = $centralSale->id;
+                    $accountTransaction->save();
+                }
+                // --------
+
+                // -------- SHIPPING COST
+                $shippingAmount = $this->clearThousandFormat($request->shipping_cost);
+                if ($shippingAmount > 0) {
+                    $accountTransaction = new AccountTransaction;
+                    $accountTransaction->account_id = config('accounts.sale_shipping_cost', 0);
+                    $accountTransaction->amount = $shippingAmount;
+                    $accountTransaction->type = "in";
+                    $accountTransaction->note = "Biaya kirim penjualan pusat No. " . $centralSale->code;
+                    $accountTransaction->date = $request->date;
+                    $accountTransaction->table_name = 'central_sales';
+                    $accountTransaction->table_id = $centralSale->id;
+                    $accountTransaction->save();
+                }
+                // --------
+
+                $receiveAmount1 = $this->clearThousandFormat($request->receive_1);
+                $receiveAmount2 = $this->clearThousandFormat($request->receive_2);
+                $totalReceiveAmount = (int) $receiveAmount1 + (int) $receiveAmount2;
+                if ($totalReceiveAmount < $request->net_total) {
+
+                    $accountTransaction = new AccountTransaction;
+                    $accountTransaction->account_id = config('accounts.piutang', 0);
+                    $accountTransaction->amount = $request->net_total - $totalReceiveAmount;
+                    $accountTransaction->type = "in";
+                    $accountTransaction->note = "Piutang penjualan pusat No. " . $centralSale->code;
+                    $accountTransaction->date = $request->date;
+                    $accountTransaction->table_name = 'central_sales';
+                    $accountTransaction->table_id = $centralSale->id;
+
+                    $accountTransaction->save();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $centralSale,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Internal error detaching products',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroyOld($id)
     {
         $sale = CentralSale::findOrFail($id);
         $products = $sale->products;
@@ -750,6 +1337,18 @@ class CentralSaleController extends Controller
                     'errors' => $e,
                 ], 500);
             }
+
+            try {
+                AccountTransaction::where('table_name', 'central_sales')->where('table_id', $sale->id)->delete();
+            } catch (Exception $e) {
+                // $centralSale->delete();
+                return response()->json([
+                    'message' => 'Internal error while deleting account transaction',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
         }
 
         // Delete Main Data
@@ -771,6 +1370,147 @@ class CentralSaleController extends Controller
         ]);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $sale = CentralSale::findOrFail($id);
+
+        // $centralSaleTransactionIds = collect($sale->centralSaleTransactions)->pluck('id')->all();
+        // return  gettype($centralSaleTransactionIds);
+        $products = $sale->products;
+
+        $saleReturns = CentralSaleReturn::with(['products'])
+            ->where('central_sale_id', $id)
+            ->get()
+            ->flatMap(function ($return) {
+                return $return->products;
+            })
+            ->groupBy('id')
+            ->map(function ($products, $productId) {
+                $wrongQuantity = collect($products)->filter(function ($product) {
+                    return $product->pivot->cause = 'wrong';
+                })->sum(function ($product) {
+                    return $product->pivot->quantity;
+                });
+
+                $defectiveQuantity = collect($products)->filter(function ($product) {
+                    return $product->pivot->cause = 'defective';
+                })->sum(function ($product) {
+                    return $product->pivot->quantity;
+                });
+
+                return [
+                    'id' => $productId,
+                    'wrong_quantity' => $wrongQuantity,
+                    'defective_quantity' => $defectiveQuantity,
+                ];
+            })->values()->all();
+
+        // return collect($saleReturns)->where('id', 1)->first();
+
+        DB::beginTransaction();
+
+        // TODO: Deletion steps
+        // * Update / return stock to the beginning
+        // * Delete related return
+        // ? Delete return transaction
+        // ? Detach return & return transaction
+        // ? [account transaction] Remove piutang from return 
+        // * Detach product
+        // ? if approved: 
+        // ? Delete all transaction, 
+        // ? detach
+        // ? delete from account transaction
+
+        // Update Stock
+        try {
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $returnedQuantity = 0;
+                $wrongQuantity = 0;
+                $defectiveQuantity = 0;
+                $productReturn = collect($saleReturns)->where('id', $product['id'])->first();
+                if ($productReturn !== null) {
+                    // $returnedQuantity = $productReturn['returned_quantity'];
+                    $wrongQuantity = $productReturn['wrong_quantity'];
+                    $defectiveQuantity = $productReturn['defective_quantity'];
+                }
+
+                if ($sale->status == 'pending') {
+                    $productRow->bad_stock = $productRow->bad_stock - $defectiveQuantity;
+                    $productRow->booked = $productRow->booked - ($product->pivot->quantity - ($wrongQuantity + $defectiveQuantity)) + $product->pivot->free;
+                } else if ($sale->status == 'approved') {
+                    $productRow->bad_stock = $productRow->bad_stock - $defectiveQuantity;
+                    $productRow->central_stock = $productRow->central_stock + ($product->pivot->quantity - ($wrongQuantity + $defectiveQuantity)) + $product->pivot->free;
+                }
+                // if ($sale->status == 'pending') {
+                //     $productRow->booked = $productRow->booked - ($product->pivot->quantity) + $product->pivot->free;
+                // } else if ($sale->status == 'approved') {
+                //     $productRow->central_stock = $productRow->central_stock + ($product->pivot->quantity) + $product->pivot->free;
+                // }
+                $productRow->save();
+            }
+
+            $centralSaleReturns = CentralSaleReturn::query()->where('central_sale_id', $id)->get()->pluck('id');
+            // Delete Related Return
+            CentralSaleReturn::query()->where('central_sale_id', $id)->delete();
+            // Get return transaction
+            $returnPivotTable = DB::table('central_sale_return_central_sale_return_transaction')->whereIn('central_sale_return_id', $centralSaleReturns);
+
+            $centralSaleReturnTransactionIds = $returnPivotTable->get()->pluck('central_sale_return_transaction_id');
+            // Delete/detach return return transaction pivot table
+            $returnPivotTable->delete();
+
+            // Delete central sale return transactions
+            if (count($centralSaleReturnTransactionIds) > 0) {
+                DB::table('central_sale_return_transactions')->whereIn('id', $centralSaleReturnTransactionIds)->delete();
+            }
+
+            // Detach Product From Intermediate Table
+            $sale->products()->detach();
+
+            // Delete sale transaction
+            $centralSaleTransactionIds = collect($sale->centralSaleTransactions)->pluck('id')->all();
+            // Delete sale transaction account transaction 
+            if (count($centralSaleTransactionIds) > 0) {
+                DB::table('central_sale_transactions')->whereIn('id', $centralSaleTransactionIds)->delete();
+                AccountTransaction::where('table_name', 'central_sale_transactions')->whereIn('table_id', $centralSaleTransactionIds)->delete();
+            }
+
+            if ($sale->status == 'approved') {
+                // Delete and detach transaction
+                $sale->centralSaleTransactions()->detach();
+                // Delete sale account transaction
+                AccountTransaction::where('table_name', 'central_sales')->where('table_id', $sale->id)->delete();
+            }
+
+            // Delete piutang transaction from return
+            AccountTransaction::where('table_name', 'central_sale_returns')->whereIn('table_id', $centralSaleReturns)->delete();
+
+            // Delete Main Data
+            $sale->delete();
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Internal error',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+
     public function approval($id)
     {
         $centralSale = CentralSale::with(['products'])->findOrFail($id);
@@ -781,8 +1521,23 @@ class CentralSaleController extends Controller
 
         $customers = Customer::all();
         $shipments = Shipment::all();
-        $accounts = Account::all();
-        $selectedProducts = collect($centralSale->products)->each(function ($product) {
+        $accounts = Account::where('type', '!=', 'none')->get();
+
+        $oldTakenProducts = collect($centralSale->products)->groupBy('id')->map(function ($group, $productId) {
+            return [
+                'id' => $productId,
+                'taken' => collect($group)->sum(function ($product) {
+                    return $product->pivot->quantity + $product->pivot->free;
+                }),
+            ];
+        })->values()->all();
+
+        $selectedProducts = collect($centralSale->products)->each(function ($product) use ($centralSale) {
+            // $booked = $product->booked - ($product->pivot->quantity + $product->pivot->free);
+            // if ($centralSale->status == 'approved') {
+            //     $booked = $product->booked;
+            //     $product->central_stock = $product->central_stock + ($product->pivot->quantity + $product->pivot->free);
+            // }
             // $product['stock'] = $product->pivot->stock;
             $product['booked'] = $product->booked - ($product->pivot->quantity + $product->pivot->free);
             $product['quantity'] = $product->pivot->quantity;
@@ -794,16 +1549,20 @@ class CentralSaleController extends Controller
             // $product['cause'] = 'defective';
         });
 
+        $sidebarClass = 'compact';
+
         return view('central-sale.approval', [
             'central_sale' => $centralSale,
             'customers' => $customers,
             'accounts' => $accounts,
             'shipments' => $shipments,
+            'old_taken_products' => $oldTakenProducts,
             'selected_products' => $selectedProducts,
+            'sidebar_class' => $sidebarClass,
         ]);
     }
 
-    public function approve(Request $request, $id)
+    public function approveOld(Request $request, $id)
     {
         $centralSale = CentralSale::findOrFail($id);
         // $centralSale->code = $request->code;
@@ -854,7 +1613,7 @@ class CentralSaleController extends Controller
                     $product['quantity'] = 1;
                     $product['free'] = 0;
                     $product['editable'] = 0;
-                    $product['subTotal'] = $product['agent_price'];
+                    $product['subTotal'] = $product['ws_price'];
                     $product['backgroundColor'] = 'bg-warning-dim';
                     array_push($newSelectedProducts, $product);
                     $unavailableStockProductCount++;
@@ -959,7 +1718,7 @@ class CentralSaleController extends Controller
 
                 $productRow->central_stock = $productRow->central_stock - ($product['quantity'] + $product['free']);
 
-                $productRow->agent_price = str_replace(".", "", $product['price']);
+                $productRow->ws_price = str_replace(".", "", $product['price']);
 
                 $productRow->save();
             }
@@ -1058,15 +1817,25 @@ class CentralSaleController extends Controller
             }
 
             // Account Transaction
+            try {
+                $accountTransaction = new AccountTransaction;
+                $accountTransaction->account_id = $request->receipt_1;
+                $accountTransaction->amount = $amount;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->table_name = 'central_sales';
+                $accountTransaction->table_id = $centralSale->id;
 
-            // $accountTransaction = new AccountTransaction;
-            // $accountTransaction->account_in = $request->receipt_1;
-            // $accountTransaction->amount = $amount;
-            // $accountTransaction->type = "in";
-            // $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
-            // $accountTransaction->date = $request->date;
-
-            // pp
+                $accountTransaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
         }
 
         if (($request->receipt_2 !== '' && $request->receipt_2 !== null) && ($request->receive_2 !== '' && $request->receive_2 !== null)) {
@@ -1129,31 +1898,54 @@ class CentralSaleController extends Controller
                 ], 500);
             }
 
-            // Account
+            // Account Transaction
+            try {
+                $accountTransaction = new AccountTransaction;
+                $accountTransaction->account_id = $request->receipt_2;
+                $accountTransaction->amount = $amount;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->table_name = 'central_sales';
+                $accountTransaction->table_id = $centralSale->id;
 
-            // $accountTransaction = new AccountTransaction;
-            // $accountTransaction->account_in = $request->receipt_2;
-            // $accountTransaction->amount = $amount;
-            // $accountTransaction->type = "in";
-            // $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
-            // $accountTransaction->date = $request->date;
-
-            // try {
-            //     $accountTransaction->save();
-            // } catch (Exception $e) {
-            //     return response()->json([
-            //         'message' => 'Internal error',
-            //         'code' => 500,
-            //         'error' => true,
-            //         'errors' => $e,
-            //     ], 500);
-            // }
+                $accountTransaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
         }
 
         $receiveAmount1 = $this->clearThousandFormat($request->receive_1);
         $receiveAmount2 = $this->clearThousandFormat($request->receive_2);
         $totalReceiveAmount = (int) $receiveAmount1 + (int) $receiveAmount2;
         if ($totalReceiveAmount < $request->net_total) {
+
+            try {
+                $accountTransaction = new AccountTransaction;
+                $accountTransaction->account_id = 2;
+                $accountTransaction->amount = $request->net_total - $totalReceiveAmount;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = "Piutang penjualan pusat No. " . $centralSale->code;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->table_name = 'central_sales';
+                $accountTransaction->table_id = $centralSale->id;
+
+                $accountTransaction->save();
+            } catch (Exception $e) {
+                return response()->json([
+                    'message' => 'Internal error',
+                    'code' => 500,
+                    'error' => true,
+                    'errors' => $e,
+                ], 500);
+            }
+
+
             // $piutangAccount = Account::where('type', 'piutang')->first();
             // if ($piutangAccount !== null) {
             //     $accountTransaction = new AccountTransaction;
@@ -1174,32 +1966,35 @@ class CentralSaleController extends Controller
             //         ], 500);
             //     }
             // }
-            $date = $request->date;
-            $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
-            $saleId = $centralSale->id;
-            $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
 
-            $transaction = new CentralSaleTransaction;
-            $transaction->code = $transactionNumber;
-            $transaction->date = $date;
-            $transaction->account_id = 2;
-            $transaction->account_type = 'in';
-            $transaction->customer_id = $request->customer_id;
-            $transaction->amount = $request->net_total - $totalReceiveAmount;
-            // $transaction->payment_method = $request->payment_method;
-            $transaction->payment_method = 'piutang';
-            // $transaction->note = $request->note;
+            // $date = $request->date;
+            // $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
+            // $saleId = $centralSale->id;
+            // $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
 
-            try {
-                $transaction->save();
-            } catch (Exception $e) {
-                return response()->json([
-                    'message' => 'Internal error',
-                    'code' => 500,
-                    'error' => true,
-                    'errors' => $e,
-                ], 500);
-            }
+            // $transaction = new CentralSaleTransaction;
+            // $transaction->code = $transactionNumber;
+            // $transaction->date = $date;
+            // $transaction->account_id = 2;
+            // $transaction->account_type = 'in';
+            // $transaction->customer_id = $request->customer_id;
+            // $transaction->amount = $request->net_total - $totalReceiveAmount;
+            // // $transaction->payment_method = $request->payment_method;
+            // $transaction->payment_method = 'piutang';
+            // // $transaction->note = $request->note;
+
+            // try {
+            //     $transaction->save();
+            // } catch (Exception $e) {
+            //     return response()->json([
+            //         'message' => 'Internal error',
+            //         'code' => 500,
+            //         'error' => true,
+            //         'errors' => $e,
+            //     ], 500);
+            // }
+
+
         }
 
         return response()->json([
@@ -1210,34 +2005,68 @@ class CentralSaleController extends Controller
         ]);
     }
 
-    public function reject($id)
+    public function approve(Request $request, $id)
     {
-        // Save Main Data
+        $products = $request->selected_products;
+        $oldTakenProducts = $request->old_taken_products;
         $centralSale = CentralSale::findOrFail($id);
-
-        $products = $centralSale->products;
-
-        // return response()->json([
-        //     'message' => 'Data has been saved',
-        //     'code' => 200,
-        //     'error' => false,
-        //     'data' => $products,
-        // ]);
-
+        // Check Available Stock
         try {
+            $unavailableStockProductCount = 0;
+            $newSelectedProducts = [];
             foreach ($products as $product) {
-                $productRow = Product::find($product->id);
-                if ($productRow == null) {
-                    continue;
-                }
-                $finalBooked = $productRow->booked - ($product->pivot->quantity + $product->pivot->free);
-                $productRow->booked = $finalBooked < 0 ? 0 : $finalBooked;
+                $productRow = Product::find($product['id']);
 
-                $productRow->save();
+                $oldTakenProduct = collect($oldTakenProducts)->where('id', $product['id'])->first();
+
+                $taken = 0;
+                $oldTakenQuantity = 0;
+
+                if ($oldTakenProduct !== null) {
+                    $oldTakenQuantity = $oldTakenProduct['taken'];
+                }
+
+                $taken = ($productRow->booked - $oldTakenQuantity) + $product['quantity'] + $product['free'];
+                // if ($centralSale->status == 'pending') {
+                //     $taken = ($productRow->booked - $oldTakenQuantity) + $product['quantity'] + $product['free'];
+                // } else if ($centralSale->status == 'approved') {
+                //     $taken = ($product['quantity'] + $product['free']) - $oldTakenQuantity;
+                // }
+
+                if ($taken > $productRow->central_stock) {
+                    // array_push($unavailableStockProductIds, $productRow);
+                    $product['booked'] = $productRow->booked;
+                    $product['central_stock'] = $productRow->central_stock;
+                    $product['quantity'] = 1;
+                    $product['free'] = 0;
+                    $product['editable'] = 0;
+                    $product['subTotal'] = $product['ws_price'];
+                    $product['backgroundColor'] = 'bg-warning-dim';
+                    array_push($newSelectedProducts, $product);
+                    $unavailableStockProductCount++;
+                } else {
+                    array_push($newSelectedProducts, $product);
+                }
+                // if ($productRow == null) {
+                //     continue;
+                // }
+
+                // $productRow->booked = $productRow->booked + $product['quantity'];
+                // $productRow->save();
+            }
+
+            if ($unavailableStockProductCount > 0) {
+                return response()->json([
+                    'message' => 'Insufficient stock',
+                    'data' => [
+                        'selected_products' => $newSelectedProducts,
+                    ],
+                    'code' => 400,
+                    'error' => true,
+                    'error_type' => 'unsufficient_stock'
+                ], 400);
             }
         } catch (Exception $e) {
-            // $centralSale->products()->detach();
-            // $centralSale->delete();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -1246,10 +2075,227 @@ class CentralSaleController extends Controller
             ], 500);
         }
 
-        try {
-            $centralSale->status = 'rejected';
 
+        DB::beginTransaction();
+
+        try {
+            // $centralSale->code = $request->code;
+            $centralSale->date = date_format(date_create($request->date), "Y-m-d") . ' ' . date('H:i:s');
+            $centralSale->due_date = date('Y-m-d', strtotime("+" . $request->debt . " day", strtotime($request->date)));
+            $centralSale->customer_id = $request->customer_id;
+            $centralSale->shipment_id = $request->shipment_id;
+            $centralSale->debt = $request->debt;
+            $centralSale->total_weight = $request->total_weight;
+            $centralSale->total_cost = $request->total_cost;
+            $centralSale->discount = $request->discount;
+            $centralSale->discount_type = $request->discount_type;
+            $centralSale->subtotal = $request->subtotal;
+            $centralSale->shipping_cost = $request->shipping_cost;
+            $centralSale->other_cost = $request->other_cost;
+            $centralSale->detail_other_cost = $request->detail_other_cost;
+            $centralSale->deposit_customer = $request->deposit_customer;
+            $centralSale->net_total = $request->net_total;
+            $centralSale->receipt_1 = $request->receipt_1;
+            $centralSale->receive_1 = $request->receive_1;
+            $centralSale->receipt_2 = $request->receipt_2;
+            $centralSale->receive_2 = $request->receive_2;
+            $centralSale->recipient = $request->recipient;
+            $centralSale->payment_amount = $request->payment_amount;
+            $centralSale->remaining_payment = $request->remaining_payment;
+            $centralSale->address_recipient = $request->address_recipient;
+            $centralSale->detail = $request->detail;
+            $centralSale->status = 'approved';
             $centralSale->save();
+
+            $centralSale->products()->detach();
+
+            $keyedProducts = collect($products)->mapWithKeys(function ($item) {
+                return [
+                    $item['id'] => [
+                        'stock' => $item['central_stock'],
+                        'booked' => $item['booked'],
+                        'price' => str_replace(".", "", $item['price']),
+                        'quantity' => $item['quantity'],
+                        'free' => $item['free'],
+                        'amount' => $item['subTotal'],
+                        'editable' => $item['editable'] == true ? 1 : 0,
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ];
+            })->all();
+
+            $centralSale->products()->attach($keyedProducts);
+
+            foreach ($oldTakenProducts as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+                $productRow->booked = $productRow->booked - $product['taken'];
+                // if ($centralSale->status == 'pending') {
+                // $productRow->booked = $productRow->booked - $product['taken'];
+                // } else if ($centralSale->status == 'approved') {
+                //     $productRow->central_stock = $productRow->central_stock - $product['taken'];
+                // }
+                $productRow->save();
+            }
+
+
+            foreach ($products as $product) {
+                $productRow = Product::find($product['id']);
+                if ($productRow == null) {
+                    continue;
+                }
+
+                $productRow->central_stock = $productRow->central_stock - ($product['quantity'] + $product['free']);
+                // if ($centralSale->status == 'pending') {
+                //      $productRow->booked = $productRow->booked + ($product['quantity'] + $product['free']);
+                // } else if ($centralSale->status == 'approved') {
+                //     $productRow->central_stock = $productRow->central_stock - ($product['quantity'] + $product['free']);
+                // }
+                // $productRow->ws_price = str_replace(".", "", $product['price']);
+                $productRow->save();
+            }
+
+            if (($request->receipt_1 !== '' && $request->receipt_1 !== null) && ($request->receive_1 !== '' && $request->receive_1 !== null)) {
+                $date = $request->date;
+                $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
+                $saleId = $centralSale->id;
+                $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+                $amount = $this->clearThousandFormat($request->receive_1);
+
+                $transaction = new CentralSaleTransaction;
+                $transaction->code = $transactionNumber;
+                $transaction->date = $date;
+                $transaction->account_id = $request->receipt_1;
+                $transaction->customer_id = $request->customer_id;
+                $transaction->amount = $amount;
+                // $transaction->payment_method = $request->payment_method;
+                $transaction->payment_method = 'transfer';
+                $transaction->is_init = 1;
+                // $transaction->note = $request->note;
+
+                $transaction->save();
+
+                $transaction->centralSales()->attach([
+                    $saleId => [
+                        'amount' => $amount,
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ]);
+
+                // -------- Save to account transaction
+                $accountTransaction = new AccountTransaction;
+                $accountTransaction->account_id = $request->receipt_1;
+                $accountTransaction->amount = $amount;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->table_name = 'central_sales';
+                $accountTransaction->table_id = $centralSale->id;
+                $accountTransaction->save();
+                // --------
+            }
+
+            if (($request->receipt_2 !== '' && $request->receipt_2 !== null) && ($request->receive_2 !== '' && $request->receive_2 !== null)) {
+                $date = $request->date;
+                $transactionsByCurrentDateCount = CentralSaleTransaction::query()->where('date', $date)->get()->count();
+                $saleId = $centralSale->id;
+                $transactionNumber = 'ST/VH/' . $this->formatDate($date, "d") . $this->formatDate($date, "m") . $this->formatDate($date, "y") . '/' . sprintf('%04d', $transactionsByCurrentDateCount + 1);
+                $amount = $this->clearThousandFormat($request->receive_2);
+
+                $transaction = new CentralSaleTransaction;
+                $transaction->code = $transactionNumber;
+                $transaction->date = $date;
+                $transaction->account_id = $request->receipt_2;
+                $transaction->customer_id = $request->customer_id;
+                $transaction->amount = $amount;
+                // $transaction->payment_method = $request->payment_method;
+                $transaction->payment_method = 'transfer';
+                $transaction->is_init = 1;
+                // $transaction->note = $request->note;
+
+                $transaction->save();
+
+                $transaction->centralSales()->attach([
+                    $saleId => [
+                        'amount' => $amount,
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString(),
+                    ]
+                ]);
+
+                $accountTransaction = new AccountTransaction;
+                $accountTransaction->account_id = $request->receipt_2;
+                $accountTransaction->amount = $amount;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = "Transaksi penjualan pusat No. " . $centralSale->code;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->table_name = 'central_sales';
+                $accountTransaction->table_id = $centralSale->id;
+
+                $accountTransaction->save();
+            }
+
+            // -------- DISCOUNT
+            $discountAmount = $this->clearThousandFormat($request->discount);
+            if ($discountAmount > 0) {
+                $discountType = $request->discount_type;
+
+                $finalDiscountAmount = $discountAmount;
+
+                if ($discountType == 'percentage') {
+                    $finalDiscountAmount = $this->clearThousandFormat($request->subtotal) * ($discountAmount / 100);
+                }
+
+                $accountTransaction = new AccountTransaction;
+                $accountTransaction->account_id = config('accounts.sale_discount', 0);
+                $accountTransaction->amount = $finalDiscountAmount;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = "Diskon penjualan pusat No. " . $centralSale->code;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->table_name = 'central_sales';
+                $accountTransaction->table_id = $centralSale->id;
+                $accountTransaction->save();
+            }
+            // --------
+
+            // -------- SHIPPING COST
+            $shippingAmount = $this->clearThousandFormat($request->shipping_cost);
+            if ($shippingAmount > 0) {
+                $accountTransaction = new AccountTransaction;
+                $accountTransaction->account_id = config('accounts.sale_shipping_cost', 0);
+                $accountTransaction->amount = $shippingAmount;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = "Biaya kirim penjualan pusat No. " . $centralSale->code;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->table_name = 'central_sales';
+                $accountTransaction->table_id = $centralSale->id;
+                $accountTransaction->save();
+            }
+            // --------
+
+            $receiveAmount1 = $this->clearThousandFormat($request->receive_1);
+            $receiveAmount2 = $this->clearThousandFormat($request->receive_2);
+            $totalReceiveAmount = (int) $receiveAmount1 + (int) $receiveAmount2;
+            if ($totalReceiveAmount < $request->net_total) {
+
+                $accountTransaction = new AccountTransaction;
+                $accountTransaction->account_id = config('accounts.piutang', 0);
+                $accountTransaction->amount = $request->net_total - $totalReceiveAmount;
+                $accountTransaction->type = "in";
+                $accountTransaction->note = "Piutang penjualan pusat No. " . $centralSale->code;
+                $accountTransaction->date = $request->date;
+                $accountTransaction->table_name = 'central_sales';
+                $accountTransaction->table_id = $centralSale->id;
+
+                $accountTransaction->save();
+            }
+
+
+            DB::commit();
 
             return response()->json([
                 'message' => 'Data has been saved',
@@ -1258,6 +2304,48 @@ class CentralSaleController extends Controller
                 'data' => $centralSale,
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Internal error detaching products',
+                'code' => 500,
+                'error' => true,
+                'errors' => $e,
+            ], 500);
+        }
+    }
+
+    public function reject($id)
+    {
+        // Save Main Data
+        $centralSale = CentralSale::findOrFail($id);
+
+        $products = $centralSale->products;
+
+        DB::beginTransaction();
+
+        try {
+            $centralSale->status = 'rejected';
+            $centralSale->save();
+            foreach ($products as $product) {
+                $productRow = Product::find($product->id);
+                if ($productRow == null) {
+                    continue;
+                }
+                $finalBooked = $productRow->booked - ($product->pivot->quantity + $product->pivot->free);
+                $productRow->booked = $finalBooked < 0 ? 0 : $finalBooked;
+                $productRow->save();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Data has been saved',
+                'code' => 200,
+                'error' => false,
+                'data' => $centralSale,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -1270,7 +2358,7 @@ class CentralSaleController extends Controller
     public function pay($id)
     {
         $sale = CentralSale::with(['customer', 'products'])->findOrFail($id);
-        $accounts = Account::all();
+        $accounts = Account::where('type', '!=', 'none')->get();
 
 
         // return $selectedProducts;
@@ -1364,116 +2452,7 @@ class CentralSaleController extends Controller
     //         'accounts' => $accounts,
     //         'shipments' => $shipments,
     //     ]);
-    // }
-
-    public function approved(Request $request, $id)
-    {
-        $centralSale = CentralSale::findOrFail($id);
-        $centralSale->code = $request->code;
-        $centralSale->date = $request->date;
-        $centralSale->customer_id = $request->customer_id;
-        $centralSale->shipment_id = $request->shipment_id;
-        $centralSale->debt = $request->debt;
-        $centralSale->total_weight = $request->total_weight;
-        $centralSale->total_cost = $request->total_cost;
-        $centralSale->discount = $request->discount;
-        $centralSale->subtotal = $request->subtotal;
-        $centralSale->shipping_cost = $request->shipping_cost;
-        $centralSale->other_cost = $request->other_cost;
-        $centralSale->detail_other_cost = $request->detail_other_cost;
-        $centralSale->deposit_customer = $request->deposit_customer;
-        $centralSale->net_total = $request->net_total;
-        $centralSale->receipt_1 = $request->receipt_1;
-        $centralSale->receive_1 = $request->receive_1;
-        $centralSale->receipt_2 = $request->receipt_2;
-        $centralSale->receive_2 = $request->receive_2;
-        $centralSale->recipient = $request->recipient;
-        $centralSale->payment_amount = $request->payment_amount;
-        $centralSale->remaining_payment = $request->remaining_payment;
-        $centralSale->address_recipient = $request->address_recipient;
-        $centralSale->detail = $request->detail;
-        $centralSale->status = "approved";
-        $products = $request->selected_products;
-
-        try {
-            $centralSale->save();
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-
-        $keyedProducts = collect($products)->mapWithKeys(function ($item) {
-            return [
-                $item['id'] => [
-                    'stock' => $item['central_stock'],
-                    'price' => str_replace(".", "", $item['agent_price']),
-                    'quantity' => $item['quantity'],
-                    'free' => $item['free'],
-                    'created_at' => Carbon::now()->toDateTimeString(),
-                    'updated_at' => Carbon::now()->toDateTimeString(),
-                ]
-            ];
-        })->all();
-
-        try {
-            $centralSale->products()->detach();
-            // return response()->json([
-            //     'message' => 'Data has been saved',
-            //     'code' => 200,
-            //     'error' => false,
-            //     'data' => $centralSale,
-            // ]);
-        } catch (Exception $e) {
-            $centralSale->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-        try {
-            $centralSale->products()->attach($keyedProducts);
-        } catch (Exception $e) {
-            $centralSale->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-        try {
-            foreach ($products as $product) {
-                $productRow = Product::find($product['id']);
-                if ($productRow == null) {
-                    continue;
-                }
-
-                $productRow->central_stock = $productRow->central_stock - $product['quantity'];
-                $productRow->save();
-            }
-            return response()->json([
-                'message' => 'Data has been saved',
-                'code' => 200,
-                'error' => false,
-                'data' => $centralSale,
-            ]);
-        } catch (Exception $e) {
-            $centralSale->products()->detach();
-            $centralSale->delete();
-            return response()->json([
-                'message' => 'Internal error',
-                'code' => 500,
-                'error' => true,
-                'errors' => $e,
-            ], 500);
-        }
-    }
+    // } 
 
     public function print($id)
     {
@@ -1484,8 +2463,24 @@ class CentralSaleController extends Controller
             'sale' => $sale,
         ];
 
-        $pdf = PDF::loadView('central-sale.print', $data);
-        return $pdf->stream($sale->code . '.pdf');
+        // $pdf = PDF::loadView('central-sale.print', $data, [], [
+        //     'format' => 'A5',
+        // ]);
+        // return $pdf->stream($sale->code . '.pdf');
+        $mpdf = new \Mpdf\Mpdf([
+            //     'mode' => 'utf-8', 'format' =>
+            //     'A4', 'defaultPageNumStyle' => '1',
+            'margin_right' => '4',
+            'margin_left' => '4',
+            'margin_bottom' => '4',
+            'margin_top' => '4',
+            'format' => 'A5',
+        ]);
+        $pdf = view('central-sale.print', $data);
+
+        //   $mpdf->setFooter('{PAGENO}');
+        $mpdf->WriteHTML($pdf);
+        $mpdf->Output();
     }
 
     public function updatePrintStatus(Request $request, $id)
@@ -1671,11 +2666,14 @@ class CentralSaleController extends Controller
 
     public function datatableCentralSale()
     {
-        $centralSale = CentralSale::with(['products', 'shipment', 'createdBy'])->orderBy('date', 'desc')->select('central_sales.*');
+        $centralSale = CentralSale::with(['products', 'shipment', 'createdBy', 'centralSaleTransactions'])->select('central_sales.*');
         return DataTables::of($centralSale)
             ->addIndexColumn()
             ->addColumn('shipment_name', function ($row) {
                 return ($row->shipment ? $row->shipment->name : "");
+            })
+            ->addColumn('sales_name', function ($row) {
+                return ($row->createdBy ? $row->createdBy->name : "");
             })
             ->addColumn('status', function ($row) {
                 // $button = $row->status;

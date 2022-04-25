@@ -68,7 +68,7 @@
                                         <th>Nama</th>
                                         <th  class="text-right">Quanitity</th>
                                         <th class="text-right">Free</th>
-                                        <th class="text-right">Amount</th>
+                                       
                                     </tr>
                                 </thead>
                                 @php $subtotal=0; @endphp
@@ -80,20 +80,11 @@
                                     <td>{{$product->name}}</td>
                                     <td  class="text-right">{{$product->pivot->quantity}}</td>
                                     <td  class="text-right">{{$product->pivot->free}}</td>
-                                    <td  class="text-right">
-                                    {{number_format($product->pivot->quantity * $product->purchase_price)}}
-                                    </td>
+                                   
                                 </tbody>
                                
                                 @endforeach
-                                <tfoot>
-                                
-                                <tr>
-                                    <th colspan="4">Subtotal</th>
-                                    <th class="text-right">{{ number_format($subtotal) }}</th>
-                                </tr>
-                                
-                            </tfoot>
+                            
                                
                            
                             </table>
@@ -457,7 +448,7 @@
                 },
                 reduceProductQuantity: function(product) {
                     if (product.initial_quantity > 1) {
-                        product.initial_quantity = Number(product.inital_quantity )- 1;
+                        product.initial_quantity = Number(product.initial_quantity )- 1;
                     }
                 },
                 increaseProductFree: function(product) {
@@ -483,15 +474,20 @@
                 validateReturnQuantity: function(product) {
                     console.log('validating');
                     let initialQuantity = Number(product.initial_quantity);
+                    console.log(product.initial_quantity)
                     let quantity = Number(product.return_quantity)
-                    if (returnQuantity > quantity) {
+                    if (initialQuantity > quantity) {
                         console.log('greater than quantity');
                         product.initial_quantity = product.return_quantity;
                     }
 
 
-                    if (returnQuantity < 0) {
+                    if (initialQuantity < 0) {
                         product.initial_quantity = 0;
+                    }
+                    if (initialQuantity==""){
+                         product.initial_quantity = 0;
+
                     }
                     // return;
                 },
@@ -499,13 +495,19 @@
                     console.log('validating');
                     let returnFree = Number(product.initial_free);
                     let free = Number(product.remaining_free)
+                    console.log('initial free',product.initial_free)
+                              console.log('remaining free',product.remaining_free)
                     if (returnFree > free) {
                         console.log('greater than quantity');
-                        product.free= product.remaining_free;
+                        product.initial_free= product.remaining_free;
                     }
 
                     if (returnFree < 0) {
                         product.initial_free = 0;
+                    }
+                    if (returnFree==""){
+                         product.initial_free = 0;
+
                     }
                     // return;
                 }

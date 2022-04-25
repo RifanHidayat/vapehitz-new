@@ -114,11 +114,12 @@
                             <!-- <th>No. Tlp</th> -->
                             <th>No.Tlp/HP/WA</th>
                             <th>Email</th>
+                            <th>Piutang</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center">
+                    <tbody>
                     </tbody>
                 </table>
             </div>
@@ -163,6 +164,14 @@
                     {
                         data: 'email',
                         name: 'email'
+                    },
+                    {
+                        data: 'debt',
+                        name: 'email',
+                        className: 'text-right',
+                        render: function(data) {
+                            return new Intl.NumberFormat('De-de').format(data);
+                        }
                     },
                     {
                         data: 'status',

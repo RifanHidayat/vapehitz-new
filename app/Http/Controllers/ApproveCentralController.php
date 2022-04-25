@@ -8,6 +8,10 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
+use App\Exports\ApproveCentralRetailExport;
+use Maatwebsite\Excel\Facades\Excel;
+use PDF;
 
 class ApproveCentralController extends Controller
 {
@@ -56,6 +60,7 @@ class ApproveCentralController extends Controller
         });
         return view('approve-central-retail.show', [
             'approve_central' => $approveCentral,
+            
         ]);
     }
 
@@ -69,9 +74,15 @@ class ApproveCentralController extends Controller
             'approve_central' => $approveCentral,
         ]);
     }
+       public function export(){
+      
+        return Excel::download(new ApproveCentralRetailExport(), "Permintaan dari retail" . '.xlsx');
+       
+    }
 
     public function approved(Request $request, $id)
     {
+        DB::beginTransaction();
         $approveCentral = RetailRequestToCentral::findOrFail($id);
         $approveCentral->code = $request->code;
         $approveCentral->date = $request->date;
@@ -80,7 +91,9 @@ class ApproveCentralController extends Controller
 
         try {
             $approveCentral->save();
+          
         } catch (Exception $e) {
+             DB::rollBack();
             return response()->json([
                 'message' => 'Internal error',
                 'code' => 500,
@@ -110,6 +123,7 @@ class ApproveCentralController extends Controller
             //     'data' => $approveCentral,
             // ]);
         } catch (Exception $e) {
+              DB::rollBack();
             $approveCentral->delete();
             return response()->json([
                 'message' => 'Internal error',
@@ -121,6 +135,7 @@ class ApproveCentralController extends Controller
         try {
             $approveCentral->products()->attach($keyedProducts);
         } catch (Exception $e) {
+              DB::rollBack();
             $approveCentral->delete();
             return response()->json([
                 'message' => 'Internal error',
@@ -140,6 +155,7 @@ class ApproveCentralController extends Controller
                 $productRow->retail_stock = $productRow->retail_stock + $product['quantity'];
                 $productRow->save();
             }
+                DB::commit();
             return response()->json([
                 'message' => 'Data has been saved',
                 'code' => 200,
@@ -147,6 +163,7 @@ class ApproveCentralController extends Controller
                 'data' => $approveCentral,
             ]);
         } catch (Exception $e) {
+              DB::rollBack();
             $approveCentral->products()->detach();
             $approveCentral->delete();
             return response()->json([
@@ -280,6 +297,21 @@ class ApproveCentralController extends Controller
         //
     }
 
+    public function print($id)
+    {
+        // return view('central-sale.print');
+        $req = RetailRequestToCentral::with(['products'])->findOrFail($id);
+
+        $data = [
+            'req' => $req,
+        ];
+
+        $pdf = PDF::loadView('retail-request-to-central.print', $data);
+        return $pdf->stream($req->code . '.pdf');
+    }
+
+
+
     public function datatableApproveCentral()
     {
         $approveCentral = RetailRequestToCentral::all();
@@ -305,7 +337,10 @@ class ApproveCentralController extends Controller
                 $show = '<a href="/approve-central-retail/show/' . $row->id . '" class="btn btn-outline-light btn-sm"><em class="icon fas fa-eye"></em>
                 <span>Detail</span>
             </a>';
-                $button = ".$show.";
+            $print = '<a href="/approve-central-retail/print/' . $row->id . '" class="btn btn-outline-light btn-sm"><em class="icon fas fa-print"></em>
+                <span>print</span>
+            </a>';
+                $button = ".$show $print";
                 return $button;
             })
             ->rawColumns(['status', 'action'])

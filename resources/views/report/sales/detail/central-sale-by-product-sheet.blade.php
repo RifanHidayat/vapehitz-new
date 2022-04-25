@@ -10,6 +10,8 @@
             <th>Free</th>
             <th>Price</th>
             <th>Amount</th>
+            <th>Diskon</th>
+            <th>Biaya Kirim</th>
         </tr>
     </thead>
     <tbody>
@@ -38,6 +40,14 @@
             <td data-format="#,##0_-">{{ $sale->pivot->free }}</td>
             <td data-format="#,##0_-">{{ $sale->pivot->price }}</td>
             <td data-format="#,##0_-">{{ $sale->pivot->amount }}</td>
+            <?php 
+                $discount = $sale->discount;
+                if($sale->discount_type == 'percentage') {
+                    $discount = $sale->total_cost * ($sale->discount / 100);
+                }
+            ?>
+            <td data-format="#,##0_-">{{ $discount }}</td>
+            <td data-format="#,##0_-">{{ $sale->shipping_cost }}</td>
         </tr>
         <?php $totalByProduct += $sale->pivot->amount ?>
         @endforeach

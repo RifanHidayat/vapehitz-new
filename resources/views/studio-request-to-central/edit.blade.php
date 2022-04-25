@@ -45,19 +45,19 @@
                             <table class="table table-stripped table-bordered">
                                 <thead>
                                     <tr class="text-center">
-                                        <th>Kode Barang</th>
+                                        <th>Kode Baran</th>
                                         <th>Nama Barang</th>
                                         <th>Stok Pusat</th>
-                                        <th>Stok Retail</th>
+                                        <th>Stok Studio</th>
                                         <th>Qty</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(product, index) in selectedProducts" :key="index" class="text-center">
-                                        <td>@{{product.code}}</td>
+                                        <td>@{{status}}</td>
                                         <td>@{{product.name}}</td>
-                                        <td>@{{product.central_stock}}</td>
-                                        <td>@{{product.studio_stock}}</td>
+                                        <td>@{{product.pivot.central_stock}}</td>
+                                        <td>@{{product.pivot.studio_stock}}</td>
                                         <td>
                                             <input type="number" v-model="product.quantity" class="form-control">
                                         </td>
@@ -71,8 +71,8 @@
                     </div>
                 </div>
                 <p></p>
-                <div class="col-md-12 text-right">
-                    <button class="btn btn-primary">Simpan</button>
+                <div class="col-md-12 text-right"    > 
+                    <button  class="btn btn-primary">Simpan</button>
                 </div>
             </form>
         </div>
@@ -157,8 +157,9 @@
         data: {
             code: '{{$studio_request_to_central->code}}',
             date: '{{$studio_request_to_central->date}}',
-            selectedProducts: JSON.parse('{!! $studio_request_to_central->products !!}'),
+            selectedProducts: JSON.parse(String.raw`{!! $studio_request_to_central->products !!}`),
             check: [],
+        status:'{{$studio_request_to_central->status}}',
             loading: false,
         },
         methods: {

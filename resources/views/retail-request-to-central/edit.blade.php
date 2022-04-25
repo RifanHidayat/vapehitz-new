@@ -157,7 +157,7 @@
         data: {
             code: '{{$retail_request_to_central->code}}',
             date: '{{$retail_request_to_central->date}}',
-            selectedProducts: JSON.parse('{!! $retail_request_to_central->products !!}'),
+            selectedProducts: JSON.parse(String.raw`{!! $retail_request_to_central->products !!}`),
             check: [],
             loading: false,
         },
