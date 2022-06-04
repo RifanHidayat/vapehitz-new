@@ -569,7 +569,7 @@
             subTotal: function() {
                 const subTotal = this.selectedProducts.map(product => {
                         const amount = Number(product.quantity) * this.clearCurrencyFormat(product.purchase_price.toString());
-                        
+                            
 
                         return amount;
                     })
